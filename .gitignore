@@ -1,0 +1,28 @@
+# Internal — НЕ публикуем на GitHub
+
+# База знаний для Claude
+memory-base/
+
+# Список задач
+TASKS.md
+
+# Бэкапы
+backups/
+
+# Excel с распределением акций команды
+*.xlsx
+*.xls
+
+# Конспект (черновик)
+Shikardos_Team_Konspekt.md
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
