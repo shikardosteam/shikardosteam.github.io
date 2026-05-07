@@ -643,6 +643,102 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
     padding:10px 8px !important;
     white-space:nowrap;
   }
+
+  /* === FIX: Investor pitch-content text clipping === */
+  .pitch-content {
+    min-width:0 !important;
+    overflow-x:hidden;
+    word-break:break-word;
+  }
+  .pitch-content .pitch-title {
+    word-break:break-word;
+    overflow-wrap:break-word;
+  }
+  .pitch-content .pitch-text {
+    word-break:break-word;
+    overflow-wrap:break-word;
+  }
+  .pitch-callout {
+    min-width:0 !important;
+    word-break:break-word;
+    overflow-wrap:break-word;
+  }
+
+  /* === FIX: Stack "Что получают первые 100" + "Бонусы" vertically === */
+  div[style*="grid-template-columns:1fr 1fr"][style*="gap:3px"][style*="margin-bottom:3px"] {
+    grid-template-columns:1fr !important;
+  }
+
+  /* === FIX: Blogger rewards table — 3-col grid overflow === */
+  #page-bloggers div[style*="grid-template-columns:1fr 120px 180px"] {
+    grid-template-columns:1fr 80px 110px !important;
+  }
+  #page-bloggers div[style*="grid-template-columns:1fr 120px 180px"] > div {
+    padding:12px 8px !important;
+    font-size:10px !important;
+  }
+  #page-bloggers div[style*="grid-template-columns:1fr 120px 180px"] > div[style*="font-size:24px"] {
+    font-size:20px !important;
+  }
+
+  /* === FIX: Roadmap "36 ролей" section layout === */
+  #page-roadmap div[style*="grid-template-columns:1fr auto"] {
+    grid-template-columns:1fr !important;
+    gap:16px !important;
+  }
+  #page-roadmap div[style*="grid-template-columns:1fr auto"] h3 {
+    font-size:22px !important;
+    line-height:1.2 !important;
+  }
+
+  /* === FIX: Founder stats grid (39 / 16+ / Шикардос) === */
+  #page-founder div[style*="repeat(3,1fr)"][style*="gap:3px"][style*="margin-bottom:24px"] {
+    grid-template-columns:1fr 1fr !important;
+  }
+  #page-founder div[style*="repeat(3,1fr)"][style*="gap:3px"][style*="margin-bottom:24px"] > div:last-child {
+    grid-column:1 / -1;
+  }
+  #page-founder div[style*="repeat(3,1fr)"][style*="gap:3px"][style*="margin-bottom:24px"] div[style*="font-size:32px"] {
+    font-size:24px !important;
+  }
+
+  /* === FIX: Founder ALL 3-col grids → 1 column === */
+  #page-founder div[style*="repeat(3,1fr)"] {
+    grid-template-columns:1fr !important;
+  }
+
+  /* === FIX: CTA white-space nowrap causing overflow === */
+  .cta-sub {
+    white-space:normal !important;
+  }
+
+  /* === FIX: Founder social icons wrap === */
+  #page-founder div[style*="display:flex"][style*="gap:8px"] {
+    flex-wrap:wrap !important;
+  }
+
+  /* === FIX: Founder biography text overflow === */
+  #page-founder .reveal[style*="grid-template-columns:280px"] > div:last-child {
+    min-width:0;
+    overflow-x:hidden;
+    word-break:break-word;
+  }
+  #page-founder .reveal[style*="grid-template-columns:280px"] > div:last-child p,
+  #page-founder .reveal[style*="grid-template-columns:280px"] > div:last-child li {
+    word-break:break-word;
+    overflow-wrap:break-word;
+  }
+
+  /* === FIX: All section-sub with nowrap === */
+  .section-sub {
+    white-space:normal !important;
+  }
+
+  /* === FIX: Founder experience perk-items 1 column === */
+  #page-founder .perk-item {
+    min-width:0;
+    word-break:break-word;
+  }
 }
 
 @media (max-width:480px) {
@@ -677,6 +773,31 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
   #page-founder div[style*="width:280px"][style*="height:340px"] {
     width:180px !important;
     height:220px !important;
+  }
+
+  /* === FIX: Blogger table single column on very small screens === */
+  #page-bloggers div[style*="grid-template-columns:1fr 120px 180px"] {
+    grid-template-columns:1fr 60px 90px !important;
+  }
+  #page-bloggers div[style*="grid-template-columns:1fr 120px 180px"] > div {
+    padding:10px 6px !important;
+    font-size:9px !important;
+  }
+
+  /* === FIX: Founder stats all single column === */
+  #page-founder div[style*="repeat(3,1fr)"][style*="gap:3px"][style*="margin-bottom:24px"] {
+    grid-template-columns:1fr !important;
+  }
+  #page-founder div[style*="repeat(3,1fr)"][style*="gap:3px"][style*="margin-bottom:24px"] > div:last-child {
+    grid-column:auto;
+  }
+
+  /* === FIX: Roadmap heading smaller === */
+  #page-roadmap div[style*="grid-template-columns:1fr auto"] h3 {
+    font-size:18px !important;
+  }
+  #page-roadmap div[style*="grid-template-columns:1fr auto"] {
+    padding:20px !important;
   }
 }
 </style>
@@ -1039,7 +1160,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
     <div class="container">
       <div class="eyebrow reveal">Ограниченный набор</div>
       <h2 class="section-title reveal">Первые <span class="gold">100 основателей</span></h2>
-      <p class="section-sub reveal" style="white-space:nowrap;">Те кто поверил в проект на самом старте — получают особые условия которых больше не будет никогда.</p>
+      <p class="section-sub reveal">Те кто поверил в проект на самом старте — получают особые условия которых больше не будет никогда.</p>
 
       <!-- Counter -->
       <div style="display:flex;align-items:center;gap:0;margin-bottom:40px;" class="reveal">
@@ -1245,7 +1366,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
           <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:14px;"><span style="color:var(--gray2);">Суммарных просмотров</span><span style="color:var(--white); font-weight:600;">121 212 000 000</span></div>
           <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:14px;"><span style="color:var(--gray2);">Переходов на сайт (1%)</span><span style="color:var(--white); font-weight:600;">1 212 120 000</span></div>
           <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:14px;"><span style="color:var(--gray2);">Регистраций (1%)</span><span style="color:var(--white); font-weight:600;">12 121 200</span></div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; font-size:15px;"><span style="color:var(--gold2); font-weight:700;">Мин. доход команды (при 10% оплат после 1% регистраций)</span><span style="color:var(--gold); font-weight:700; font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:1px;">$152 500 000+</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; font-size:15px;"><span style="color:var(--gold2); font-weight:700;">Мин. доход команды (при 10% оплат после 1% регистраций)</span><span style="color:var(--gold); font-weight:700; font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:1px; white-space:nowrap;">$152.5M+</span></div>
         </div>
       </div>
 
@@ -2128,7 +2249,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
             <div class="pitch-team-card">
               <div class="pitch-team-num">5</div>
               <div class="pitch-team-label">C-Level</div>
-              <p class="pitch-team-text">COO, CTO, CMO, CFO, CCO. Доход за 5 лет каждого — $200K-$700K капитал + дивиденды.</p>
+              <p class="pitch-team-text">COO, CTO, CMO, CFO, CCO.</p>
             </div>
             <div class="pitch-team-card">
               <div class="pitch-team-num">4</div>
@@ -2157,9 +2278,6 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
             </div>
           </div>
 
-          <div class="pitch-callout" style="margin-top:24px;">
-            <strong>Founder &amp; CEO:</strong> Валерий Шикардос (Барков). Арбитражник с 2009 года. С 2023 — фокус на AI-технологиях, автоматизации бизнес-процессов и контент-индустрии. Получает 1 000 акций (1%) за 5 лет vesting (200/год). Накопленный капитал к 2030 — около $80M. <a href="#" onclick="showPage('founder'); return false;" style="color:var(--gold);">Подробнее о фаундере →</a>
-          </div>
         </div>
       </div>
 
