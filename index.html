@@ -416,6 +416,269 @@ body[data-theme="light"] .inv-sub-link.active { color: var(--gold); border-botto
   transition: all 0.2s; border-radius: 2px;
 }
 .theme-toggle:hover { background: var(--gold-dim); }
+
+/* ===== MOBILE MENU ===== */
+.mobile-menu-btn {
+  display:none;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  background:none;
+  border:1px solid rgba(201,168,76,0.3);
+  color:var(--gold);
+  cursor:pointer;
+  margin-left:auto;
+  margin-right:12px;
+  flex-shrink:0;
+  padding:0;
+}
+.mobile-menu-btn span {
+  display:block;
+  width:18px;
+  height:2px;
+  background:var(--gold);
+  position:relative;
+  transition:all 0.3s;
+}
+.mobile-menu-btn span::before,
+.mobile-menu-btn span::after {
+  content:'';
+  position:absolute;
+  width:18px;
+  height:2px;
+  background:var(--gold);
+  left:0;
+  transition:all 0.3s;
+}
+.mobile-menu-btn span::before { top:-6px; }
+.mobile-menu-btn span::after { top:6px; }
+.mobile-menu-btn.active span { background:transparent; }
+.mobile-menu-btn.active span::before { top:0; transform:rotate(45deg); }
+.mobile-menu-btn.active span::after { top:0; transform:rotate(-45deg); }
+
+.mobile-menu-overlay {
+  display:none;
+  position:fixed;
+  top:48px;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(8,8,8,0.98);
+  backdrop-filter:blur(20px);
+  z-index:99;
+  padding:24px;
+  overflow-y:auto;
+}
+.mobile-menu-overlay.active { display:block; }
+.mobile-menu-overlay .mobile-nav-link {
+  display:block;
+  padding:14px 0;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gray2);
+  text-decoration:none;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  cursor:pointer;
+  background:none;
+  border-top:none;
+  border-left:none;
+  border-right:none;
+  width:100%;
+  text-align:left;
+  font-family:'Manrope',sans-serif;
+}
+.mobile-menu-overlay .mobile-nav-link:active,
+.mobile-menu-overlay .mobile-nav-link.active { color:var(--gold); }
+
+/* Light theme mobile menu */
+body[data-theme="light"] .mobile-menu-overlay {
+  background:rgba(245,245,240,0.98);
+}
+body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link {
+  color:#555;
+  border-bottom-color:rgba(0,0,0,0.06);
+}
+body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link:active,
+body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:var(--gold); }
+
+/* ===== MOBILE RESPONSIVE FIXES ===== */
+@media (max-width:900px) {
+  .nav-tabs { display:none !important; }
+  .mobile-menu-btn { display:flex; }
+  .nav-cta { margin-left:0; }
+
+  /* Hero title */
+  .hero-title { font-size:32px !important; }
+
+  /* Section padding */
+  .section { padding:48px 16px; }
+
+  /* Container overflow prevention */
+  .container { overflow-x:hidden; }
+
+  /* Founder page grid */
+  #page-founder .reveal[style*="grid-template-columns:280px"] {
+    grid-template-columns:1fr !important;
+  }
+  #page-founder .reveal[style*="grid-template-columns:280px"] > div:first-child {
+    display:flex;
+    justify-content:center;
+  }
+  #page-founder .reveal[style*="grid-template-columns:280px"] > div:first-child > div:first-child {
+    width:200px !important;
+    height:250px !important;
+  }
+}
+
+@media (max-width:768px) {
+  /* ALL repeat(4,1fr) inline grids → 2 columns */
+  div[style*="repeat(4,1fr)"] {
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+
+  /* ALL repeat(5,1fr) inline grids → 2 or 3 columns */
+  div[style*="repeat(5,1fr)"] {
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+
+  /* Calculator inputs grid */
+  div[style*="grid-template-columns:1fr 1fr"][style*="gap:32px"] {
+    grid-template-columns:1fr !important;
+    gap:24px !important;
+  }
+
+  /* Calculator totals */
+  div[style*="repeat(3,1fr)"][style*="margin-top:3px"] {
+    grid-template-columns:1fr !important;
+  }
+
+  /* Team100 counter - flex to column */
+  #page-team100 .reveal[style*="display:flex"][style*="gap:3px"] {
+    flex-direction:column !important;
+  }
+
+  /* Team100 counter inner grid 4 cols → 2 */
+  #page-team100 div[style*="repeat(4,1fr)"][style*="gap:12px"] {
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+
+  /* Team100 cards */
+  #page-team100 .reveal[style*="repeat(4,1fr)"][style*="gap:12px"] {
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+
+  /* Pitch tables - horizontal scroll */
+  .pitch-table {
+    display:block;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    white-space:nowrap;
+  }
+  .pitch-table thead,
+  .pitch-table tbody,
+  .pitch-table tr {
+    display:table;
+    width:100%;
+    table-layout:auto;
+  }
+  .pitch-table th,
+  .pitch-table td {
+    padding:10px 10px !important;
+    font-size:11px !important;
+    white-space:nowrap;
+  }
+
+  /* Invest table same treatment */
+  .invest-table {
+    display:block;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* Stats row - wrap better */
+  .stats-row { flex-wrap:wrap; }
+  .stat-box {
+    flex:1 1 auto;
+    min-width:calc(50% - 1px);
+    border-bottom:1px solid rgba(201,168,76,0.1);
+  }
+
+  /* Pitch section */
+  .pitch-section { grid-template-columns:1fr !important; gap:8px !important; padding:24px 0 !important; }
+  .pitch-num { font-size:42px !important; }
+  .pitch-title { font-size:24px !important; }
+
+  /* Section title */
+  .section-title { font-size:28px !important; }
+
+  /* Hero sub */
+  .hero-sub { font-size:14px !important; padding:0 8px; }
+
+  /* Perks grid on mobile */
+  .perks-grid { grid-template-columns:1fr !important; }
+
+  /* Modal */
+  .modal-box { max-width:100%; margin:10px; }
+  .modal-body { padding:16px !important; }
+  .modal-header { padding:20px 16px 16px !important; }
+
+  /* Eyebrow text */
+  .eyebrow { font-size:9px !important; }
+
+  /* Calculator card padding */
+  div[style*="background:var(--dark3)"][style*="padding:40px"] {
+    padding:20px !important;
+  }
+
+  /* Investor sub-menu scroll */
+  .inv-submenu-inner {
+    padding:0 12px !important;
+    gap:0 !important;
+  }
+  .inv-sub-link {
+    font-size:10px !important;
+    padding:10px 8px !important;
+    white-space:nowrap;
+  }
+}
+
+@media (max-width:480px) {
+  /* Even smaller screens - single column for most grids */
+  div[style*="repeat(4,1fr)"] {
+    grid-template-columns:1fr !important;
+  }
+
+  div[style*="repeat(5,1fr)"] {
+    grid-template-columns:1fr !important;
+  }
+
+  /* Team100 cards single column */
+  #page-team100 .reveal[style*="repeat(4,1fr)"] {
+    grid-template-columns:1fr !important;
+  }
+
+  /* Stats single column */
+  .stat-box {
+    min-width:100% !important;
+    border-right:none !important;
+  }
+
+  /* Hero title even smaller */
+  .hero-title { font-size:26px !important; }
+
+  /* Pitch title */
+  .pitch-title { font-size:22px !important; }
+  .section-title { font-size:24px !important; }
+
+  /* Founder photo smaller */
+  #page-founder div[style*="width:280px"][style*="height:340px"] {
+    width:180px !important;
+    height:220px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -440,10 +703,26 @@ body[data-theme="light"] .inv-sub-link.active { color: var(--gold); border-botto
       <button class="nav-tab small" onclick="showPage('team100')">Команда</button>
       <button class="nav-tab small" onclick="window.open('dashboard.html?theme='+(document.body.getAttribute('data-theme')||'dark'),'_blank')">Дашборд ↗</button>
     </div>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Меню"><span></span></button>
     <a href="https://t.me/Shikardos_V" target="_blank" class="nav-cta">Вступить →</a>
     <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Переключить тему">🌙</button>
   </div>
 </nav>
+
+<!-- MOBILE MENU OVERLAY -->
+<div class="mobile-menu-overlay" id="mobileMenu">
+  <button class="mobile-nav-link" onclick="mobileNav('main')">Главная</button>
+  <button class="mobile-nav-link" onclick="mobileNav('makers')">Мейкер</button>
+  <button class="mobile-nav-link" onclick="mobileNav('investors')">Инвестор</button>
+  <button class="mobile-nav-link" onclick="mobileNav('bloggers')">Блогер</button>
+  <button class="mobile-nav-link" onclick="mobileNav('faq')">FAQ</button>
+  <button class="mobile-nav-link" onclick="mobileNav('vacancies')">Вакансии</button>
+  <button class="mobile-nav-link" onclick="mobileNav('roadmap')">Карта</button>
+  <button class="mobile-nav-link" onclick="mobileNav('founder')">Фаундер</button>
+  <button class="mobile-nav-link" onclick="mobileNav('org')">Орг структура</button>
+  <button class="mobile-nav-link" onclick="mobileNav('team100')">Команда</button>
+  <button class="mobile-nav-link" onclick="window.open('dashboard.html?theme='+(document.body.getAttribute('data-theme')||'dark'),'_blank');toggleMobileMenu();">Дашборд ↗</button>
+</div>
 
 <!-- ==================== ГЛАВНАЯ ==================== -->
 <div id="page-main" class="page active">
@@ -6814,7 +7093,26 @@ function toggleTheme() {
   }
 })();
 
+// ═══════════════════════════════════════════════
+// MOBILE MENU
+// ═══════════════════════════════════════════════
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const btn = document.querySelector('.mobile-menu-btn');
+  menu.classList.toggle('active');
+  btn.classList.toggle('active');
+  document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+}
+
+function mobileNav(page) {
+  toggleMobileMenu();
+  showPage(page);
+}
+
 function showPage(name) {
+// ═══════════════════════════════════════════════
+// MOBILE MENU
+// ═══════════════════════════════════════════════
   // Hide all pages
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
