@@ -271,6 +271,18 @@ body { font-family:'Manrope',sans-serif; background:var(--black); color:var(--wh
 .role-tags { margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
 .role-tag { font-size:10px; font-weight:700; padding:3px 10px; background:var(--gold-dim); color:var(--gold); letter-spacing:1px; }
 .role-tag.green { background:rgba(76,175,130,0.1); color:var(--green); }
+.vac-income-grid { position:relative; }
+.vac-income-grid::before {
+  content:'Доход/мес от акций ↓';
+  display:block;
+  grid-column:1/-1;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--gray);
+  margin-bottom:2px;
+}
 
 /* ===== ORG CHART ===== */
 .org-wrap { overflow-x:auto; padding-bottom:20px; }
@@ -525,7 +537,8 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
   }
   #page-founder .reveal[style*="grid-template-columns:280px"] > div:first-child {
     display:flex;
-    justify-content:center;
+    flex-direction:column;
+    align-items:center;
   }
   #page-founder .reveal[style*="grid-template-columns:280px"] > div:first-child > div:first-child {
     width:200px !important;
@@ -570,25 +583,52 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
     grid-template-columns:repeat(2,1fr) !important;
   }
 
-  /* Pitch tables - horizontal scroll */
+  /* Pitch tables - card layout on mobile */
   .pitch-table {
     display:block;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    white-space:nowrap;
+    overflow-x:visible;
   }
-  .pitch-table thead,
-  .pitch-table tbody,
+  .pitch-table thead {
+    display:none;
+  }
+  .pitch-table tbody {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
   .pitch-table tr {
-    display:table;
-    width:100%;
-    table-layout:auto;
+    display:flex;
+    flex-wrap:wrap;
+    background:var(--dark3) !important;
+    padding:14px 16px;
+    gap:4px 16px;
+    align-items:baseline;
   }
-  .pitch-table th,
   .pitch-table td {
-    padding:10px 10px !important;
-    font-size:11px !important;
-    white-space:nowrap;
+    display:inline-block;
+    padding:2px 0 !important;
+    font-size:13px !important;
+    white-space:normal;
+    border:none !important;
+  }
+  .pitch-table td::before {
+    content:attr(data-label);
+    display:block;
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--gray);
+    margin-bottom:2px;
+  }
+  .pitch-table td:first-child {
+    width:100%;
+    font-size:14px !important;
+    color:var(--white);
+    font-weight:700;
+    margin-bottom:4px;
+    padding-bottom:6px !important;
+    border-bottom:1px solid rgba(255,255,255,0.06) !important;
   }
 
   /* Invest table same treatment */
@@ -1891,15 +1931,15 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
 
           <div style="margin-top:24px;">
             <div class="eyebrow" style="margin-bottom:12px;">Распределение 100 000 акций</div>
-            <table class="pitch-table">
+            <table class="pitch-table pitch-table-shares">
               <thead><tr><th>Группа</th><th>Акций</th><th>Доля</th><th>Источник</th></tr></thead>
               <tbody>
-                <tr><td>Контент-мейкеры</td><td><strong>70 000</strong></td><td>70%</td><td>1 акция на старте + до 5 акций/год по КЭ</td></tr>
-                <tr><td>Управляющая команда</td><td><strong>15 000</strong></td><td>15%</td><td>Зарплатные + конкурсные + Founder 1%</td></tr>
-                <tr><td>Фонд развития</td><td><strong>5 000</strong></td><td>5%</td><td>Премии, ивенты, инфраструктура</td></tr>
-                <tr><td>Инвесторы</td><td><strong>5 000</strong></td><td>5%</td><td>5 раундов по 1 000 акций/год</td></tr>
-                <tr><td>Блогеры-партнёры</td><td><strong>4 000</strong></td><td>4%</td><td>За приведённых мейкеров и инвесторов</td></tr>
-                <tr><td>Адвизоры</td><td><strong>1 000</strong></td><td>1%</td><td>Налоги, юр., медиа, бизнес-эксперты</td></tr>
+                <tr><td data-label="Группа">Контент-мейкеры</td><td data-label="Акций"><strong>70 000</strong></td><td data-label="Доля">70%</td><td data-label="Источник">1 акция на старте + до 5 акций/год по КЭ</td></tr>
+                <tr><td data-label="Группа">Управляющая команда</td><td data-label="Акций"><strong>15 000</strong></td><td data-label="Доля">15%</td><td data-label="Источник">Зарплатные + конкурсные + Founder 1%</td></tr>
+                <tr><td data-label="Группа">Фонд развития</td><td data-label="Акций"><strong>5 000</strong></td><td data-label="Доля">5%</td><td data-label="Источник">Премии, ивенты, инфраструктура</td></tr>
+                <tr><td data-label="Группа">Инвесторы</td><td data-label="Акций"><strong>5 000</strong></td><td data-label="Доля">5%</td><td data-label="Источник">5 раундов по 1 000 акций/год</td></tr>
+                <tr><td data-label="Группа">Блогеры-партнёры</td><td data-label="Акций"><strong>4 000</strong></td><td data-label="Доля">4%</td><td data-label="Источник">За приведённых мейкеров и инвесторов</td></tr>
+                <tr><td data-label="Группа">Адвизоры</td><td data-label="Акций"><strong>1 000</strong></td><td data-label="Доля">1%</td><td data-label="Источник">Налоги, юр., медиа, бизнес-эксперты</td></tr>
               </tbody>
             </table>
           </div>
@@ -1921,14 +1961,14 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
           <!-- Цены и доход по годам -->
           <div style="margin-top:24px;">
             <div class="eyebrow" style="margin-bottom:12px;">Цена акции и доход по годам</div>
-            <table class="pitch-table">
-              <thead><tr><th>Год</th><th>Цена акции</th><th>Доход 1 акции/мес</th><th>Капитализация системы</th></tr></thead>
+            <table class="pitch-table pitch-table-years">
+              <thead><tr><th>Год</th><th>Цена акции</th><th>Доход/мес</th><th>Капитализация</th></tr></thead>
               <tbody>
-                <tr><td>2026</td><td>$5 000</td><td>$127</td><td>$71M</td></tr>
-                <tr><td>2027</td><td>$10 000</td><td>$254</td><td>$328M</td></tr>
-                <tr><td>2028</td><td>$20 000</td><td>$508</td><td>$1.12B</td></tr>
-                <tr><td>2029</td><td>$40 000</td><td>$1 018</td><td>$3.14B</td></tr>
-                <tr style="background:rgba(201,168,76,0.06);"><td><strong>2030</strong></td><td><strong style="color:var(--gold);">$80 000</strong></td><td><strong style="color:var(--gold);">$2 036</strong></td><td><strong style="color:var(--gold);">$8B</strong></td></tr>
+                <tr><td data-label="Год">2026</td><td data-label="Цена акции">$5 000</td><td data-label="Доход/мес">$127</td><td data-label="Капитализация">$71M</td></tr>
+                <tr><td data-label="Год">2027</td><td data-label="Цена акции">$10 000</td><td data-label="Доход/мес">$254</td><td data-label="Капитализация">$328M</td></tr>
+                <tr><td data-label="Год">2028</td><td data-label="Цена акции">$20 000</td><td data-label="Доход/мес">$508</td><td data-label="Капитализация">$1.12B</td></tr>
+                <tr><td data-label="Год">2029</td><td data-label="Цена акции">$40 000</td><td data-label="Доход/мес">$1 018</td><td data-label="Капитализация">$3.14B</td></tr>
+                <tr style="background:rgba(201,168,76,0.06);"><td data-label="Год"><strong>2030</strong></td><td data-label="Цена акции"><strong style="color:var(--gold);">$80 000</strong></td><td data-label="Доход/мес"><strong style="color:var(--gold);">$2 036</strong></td><td data-label="Капитализация"><strong style="color:var(--gold);">$8B</strong></td></tr>
               </tbody>
             </table>
           </div>
@@ -1936,14 +1976,14 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
           <!-- Сценарии входа -->
           <div style="margin-top:30px;">
             <div class="eyebrow" style="margin-bottom:12px;">Совокупная отдача 1 акции по сценарию входа</div>
-            <table class="pitch-table">
-              <thead><tr><th>Сценарий входа</th><th>Цена акции</th><th>Капитал к 2030</th><th>+ Накопленный доход</th><th>Окупаемость</th><th>Итого ×</th></tr></thead>
+            <table class="pitch-table pitch-table-roi">
+              <thead><tr><th>Сценарий</th><th>Цена</th><th>Капитал 2030</th><th>+ Доход</th><th>Окупаемость</th><th>ROI</th></tr></thead>
               <tbody>
-                <tr><td>Ранний инвестор</td><td>$2 500</td><td>$80 000</td><td>$47 600</td><td>~20 мес</td><td><strong style="color:var(--gold);">×51</strong></td></tr>
-                <tr style="background:rgba(201,168,76,0.06);"><td><strong>Год 1 · Стандарт</strong></td><td><strong>$5 000</strong></td><td><strong>$80 000</strong></td><td><strong>$47 600</strong></td><td><strong>~39 мес</strong></td><td><strong style="color:var(--gold);">×25.5</strong></td></tr>
-                <tr><td>Год 2</td><td>$10 000</td><td>$80 000</td><td>$33 800</td><td>~39 мес</td><td><strong style="color:var(--gold);">×11.4</strong></td></tr>
-                <tr><td>Год 3</td><td>$20 000</td><td>$80 000</td><td>$21 600</td><td>~39 мес</td><td><strong style="color:var(--gold);">×5.1</strong></td></tr>
-                <tr><td>Год 4</td><td>$40 000</td><td>$80 000</td><td>$12 200</td><td>~39 мес</td><td><strong>×2.3</strong></td></tr>
+                <tr><td data-label="Сценарий">Ранний инвестор</td><td data-label="Цена акции">$2 500</td><td data-label="Капитал к 2030">$80 000</td><td data-label="Накоплен. доход">$47 600</td><td data-label="Окупаемость">~20 мес</td><td data-label="ROI"><strong style="color:var(--gold);">×51</strong></td></tr>
+                <tr style="background:rgba(201,168,76,0.06);"><td data-label="Сценарий"><strong>Год 1 · Стандарт</strong></td><td data-label="Цена акции"><strong>$5 000</strong></td><td data-label="Капитал к 2030"><strong>$80 000</strong></td><td data-label="Накоплен. доход"><strong>$47 600</strong></td><td data-label="Окупаемость"><strong>~39 мес</strong></td><td data-label="ROI"><strong style="color:var(--gold);">×25.5</strong></td></tr>
+                <tr><td data-label="Сценарий">Год 2</td><td data-label="Цена акции">$10 000</td><td data-label="Капитал к 2030">$80 000</td><td data-label="Накоплен. доход">$33 800</td><td data-label="Окупаемость">~39 мес</td><td data-label="ROI"><strong style="color:var(--gold);">×11.4</strong></td></tr>
+                <tr><td data-label="Сценарий">Год 3</td><td data-label="Цена акции">$20 000</td><td data-label="Капитал к 2030">$80 000</td><td data-label="Накоплен. доход">$21 600</td><td data-label="Окупаемость">~39 мес</td><td data-label="ROI"><strong style="color:var(--gold);">×5.1</strong></td></tr>
+                <tr><td data-label="Сценарий">Год 4</td><td data-label="Цена акции">$40 000</td><td data-label="Капитал к 2030">$80 000</td><td data-label="Накоплен. доход">$12 200</td><td data-label="Окупаемость">~39 мес</td><td data-label="ROI"><strong>×2.3</strong></td></tr>
               </tbody>
             </table>
             <p class="pitch-text" style="margin-top:12px;font-size:13px;color:var(--gray2);">⚡ Накопленный доход рассчитан с момента входа до 2030 года. Стоимость акции в 2030 — $80 000 (фиксирована планом). Чем раньше зайдёшь — тем выше отдача.</p>
@@ -2304,7 +2344,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
                 <div class="pitch-risk-name">Юридический риск</div>
               </div>
               <p class="pitch-risk-text"><strong>Угроза:</strong> регуляторы сочтут акции ценными бумагами и потребуют лицензирования.</p>
-              <p class="pitch-risk-text"><strong>Митигация:</strong> Кипр-холдинг с правильной юр. структурой (Год 3). Акции — это не security, а реферальный слот в ротации. Юрист уровня CFO с дня 1.</p>
+              <p class="pitch-risk-text"><strong>Митигация:</strong> С Года 3 — регистрация холдинга в оптимальной юрисдикции. Акции — это не security, а реферальный слот в ротации. Юрист в команде с первого года.</p>
             </div>
             <div class="pitch-risk-item">
               <div class="pitch-risk-head">
@@ -2356,7 +2396,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
             <p style="font-size:14px; color:var(--gray2); line-height:1.7; max-width:560px; margin-bottom:24px;">Это не скидка — это цена за веру в проект на старте. Рыночная стоимость акции уже $5 000. Через год — $10 000. Таких условий больше не будет никогда. Также первые 25 инвесторов получают статус <strong style="color:var(--white);">Early Investor</strong> в Founding 100 и +10 бонусных акций каждому за 5 лет.</p>
             <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
               <a href="https://t.me/Shikardos_V" target="_blank" class="btn btn-gold">Купить акции за $2 500 →</a>
-              <a href="#founders" onclick="showPage('main'); setTimeout(()=>document.getElementById('founders').scrollIntoView({behavior:'smooth'}),300)" class="btn btn-outline">Подробнее о Founding 100</a>
+              <a href="#founders" onclick="showPage('main'); setTimeout(()=>document.getElementById('founders').scrollIntoView({behavior:'smooth'}),300)" class="btn btn-outline" style="white-space:nowrap;">Подробнее о Founding 100</a>
             </div>
           </div>
         </div>
@@ -2378,7 +2418,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
             <div class="pitch-step">
               <div class="pitch-step-num">2</div>
               <div class="pitch-step-title">Подписать договор</div>
-              <p class="pitch-step-text">Договор инвестиционный — стандартный. Готовый шаблон. Прозрачные условия, без скрытых пунктов. Юридическая структура — Кипр-холдинг с Года 3, до этого — частное соглашение.</p>
+              <p class="pitch-step-text">Договор инвестиционный — стандартный. Готовый шаблон. Прозрачные условия, без скрытых пунктов. С Года 3 — корпоративная структура, до этого — частное соглашение с Founder.</p>
             </div>
             <div class="pitch-step">
               <div class="pitch-step-num">3</div>
@@ -2409,7 +2449,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
       <div class="reveal" style="margin-bottom:40px;">
         <div class="hero-badge">Вопросы и ответы</div>
         <h2 class="section-title">FAQ для <span class="gold">инвесторов</span></h2>
-        <p class="section-sub">38 ответов на самые частые вопросы. Если твоего вопроса здесь нет — напиши в Telegram, добавим в FAQ.</p>
+        <p class="section-sub">39 ответов на самые частые вопросы. Если твоего вопроса здесь нет — напиши в Telegram, добавим в FAQ.</p>
       </div>
 
       <!-- ФИЛЬТРЫ -->
@@ -2433,16 +2473,17 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="model">
           <summary class="faq-q"><span class="faq-cat-tag">💡 Модель</span>Что такое акция в Shikardos Team? Это ценная бумага?</summary>
           <div class="faq-a">
-            <p>Нет, это не ценная бумага в классическом смысле. Акция в нашей системе — это <strong>реферальный слот в Round Robin ротации</strong> на общем домене проекта. Чем больше акций — тем больше трафика проходит через твои ссылки и тем больше комиссии ты получаешь от партнёров.</p>
-            <p>Юридически акция оформляется как договор о праве на долю в выручке партнёрских комиссий. С Года 3 структура переходит в Кипр-холдинг с правильной юридической оболочкой.</p>
+            <p>Нет, это не ценная бумага в классическом смысле. Акция в нашей системе — это <strong>реферальный слот в Round Robin ротации</strong>. Твои реферальные ссылки размещаются на множестве сайтов-офферов (SaaS-партнёрок), которые создаёт и ведёт наша команда. Чем больше акций — тем больше слотов в ротации, больше трафика проходит через твои ссылки, и тем больше комиссий ты получаешь напрямую от SaaS-партнёров.</p>
+            <p>Юридически акция оформляется как договор о праве на долю в выручке партнёрских комиссий. С Года 3, когда будет сформирован юридический отдел и привлечены адвизоры, будет принято решение о стране регистрации холдинга и правильной юридической оболочке.</p>
           </div>
         </details>
 
         <details class="faq-item" data-cat="model">
           <summary class="faq-q"><span class="faq-cat-tag">💡 Модель</span>Почему именно 5 000 мейкеров? Почему не 10 000 или 50 000?</summary>
           <div class="faq-a">
-            <p>5 000 — это потолок управляемости через 50 HR-менеджеров (по 100 мейкеров на каждого). Дальше начинаются проблемы с координацией и качеством контроля.</p>
-            <p>Удвоение объёмов с Года 2 идёт не за счёт найма новых мейкеров, а за счёт того что каждый мейкер сам нанимает подрядчиков и платит им. Так мы держим управляемой команду из 248 человек, но контент производит уже 10 000+ человек к Году 5.</p>
+            <p>5 000 — это потолок управляемости через 50 HR-менеджеров (по 100 мейкеров на каждого). Это фиксированное количество слотов, которое не растёт.</p>
+            <p>Удвоение объёмов с Года 2 идёт не за счёт найма новых мейкеров, а за счёт того что каждый мейкер сам нанимает подрядчиков и платит им. Для нашей системы увеличивается только количество производимых видео — количество людей (5 000 мейкеров + 248 управляющая команда) остаётся неизменным.</p>
+            <p>Почему 248 человек хватит? Управляющая команда за 5 лет выстроит систему, в которой все процессы автоматизированы с помощью AI: аналитика, контроль качества, дашборды, выявление проблем. Команда будет самосовершенствоваться, внедряя AI-технологии на каждом этапе. Именно поэтому нам не нужен раздутый штат — технологии заменяют ручную работу.</p>
           </div>
         </details>
 
@@ -2466,24 +2507,33 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="money">
           <summary class="faq-q"><span class="faq-cat-tag">💰 Деньги</span>Минимальная сумма входа?</summary>
           <div class="faq-a">
-            <p>1 акция — это $5 000 в Год 1 (стандартный раунд). Для ранних инвесторов есть лимит до 10 акций по $2 500 (только до старта проекта 15 мая 2026). Для стандартного раунда — слайдер до 100 акций ($500 000).</p>
-            <p>Если ты хочешь зайти на сумму больше $500K за один раз — это отдельный разговор с Founder напрямую.</p>
+            <p>1 акция — это $5 000 в Год 1 (стандартный раунд). Для ранних инвесторов — лимит 100 акций по $2 500 на первых 100 человек (неважно, инвестор, мейкер или член команды — кто первый, тот и получает льготную цену). Их могут выкупить 10 человек по 10 акций или 100 человек по 1 — как сложится. Для стандартного раунда — до 100 акций ($500 000).</p>
+            <p>Если хочешь зайти на сумму больше $500K за один раз — это отдельный разговор с Founder напрямую, но только по стандартной цене раунда ($5 000 за акцию). Контакт: <a href="https://t.me/Shikardos_V" target="_blank" style="color:var(--gold);">@Shikardos_V</a></p>
           </div>
         </details>
 
         <details class="faq-item" data-cat="money">
           <summary class="faq-q"><span class="faq-cat-tag">💰 Деньги</span>Когда я начну получать деньги с акции?</summary>
           <div class="faq-a">
-            <p>С первого месяца после запуска ротации. Доход начисляется автоматически в Telegram-боте в личный кабинет. Можно выводить ежемесячно или копить и реинвестировать.</p>
+            <p>С первого месяца после запуска ротации. Доход поступает <strong>напрямую от SaaS-партнёров</strong> на твои реферальные аккаунты. Ты сам регистрируешься во всех партнёрских программах, загружаешь свои реферальные ссылки в Telegram-бот, а бот ставит их в ротацию. Каждый SaaS-сервис начисляет комиссию тебе лично — мы не являемся посредником в денежных потоках.</p>
+            <p>В личном кабинете ты видишь статистику: сколько слотов в ротации, средний доход на одну акцию. Эти показатели рассчитываются из совокупных данных всех участников и являются средними значениями из финансовой модели.</p>
             <p>Прогноз дохода 1 акции по годам: <strong>$127/мес → $254 → $508 → $1 018 → $2 036/мес</strong>. Накопленный доход с 1 акции за 5 лет — около $47 600.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="model">
+          <summary class="faq-q"><span class="faq-cat-tag">💡 Модель</span>Как регистрироваться во всех SaaS-партнёрках? Их же может быть сотни!</summary>
+          <div class="faq-a">
+            <p>Вручную не нужно. Telegram-бот выдаёт список всех актуальных SaaS-сервисов, в которых нужно зарегистрироваться. Дальше с помощью <strong>Claude Code</strong> (AI-агент, работающий в твоём браузере) ты автоматически регистрируешься во всех сервисах за несколько минут.</p>
+            <p>Технически это просто: создаёшь одну Google-почту, Claude Code заходит из твоего браузера в каждый SaaS-сервис, регистрируется через Google-аккаунт, собирает все реферальные ссылки в Excel-таблицу на Google Диске. Потом загружаешь эти ссылки пачкой в бот — в том порядке, который бот запросил. Весь процесс автоматизирован.</p>
           </div>
         </details>
 
         <details class="faq-item" data-cat="money">
           <summary class="faq-q"><span class="faq-cat-tag">💰 Деньги</span>В какой валюте можно зайти и получать доход?</summary>
           <div class="faq-a">
-            <p><strong>На вход:</strong> SWIFT (USD/EUR), USDT (TRC-20 / ERC-20), биткоин — на выбор.</p>
-            <p><strong>На выход дохода:</strong> по умолчанию USDT в Telegram-кошелёк или на твой внешний кошелёк. Также SWIFT по запросу для крупных сумм.</p>
+            <p><strong>На вход (покупка акций):</strong> USDT. Это единственный способ оплаты на текущем этапе. Покупка фиксируется в Telegram-боте и в будущем — в личном кабинете на сайте.</p>
+            <p><strong>На выход дохода:</strong> доход поступает напрямую от SaaS-партнёров на твои реферальные аккаунты — мы не являемся посредником. Когда будет сформирован юридический отдел и зарегистрирована компания, будут добавлены дополнительные способы оплаты (SWIFT, банковские реквизиты).</p>
           </div>
         </details>
 
@@ -2516,7 +2566,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
           <summary class="faq-q"><span class="faq-cat-tag">🛡️ Риски</span>Что если проект провалится? Я потеряю всё?</summary>
           <div class="faq-a">
             <p>В худшем сценарии — да, ты теряешь сумму инвестиций (как с любым венчурным проектом). Это рисковый актив, не банковский депозит.</p>
-            <p>Митигация: <strong>1)</strong> у Founder 1% акций по vesting — финансовая мотивация довести до конца. <strong>2)</strong> Команда из 248 человек тоже работает за акции — у каждого скин в игре. <strong>3)</strong> Минимальные операционные расходы — нет ЗП, проект может выжить даже без следующих раундов. <strong>4)</strong> Прозрачный дашборд — ты в любой момент видишь все цифры в реальном времени и можешь оценить ситуацию.</p>
+            <p>Митигация: <strong>1)</strong> у Founder 1% акций по vesting — финансовая мотивация довести до конца. <strong>2)</strong> Команда из 247 человек тоже работает за акции — у каждого скин в игре. <strong>3)</strong> Минимальные операционные расходы — нет ЗП, проект может выжить даже без следующих раундов. <strong>4)</strong> Прозрачный дашборд — ты в любой момент видишь все цифры в реальном времени и можешь оценить ситуацию.</p>
           </div>
         </details>
 
@@ -2536,7 +2586,8 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="risks">
           <summary class="faq-q"><span class="faq-cat-tag">🛡️ Риски</span>Что если меньше людей чем планируется?</summary>
           <div class="faq-a">
-            <p>Если соберём не 5 000, а скажем 2 500 мейкеров — объёмы упадут вдвое, доход тоже. Но это всё равно позитивный кейс — просто медленнее рост, цена акции и доход в первый год будут ниже плана.</p>
+            <p>Если соберём не 5 000, а скажем 2 500 мейкеров — объёмы упадут вдвое, доход тоже. Но это всё равно позитивный кейс — просто медленнее рост.</p>
+            <p>Важно: все наши расчёты <strong>консервативные и занижены в 4,2 раза</strong> от средних показателей рынка. Даже если мейкеров будет в 4 раза меньше заявленного, доход будет примерно на уровне плана. Мы намеренно считаем по минимальной планке — самый консервативный, худший сценарий. Это значит, что в реальности мы с высокой вероятностью превысим ожидания.</p>
             <p>Безубыточность достигается уже на 1 200 мейкерах в Год 1. Всё что выше — чистая прибыль и опережение плана.</p>
           </div>
         </details>
@@ -2545,8 +2596,8 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="legal">
           <summary class="faq-q"><span class="faq-cat-tag">⚖️ Юридика</span>В какой юрисдикции зарегистрирован проект?</summary>
           <div class="faq-a">
-            <p>До Года 3 — частная договорная модель между Founder и каждым инвестором. С Года 3 — Кипр-холдинг (HoldCo) с правильной структурой для медиа-бизнеса. Кипр выбран потому что это ЕС, понятная юрисдикция для международных инвесторов, низкие налоги (12.5%).</p>
-            <p>До Года 3 у нас на месте трудовой юрист и CFO с лицензией. Они отвечают за правильное оформление всех договоров.</p>
+            <p>До Года 3 — частная договорная модель между Founder и каждым участником. Компания пока не зарегистрирована — мы на стадии стартапа.</p>
+            <p>С Года 3, когда будут наняты юристы, сформирован юридический отдел, привлечены адвизоры и инвесторы с опытом в этой сфере — будет принято взвешенное решение о стране регистрации холдинга. Рассматриваются варианты с минимальным налогообложением и удобной юрисдикцией для международного бизнеса. Решение будет приниматься коллективно на основе экспертизы команды.</p>
           </div>
         </details>
 
@@ -2566,16 +2617,17 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="legal">
           <summary class="faq-q"><span class="faq-cat-tag">⚖️ Юридика</span>Какие документы я подписываю при инвестиции?</summary>
           <div class="faq-a">
-            <p>Стандартный инвестиционный договор. До Года 3 — между тобой и Founder лично. С Года 3 — между тобой и Кипр-холдингом, акции конвертируются автоматически.</p>
-            <p>В договоре прописаны: количество акций, права на долю в выручке, условия передачи акций третьим лицам, условия выхода. Документ готов к подписи в течение 1 рабочего дня после согласования.</p>
+            <p>На этапе стартапа (до Года 3) — договор между тобой и Founder лично. Это стандартная практика для ранних стадий: большинство стартапов начинают именно так, пока компания ещё не зарегистрирована. Первые участники заходят на доверии, на идее и на вере в команду.</p>
+            <p>С Года 3, после регистрации компании и формирования юридического отдела, все договоры будут переоформлены в правильную корпоративную структуру. Вопрос юридической защиты инвесторов прорабатывается — это приоритет, и более детальный ответ появится после найма профильного юриста.</p>
           </div>
         </details>
 
         <details class="faq-item" data-cat="legal">
           <summary class="faq-q"><span class="faq-cat-tag">⚖️ Юридика</span>Налоги — кто платит?</summary>
           <div class="faq-a">
-            <p>Каждый инвестор сам отвечает за налоги в своей стране резидентства. Мы предоставляем все нужные документы (договоры, расчёты доходов, подтверждения выплат) для декларирования.</p>
-            <p>С Года 3 (после открытия Кипр-холдинга) — корпоративный налог платит сам холдинг (12.5%), на инвестора это не влияет. Дивиденды-эквивалент облагаются согласно соглашениям об избежании двойного налогообложения.</p>
+            <p>Каждый участник (инвестор, мейкер, менеджер) <strong>сам отвечает за уплату налогов</strong> в своей стране резидентства. Мы не предоставляем договоры, расчёты доходов или подтверждения выплат для декларирования — потому что мы не имеем прямого контакта с деньгами.</p>
+            <p>Каждый участник сам получает реферальный доход в своих личных кабинетах SaaS-сервисов. Мы выступаем только как агрегатор распределения реферальных ссылок. Именно это ускоряет модель масштабирования — нам не нужна дополнительная финансовая отчётность и ответственность.</p>
+            <p>Этот раздел будет дополняться по мере формирования команды. Подробный ответ по налоговой структуре появится после найма штатного юриста.</p>
           </div>
         </details>
 
@@ -2615,8 +2667,10 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="team">
           <summary class="faq-q"><span class="faq-cat-tag">👥 Команда</span>Кто будет управлять моими деньгами?</summary>
           <div class="faq-a">
-            <p>До Года 3 — Founder лично, под контролем CFO. С Года 3 — Кипр-холдинг с подотчётностью совету директоров. Все транзакции логируются immutable, доступны для просмотра в дашборде.</p>
-            <p>Деньги инвесторов идут только на: <strong>1)</strong> найм команды, <strong>2)</strong> технологическую инфраструктуру, <strong>3)</strong> маркетинг и привлечение мейкеров, <strong>4)</strong> юридические расходы. Никаких "личных трат Founder" из инвесторских денег быть не может.</p>
+            <p>В проекте два отдельных фонда:</p>
+            <p><strong>Фонд развития (5% акций)</strong> — операционные расходы: найм команды, технологическая инфраструктура, маркетинг, привлечение мейкеров, подкасты, юридические расходы. Это деньги на ежедневную работу компании.</p>
+            <p><strong>Инвестиционный фонд (5% акций)</strong> — то, что платят инвесторы. Эти средства идут на приумножение капитала, поиск новых направлений в сфере маркетинга, рекламы, автоматизации и AI-технологий. Это отдельное подразделение со своим управляющим.</p>
+            <p>Каждый участник видит в дашборде количество акций в ротации по своему подразделению. Детальная финансовая информация доступна управляющей команде.</p>
           </div>
         </details>
 
@@ -2624,24 +2678,24 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="numbers">
           <summary class="faq-q"><span class="faq-cat-tag">📊 Цифры</span>Откуда берётся прогноз $127/мес на акцию в Год 1?</summary>
           <div class="faq-a">
-            <p>Простая математика:</p>
+            <p>Вся математика подробно расписана на <a href="#" onclick="showPage('home'); return false;" style="color:var(--gold);">главной странице</a> и в <a href="#" onclick="showPage('investor'); return false;" style="color:var(--gold);">разделе Инвестор</a>. Коротко:</p>
             <ul>
               <li>5 000 мейкеров × 12 видео/нед × 52 недели = <strong>3.12M видео в год</strong></li>
-              <li>3.12M × средний охват 38 850 = <strong>121.2 млрд просмотров</strong></li>
-              <li>121.2B × 0.13% переходов = <strong>157M кликов</strong></li>
+              <li>3.12M × средний охват 38 850 просмотров = <strong>121.2 млрд просмотров</strong></li>
+              <li>121.2B × 0.13% конверсия в переходы = <strong>157M кликов</strong></li>
               <li>157M × $1.0 средняя комиссия = <strong>$157M+ выручка системы/год</strong></li>
-              <li>$157M ÷ 12 мес = <strong>$13M/мес общий доход</strong></li>
-              <li>Делим на доходные акции (с учётом распределения) → ~$127/мес на акцию в Год 1</li>
+              <li>$157M ÷ 12 мес ÷ кол-во доходных акций → ~<strong>$127/мес на акцию</strong> в Год 1</li>
             </ul>
-            <p>Цифры консервативные. Реально средний охват у топ-мейкеров может быть выше, конверсия SaaS-партнёров — 0.2-0.5% типично, средняя комиссия — $5-50 за качественную регистрацию в B2B.</p>
+            <p>Откуда 0.13%? Это <strong>консервативная конверсия</strong>, занижена в 4,2 раза от среднерыночных показателей. Типичная конверсия SaaS-партнёрок — 0.2–0.5%. Мы намеренно считаем по минимуму, чтобы показать самый худший сценарий. Средний охват и средняя комиссия тоже взяты по нижней границе.</p>
           </div>
         </details>
 
         <details class="faq-item" data-cat="numbers">
           <summary class="faq-q"><span class="faq-cat-tag">📊 Цифры</span>А если просмотры будут ниже плана?</summary>
           <div class="faq-a">
-            <p>Сценарий "хуже плана на 30%" даёт доход $89/мес на акцию в Год 1. Сценарий "хуже плана на 50%" даёт $63/мес. Цена акции при этом всё равно растёт по плану (потому что капитализация — это не только текущий доход, но и будущий рост).</p>
-            <p>Безубыточность для инвестора в 1 акцию ($5 000) при стандартном раунде достигается за <strong>39 месяцев</strong> работы. Любой доход выше — чистая прибыль.</p>
+            <p>Сценарий «хуже плана на 30%» даёт доход $89/мес на акцию в Год 1. Сценарий «хуже плана на 50%» даёт $63/мес. Цена акции при этом всё равно растёт по плану (капитализация — это не только текущий доход, но и будущий рост).</p>
+            <p>Важно: наши расчёты <strong>уже занижены в 4,2 раза</strong> от среднерыночных показателей. Мы намеренно считаем по самой нижней планке. Это значит, что даже при отставании от плана, реальная окупаемость будет быстрее прогноза.</p>
+            <p>Безубыточность для инвестора в 1 акцию ($5 000) при стандартном раунде достигается за <strong>39 месяцев</strong> работы — и это при самом консервативном расчёте.</p>
           </div>
         </details>
 
@@ -2649,15 +2703,15 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
           <summary class="faq-q"><span class="faq-cat-tag">📊 Цифры</span>$8B капитализация к 2030 — реалистично?</summary>
           <div class="faq-a">
             <p>Капитализация = 100 000 акций × $80 000 = $8B. Это <strong>оценочная стоимость по последнему раунду</strong>, не enterprise value компании.</p>
-            <p>Сравните с реальностью: Bytedance оценивается в $300B+, MrBeast в $700M, контент-холдинги Web3 в $1-5B. Наш проект — гибрид медиа-холдинга и партнёрской сети с собственной аудиторией. $8B при 121B+ годовых просмотров и реальной выручке $150M+/год — это P/Revenue ~50, что нормально для медиа.</p>
+            <p>Почему это реалистично? Наш проект — гибрид медиа-холдинга и партнёрской сети. У нас практически нулевые операционные расходы, нет зависимости от зарплатного фонда, нет задержек масштабирования. Мы не подвержены классическим рискам банкротства. При 121B+ годовых просмотров и реальной выручке $150M+/год — $8B это логичная оценка. А рынок маркетинга и рекламы — вечный, пока существует интернет.</p>
           </div>
         </details>
 
         <details class="faq-item" data-cat="numbers">
           <summary class="faq-q"><span class="faq-cat-tag">📊 Цифры</span>Цена акции растёт по плану $5K → $80K — кто гарантирует?</summary>
           <div class="faq-a">
-            <p>Никто не гарантирует. Это <strong>план на основе модели</strong>. Реальная цена в каждом раунде определяется по результатам предыдущего года: количеству мейкеров, реальным просмотрам, доходу системы.</p>
-            <p>Если показатели сильно превышают план — цена может расти быстрее. Если отстают — раунд может задержаться или цена быть ниже плановой. Все цифры публичные, в дашборде, обновляются в реальном времени.</p>
+            <p>Точную сумму не гарантирует никто — она рассчитана из средней доходности, которая и так является <strong>консервативной и заниженной</strong>. Но сама бизнес-модель построена на ежегодном удвоении контента.</p>
+            <p>Удвоение контента = удвоение трафика и просмотров = удвоение переходов в SaaS-партнёрки = удвоение дохода. Соответственно, стоимость акции удваивается каждый год. Это не обещание — это логика модели. Все цифры публичные, в дашборде, обновляются в реальном времени.</p>
           </div>
         </details>
 
@@ -2669,7 +2723,7 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
             <ol>
               <li><strong>Биржа в Telegram-боте.</strong> С Года 2 запускается внутренний вторичный рынок. Ты можешь выставить акции на продажу другим участникам по любой цене. Если кто-то покупает — сделка проходит автоматически.</li>
               <li><strong>Прямая продажа третьему лицу.</strong> Можешь договориться с кем-то лично, потом перерегистрировать акцию через бота.</li>
-              <li><strong>Buyback от компании.</strong> С Года 3 (после Кипр-холдинга) компания может выкупать акции у желающих — по рыночной цене последнего раунда. Это не гарантировано, зависит от наличия свободных средств.</li>
+              <li><strong>Buyback от компании.</strong> С Года 3 (после регистрации компании) компания может выкупать акции у желающих — по рыночной цене последнего раунда. Это не гарантировано, зависит от наличия свободных средств.</li>
             </ol>
           </div>
         </details>
@@ -2677,20 +2731,21 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="exit">
           <summary class="faq-q"><span class="faq-cat-tag">🚪 Выход</span>А есть IPO или продажа компании?</summary>
           <div class="faq-a">
-            <p>Это сценарий Year 6+, не входит в текущий 5-летний план. Возможные пути выхода:</p>
+            <p>Это возможно, но будет решаться <strong>через 5 лет коллективно</strong> — путём голосования топ-участников: лучших мейкеров, менеджеров, инвесторов — всех, кто максимально вложился в развитие компании.</p>
             <ul>
-              <li><strong>IPO</strong> на NASDAQ или Гонконг — если компания дойдёт до $10B+ и будет хороший рынок.</li>
-              <li><strong>Продажа стратегу</strong> (Bytedance, Meta, крупный медиа-холдинг) — реалистичный сценарий после Year 5.</li>
-              <li><strong>Параллельные направления</strong> — Founder упоминает что после Year 5 топ-участникам предлагается взять модель и запустить её в новых нишах/странах. Это новые источники капитала.</li>
+              <li><strong>IPO</strong> — амбициозно, но реалистично при наших объёмах. Решение будет приниматься топ-командой.</li>
+              <li><strong>Продажа</strong> — рынок маркетинга и рекламы вечный, компания будет востребована и как актив для продажи, и для IPO.</li>
+              <li><strong>Параллельные направления</strong> — топ-участники, которые вырастут за 5 лет, смогут взять другие направления, страны, ниши. Инвестиционный фонд и адвизоры будут заниматься поиском новых веток развития.</li>
             </ul>
+            <p>Горизонт планирования дальше 5 лет сейчас не имеет смысла — но мы понимаем, что клиенты нужны всем, и этот рынок будет расти, пока существует интернет. Судьбу компании будут решать люди, которые её построили.</p>
           </div>
         </details>
 
         <details class="faq-item" data-cat="exit">
           <summary class="faq-q"><span class="faq-cat-tag">🚪 Выход</span>Если я хочу выйти, а никто не покупает?</summary>
           <div class="faq-a">
-            <p>В первый год (до запуска биржи) ликвидности нет. Это венчурная инвестиция с горизонтом 5 лет — нужно быть готовым держать.</p>
-            <p>С Года 2 на бирже всегда есть желающие купить — потому что доход на акцию растёт каждый год, а цена входа в новый раунд тоже выше. Ранние акции выгоднее новых, спрос на них всегда выше предложения.</p>
+            <p>Акции в проекте — <strong>дефицитный ресурс</strong>. Их количество ограничено: 1 000 штук в год, и всего 5 000 за 5 лет для инвесторов. Если первый раунд выкупят за полгода — возможности купить по этой цене больше не будет, а следующая тысяча акций будет продаваться только в следующем году и уже дороже.</p>
+            <p>Поэтому вторичный рынок формируется уже в первый год: те, кто не успел купить в раунде, будут искать возможность купить с рук. Спрос на ранние акции всегда выше предложения — они дешевле и доходнее. С Года 2 запускается внутренняя биржа в Telegram-боте для удобства сделок.</p>
           </div>
         </details>
 
@@ -2698,16 +2753,16 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="model">
           <summary class="faq-q"><span class="faq-cat-tag">💡 Модель</span>Можно купить много акций сразу?</summary>
           <div class="faq-a">
-            <p>Да. В стандартном раунде Год 1 — слайдер до 100 акций ($500K). Если интересно больше — отдельный разговор с Founder.</p>
-            <p>Лимит на одного инвестора — 5% от пула раунда (50 акций в Год 1) для крупных, чтобы не было концентрации. Исключения возможны для стратегических партнёров.</p>
+            <p>Да. В стандартном раунде — до <strong>100 акций в одни руки</strong>. Если интересно больше — отдельный разговор с Founder.</p>
+            <p>Условия для всех одинаковые по цене. Даже если один инвестор выкупит все акции раунда, это не даёт ему влияния на принятие решений — все стратегические вопросы решаются коллективным голосованием. Поэтому концентрация акций у одного человека не является проблемой для системы.</p>
           </div>
         </details>
 
         <details class="faq-item" data-cat="money">
           <summary class="faq-q"><span class="faq-cat-tag">💰 Деньги</span>Можно реинвестировать доход в новые акции?</summary>
           <div class="faq-a">
-            <p>Да. Получаемый доход можно использовать для покупки новых акций — на бирже или в новых раундах. Это даёт сложный процент и ускоряет накопление.</p>
-            <p>Например: получил $127/мес в Год 1 = $1 524/год. За 3 года накопил $4 572 — можешь купить ещё 1 акцию в раунде Год 2 ($10K) или 0.5 акции на бирже.</p>
+            <p>Да. Получаемый доход можно использовать для покупки новых акций — на внутренней бирже или в новых раундах. Это даёт эффект сложного процента и ускоряет накопление.</p>
+            <p>По мере роста дохода от акций у тебя появляется возможность докупать новые акции, увеличивая свою долю в ротации. Конкретные суммы зависят от реальной доходности, которая будет видна в личном кабинете.</p>
           </div>
         </details>
 
@@ -2722,8 +2777,8 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="team">
           <summary class="faq-q"><span class="faq-cat-tag">👥 Команда</span>Можно стать инвестором и одновременно частью команды?</summary>
           <div class="faq-a">
-            <p>Да, это даже приветствуется. Ты можешь зайти как инвестор и параллельно работать в проекте на одной из управленческих ролей. Получишь акции и от инвестиции, и за работу — это самые быстрорастущие участники.</p>
-            <p>Если ты эксперт в одной из ниш (B2B SaaS, AI, маркетинг, юриспруденция) — это сильный плюс при разговоре. Адвизорские роли (1 000 акций отдельный пул) специально для таких людей.</p>
+            <p>Да, это даже приветствуется. Ты можешь зайти как инвестор и параллельно работать в проекте на одной из ролей. Получишь акции и от инвестиции, и за работу — это самые быстрорастущие участники.</p>
+            <p>Любой член команды — будь то CTO, HR-менеджер или мейкер — может купить акции компании в любой момент на общих условиях. Это прямо указано на главной странице. Чем больше у тебя скин в игре, тем выше мотивация.</p>
           </div>
         </details>
 
@@ -2738,8 +2793,8 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
         <details class="faq-item" data-cat="numbers">
           <summary class="faq-q"><span class="faq-cat-tag">📊 Цифры</span>Сколько уже привлечено?</summary>
           <div class="faq-a">
-            <p>Проект только запускается (15 мая 2026). Текущий статус привлечений и сделок видно на странице <a href="#" onclick="showPage('roadmap'); return false;" style="color:var(--gold);">Карта</a>.</p>
-            <p>План Год 1: 1 000 акций × $5 000 = $5M. До старта проекта открыт лимитированный ранний раунд — 100 акций × $2 500 = $250K.</p>
+            <p>Дата старта проекта — 15 мая 2026. Текущий статус привлечений и сделок видно на странице <a href="#" onclick="showPage('roadmap'); return false;" style="color:var(--gold);">Карта</a>.</p>
+            <p>План Год 1: 1 000 акций, из них 900 по $5 000 и 100 по $2 500 (ранний раунд для первых 100 человек) = <strong>$4 750 000</strong>.</p>
           </div>
         </details>
 
@@ -2912,6 +2967,11 @@ function faqFilter(cat) {
       <h2 class="section-title reveal">Кого ищем <span class="gold">прямо сейчас</span></h2>
       <p class="section-sub reveal">Зарплата — акции. Чем раньше входишь — тем дешевле обходится место в ротации и тем больше твой доход. Все роли работают параллельно.</p>
 
+      <div style="padding:18px 22px; background:var(--dark3); border:1px solid rgba(201,168,76,0.15); margin-top:24px; margin-bottom:12px;" class="reveal">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">📊 Как читать карточку вакансии</div>
+        <p style="font-size:13px;color:var(--gray2);line-height:1.7;margin:0;"><strong style="color:var(--white);">ЗП/мес</strong> — ежемесячный доход от накопленных акций (зарплатных + стартовых). <strong style="color:var(--white);">Год 1–5</strong> в карточке — это прогнозируемый доход в месяц с учётом роста стоимости акции по годам ($127 → $2 036 за акцию). Чем больше акций накоплено — тем выше доход.</p>
+      </div>
+
       <!-- УРОВЕНЬ 1 — Founder -->
       <div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin:40px 0 12px;" class="reveal">— Напрямую под Founder & CEO —</div>
       <div class="roles-grid reveal">
@@ -2928,14 +2988,14 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$3 810</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$13 716</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$39 624</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 4</div><div style="font-size:10px;font-weight:700;color:var(--orange);">$103 836</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 5</div><div style="font-size:10px;font-weight:700;color:var(--gold);">$256 536</div></div>
             </div>
-            <div class="role-desc">Берёт всю операционку на себя. Управляет C-Suite, строит процессы, KPI, регламенты. Опыт управления 100+ человек обязателен. Докажи реальными результатами. Полиграф.</div>
+            <div class="role-desc">Берёт всю операционку на себя. Управляет C-Suite, строит процессы, KPI, регламенты. Опыт управления 100+ человек обязателен. Докажи реальными результатами..</div>
             <div style="margin-top:10px;"><button onclick="openModal('modal-coo')" class="btn btn-outline" style="font-size:10px;padding:5px 16px;">Подробнее →</button></div>
           </div>
         </div>
@@ -2952,7 +3012,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 2 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -2981,14 +3041,14 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$3 810</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$13 716</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$39 624</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 4</div><div style="font-size:10px;font-weight:700;color:var(--orange);">$103 836</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 5</div><div style="font-size:10px;font-weight:700;color:var(--gold);">$256 536</div></div>
             </div>
-            <div class="role-desc">Telegram-бот, Round Robin ротация, Apify парсинг, Google Sheets API, биржа акций. Python/Node.js. Покажи живые боты в продакшне. Технический тест. Полиграф.</div>
+            <div class="role-desc">Telegram-бот, Round Robin ротация, Apify парсинг, Google Sheets API, биржа акций. Python/Node.js. Покажи живые боты в продакшне. Технический тест..</div>
             <div style="margin-top:10px;"><button onclick="openModal('modal-cto')" class="btn btn-outline" style="font-size:10px;padding:5px 16px;">Подробнее →</button></div>
           </div>
         </div>
@@ -3005,14 +3065,14 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 921</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$10 414</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$29 972</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 4</div><div style="font-size:10px;font-weight:700;color:var(--orange);">$78 386</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 5</div><div style="font-size:10px;font-weight:700;color:var(--gold);">$193 420</div></div>
             </div>
-            <div class="role-desc">Финансовая модель, налоги, международные выплаты, договоры, юридическая структура холдинга. Опыт в digital/IT обязателен. Полиграф.</div>
+            <div class="role-desc">Финансовая модель, налоги, международные выплаты, договоры, юридическая структура холдинга. Опыт в digital/IT обязателен..</div>
             <div style="margin-top:10px;"><button onclick="openModal('modal-cfo')" class="btn btn-outline" style="font-size:10px;padding:5px 16px;">Подробнее →</button></div>
           </div>
         </div>
@@ -3029,7 +3089,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 921</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$10 414</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$29 972</div></div>
@@ -3053,7 +3113,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 032</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$7 112</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$20 320</div></div>
@@ -3077,7 +3137,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 524</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$5 334</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$15 240</div></div>
@@ -3101,7 +3161,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 524</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$5 334</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$15 240</div></div>
@@ -3125,14 +3185,14 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 032</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$7 112</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$20 320</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 4</div><div style="font-size:10px;font-weight:700;color:var(--orange);">$52 936</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 5</div><div style="font-size:10px;font-weight:700;color:var(--gold);">$130 304</div></div>
             </div>
-            <div class="role-desc">Управляет 50 HR-менеджерами → 5 000 мейкеров. Строит систему найма, KPI, конкурсов. Докажи что управлял командой рекрутеров. Тест + полиграф.</div>
+            <div class="role-desc">Управляет 50 HR-менеджерами → 5 000 мейкеров. Строит систему найма, KPI, конкурсов. Докажи что управлял командой рекрутеров. Тест.</div>
             <div style="margin-top:10px;"><button onclick="openModal('modal-hr1')" class="btn btn-outline" style="font-size:10px;padding:5px 16px;">Подробнее →</button></div>
           </div>
         </div>
@@ -3149,14 +3209,14 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 032</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$7 112</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$20 320</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 4</div><div style="font-size:10px;font-weight:700;color:var(--orange);">$52 936</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 5</div><div style="font-size:10px;font-weight:700;color:var(--gold);">$130 304</div></div>
             </div>
-            <div class="role-desc">Управляет 25 менеджерами → 2 500–5 000 блогеров. Опыт с инфлюенсерами потоком от 2 лет. Покажи базу блогеров с которыми работал. Полиграф.</div>
+            <div class="role-desc">Управляет 25 менеджерами → 2 500–5 000 блогеров. Опыт с инфлюенсерами потоком от 2 лет. Покажи базу блогеров с которыми работал..</div>
             <div style="margin-top:10px;"><button onclick="openModal('modal-hr2')" class="btn btn-outline" style="font-size:10px;padding:5px 16px;">Подробнее →</button></div>
           </div>
         </div>
@@ -3173,7 +3233,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 1 место</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 032</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$7 112</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$20 320</div></div>
@@ -3202,7 +3262,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 4 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 032</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$7 112</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$20 320</div></div>
@@ -3226,7 +3286,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 4 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 032</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$7 112</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$20 320</div></div>
@@ -3250,7 +3310,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 2 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 524</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$5 334</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$15 240</div></div>
@@ -3274,7 +3334,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 4 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 032</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$7 112</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$20 320</div></div>
@@ -3298,7 +3358,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 4 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 524</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$5 334</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$15 240</div></div>
@@ -3322,7 +3382,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 2 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3351,7 +3411,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 5 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3375,7 +3435,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 5 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 524</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$5 334</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$15 240</div></div>
@@ -3399,7 +3459,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 5 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3423,7 +3483,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 5 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 524</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$5 334</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$15 240</div></div>
@@ -3447,7 +3507,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 5 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3471,7 +3531,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 5 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$508</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$1 778</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$5 080</div></div>
@@ -3500,7 +3560,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 50 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3524,7 +3584,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 10 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 524</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$5 334</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$15 240</div></div>
@@ -3548,7 +3608,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 25 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3572,7 +3632,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 10 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$2 032</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$7 112</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$20 320</div></div>
@@ -3596,7 +3656,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 6 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3620,7 +3680,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 10 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$508</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$1 778</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$5 080</div></div>
@@ -3649,7 +3709,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 6 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3673,7 +3733,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 2 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3697,14 +3757,14 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 2 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 4</div><div style="font-size:10px;font-weight:700;color:var(--orange);">$26 468</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 5</div><div style="font-size:10px;font-weight:700;color:var(--gold);">$65 152</div></div>
             </div>
-            <div class="role-desc">Трудовые договоры, налоги в разных странах, юридическая структура. Опыт в digital/IT обязателен. Полиграф при оформлении.</div>
+            <div class="role-desc">Трудовые договоры, налоги в разных странах, юридическая структура. Опыт в digital/IT обязателен..</div>
             <div style="margin-top:10px;"><button onclick="openModal('modal-lawyer')" class="btn btn-outline" style="font-size:10px;padding:5px 16px;">Подробнее →</button></div>
           </div>
         </div>
@@ -3721,14 +3781,14 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 2 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$508</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$1 778</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$5 080</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 4</div><div style="font-size:10px;font-weight:700;color:var(--orange);">$13 234</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 5</div><div style="font-size:10px;font-weight:700;color:var(--gold);">$32 576</div></div>
             </div>
-            <div class="role-desc">Финансовый учёт, выплаты 200+ сотрудникам, налоговая отчётность. Опыт в международных компаниях. Полиграф обязателен.</div>
+            <div class="role-desc">Финансовый учёт, выплаты 200+ сотрудникам, налоговая отчётность. Опыт в международных компаниях..</div>
             <div style="margin-top:10px;"><button onclick="openModal('modal-accountant')" class="btn btn-outline" style="font-size:10px;padding:5px 16px;">Подробнее →</button></div>
           </div>
         </div>
@@ -3745,7 +3805,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 10 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$1 016</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$3 556</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$10 160</div></div>
@@ -3769,7 +3829,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 10 мест</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$508</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$1 778</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$5 080</div></div>
@@ -3793,7 +3853,7 @@ function faqFilter(cat) {
               </div>
               <div style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">🔥 2 места</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
+            <div class="vac-income-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;">
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 1</div><div style="font-size:10px;font-weight:700;color:var(--green);">$508</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 2</div><div style="font-size:10px;font-weight:700;color:var(--blue);">$1 778</div></div>
               <div style="background:var(--dark4);padding:6px 4px;text-align:center;border-radius:3px;"><div style="font-size:8px;color:var(--gray);">Год 3</div><div style="font-size:10px;font-weight:700;color:var(--purple);">$5 080</div></div>
@@ -4588,7 +4648,7 @@ function faqFilter(cat) {
             <div class="rm-task planned"><div class="rm-task-icon">🚀</div><div class="rm-task-content"><div class="rm-task-title">Запуск всех 5 ниш AI-офферов</div><div class="rm-task-meta"><span class="rm-task-date">📅 До 25 янв 2027</span> · Риелторы · Фитнес · E-com · EdTech · B2B SaaS</div></div></div>
             <div class="rm-task planned"><div class="rm-task-icon">⚙️</div><div class="rm-task-content"><div class="rm-task-title">Smart Round Robin v2 в проде (+28% ROI)</div><div class="rm-task-meta"><span class="rm-task-date">📅 До 30 янв 2027</span> · Ответственный: CTO + ML-команда</div></div></div>
             <div class="rm-task planned"><div class="rm-task-icon">💱</div><div class="rm-task-content"><div class="rm-task-title">Биржа акций v2 в Telegram-боте (вторичный рынок)</div><div class="rm-task-meta"><span class="rm-task-date">📅 До 5 фев 2027</span> · Ответственный: CTO + Bot-команда</div></div></div>
-            <div class="rm-task planned"><div class="rm-task-icon">🏛️</div><div class="rm-task-content"><div class="rm-task-title">Открытие Кипр-холдинга (юр. структура)</div><div class="rm-task-meta"><span class="rm-task-date">📅 До 10 фев 2027</span> · Ответственный: CFO + Юристы</div></div></div>
+            <div class="rm-task planned"><div class="rm-task-icon">🏛️</div><div class="rm-task-content"><div class="rm-task-title">Регистрация холдинга (юр. структура)</div><div class="rm-task-meta"><span class="rm-task-date">📅 До 10 фев 2027</span> · Ответственный: CFO + Юристы</div></div></div>
             <div class="rm-task planned"><div class="rm-task-icon">📈</div><div class="rm-task-content"><div class="rm-task-title">Достижение 3 000 мейкеров</div><div class="rm-task-meta"><span class="rm-task-date">📅 До 14 фев 2027</span> · 60 000 публикаций/нед</div></div></div>
             <div class="rm-task planned"><div class="rm-task-icon">💰</div><div class="rm-task-content"><div class="rm-task-title">Закрытие 750 акций ($3.75M привлечено)</div><div class="rm-task-meta"><span class="rm-task-date">📅 До 14 фев 2027</span> · 75% годового плана</div></div></div>
           </div>
@@ -4709,6 +4769,57 @@ function faqFilter(cat) {
           </div>
 
         </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ЧТО БУДЕТ ПОСЛЕ 5 ЛЕТ -->
+  <div class="divider"></div>
+  <section class="section section-dark">
+    <div class="container">
+      <div class="eyebrow reveal">Горизонт</div>
+      <h2 class="section-title reveal">А что после <span class="gold">5 лет?</span></h2>
+      <p class="section-sub reveal">Дорожная карта заканчивается в 2030 году. Бизнес — нет.</p>
+
+      <div style="display:grid;grid-template-columns:1fr;gap:3px;margin-top:48px;" class="reveal">
+
+        <div style="background:var(--dark3);padding:28px 24px;">
+          <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:10px;">5 лет — это песочница</div>
+          <p style="font-size:14px;color:var(--gray2);line-height:1.8;margin:0;">Первые 5 лет — это период естественного отбора. За это время каждый проявит себя тем, кто он есть на самом деле. Конкурсы, KPI, цифры — не лгут. Мы взращиваем лидеров, с которыми потом будем делать гораздо более масштабные вещи.</p>
+        </div>
+
+        <div style="background:var(--dark3);padding:28px 24px;">
+          <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:10px;">Лучшие получат новые проекты</div>
+          <p style="font-size:14px;color:var(--gray2);line-height:1.8;margin:0;">Те, кто принёс больше всего пользы компании за 5 лет — усилиями, верой, результатами — будут вознаграждены партнёрствами в новых проектах внутри холдинга. С любым финансированием, технической поддержкой, на условиях долей. Каждый возглавит новую компанию или направление.</p>
+        </div>
+
+        <div style="background:var(--dark3);padding:28px 24px;">
+          <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:10px;">ТОП-менеджер > владелец среднего бизнеса</div>
+          <p style="font-size:14px;color:var(--gray2);line-height:1.8;margin:0;">Этот проект для тех, кто понимает: в кругу единомышленников и на партнёрских условиях результаты предопределены успехом. ТОП-менеджеры крутых компаний — с ресурсами, именем, связями — успешнее и богаче, чем владельцы среднего бизнеса. А средний бизнес далеко не всегда успешен.</p>
+        </div>
+
+      </div>
+
+      <!-- Статистика выживаемости -->
+      <div style="margin-top:32px;padding:24px;background:var(--gold-dim);border-left:3px solid var(--gold);" class="reveal">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">📊 Статистика выживаемости бизнеса</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">
+          <div style="text-align:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1;">50%</div>
+            <div style="font-size:10px;color:var(--gray2);margin-top:4px;">бизнесов закрываются<br>в первые 5 лет</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1;">65%</div>
+            <div style="font-size:10px;color:var(--gray2);margin-top:4px;">не доживают<br>до 10 лет</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1;">90%</div>
+            <div style="font-size:10px;color:var(--gray2);margin-top:4px;">стартапов<br>терпят неудачу</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--gray2);line-height:1.7;margin:0;">В России число ликвидированных компаний стабильно превышает число открытых. В США лишь 34.7% бизнесов доживают до 10 лет. В Великобритании — 40%. Одиночка против системы — проигранная ставка. Мы строим систему, где каждый защищён командой, процессами и общей экономикой.</p>
+        <p style="font-size:11px;color:var(--gray);margin-top:8px;margin-bottom:0;">Источники: U.S. Bureau of Labor Statistics, Росстат, SCORE.org</p>
       </div>
 
     </div>
@@ -6785,7 +6896,7 @@ function faqFilter(cat) {
           <li><strong style="color:var(--white);">EA для CTO</strong> — технический бэкграунд приветствуется. Постановка задач команде разработки, контроль спринтов, технические митинги</li>
           <li><strong style="color:var(--white);">EA для CMO</strong> — маркетинговая специфика. Координация SMM, PR, Таргетологов, Affiliate. Отчёты по метрикам роста</li>
           <li><strong style="color:var(--white);">EA для CCO</strong> — партнёрская специфика. Переписка с партнёрками, контроль офферов, договорная документация</li>
-          <li><strong style="color:var(--white);">EA для CFO</strong> — финансовая специфика. Финансовые отчёты, налоговые документы, платёжные поручения. Полиграф обязателен</li>
+          <li><strong style="color:var(--white);">EA для CFO</strong> — финансовая специфика. Финансовые отчёты, налоговые документы, платёжные поручения</li>
         </ul>
       </div>
       <div class="modal-section">
@@ -7075,8 +7186,7 @@ function faqFilter(cat) {
           <li>Опыт в международном трудовом праве от 2 лет</li>
           <li>Понимание специфики digital / IT бизнеса</li>
           <li>Английский язык — уверенный уровень</li>
-          <li>Полиграф при оформлении</li>
-        </ul>
+                  </ul>
       </div>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
         <a href="https://docs.google.com/spreadsheets/d/19384DYW-JzXdQC5SWRIiaxbenag3zwpOeFjlPTewf2w/edit?usp=sharing" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--gold);text-decoration:none;border:1px solid rgba(201,168,76,0.3);padding:5px 12px;border-radius:3px;background:rgba(201,168,76,0.05);">
@@ -7114,8 +7224,7 @@ function faqFilter(cat) {
           <li>Опыт бухгалтера от 2 лет</li>
           <li>Опыт работы с международными компаниями</li>
           <li>Знание основ налогового учёта в нескольких странах</li>
-          <li>Полиграф при оформлении</li>
-        </ul>
+                  </ul>
       </div>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
         <a href="https://docs.google.com/spreadsheets/d/19384DYW-JzXdQC5SWRIiaxbenag3zwpOeFjlPTewf2w/edit?usp=sharing" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--gold);text-decoration:none;border:1px solid rgba(201,168,76,0.3);padding:5px 12px;border-radius:3px;background:rgba(201,168,76,0.05);">
