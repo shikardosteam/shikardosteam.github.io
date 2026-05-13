@@ -213,12 +213,95 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
 .shares-progress{position:relative;height:24px;background:var(--dark4);margin:8px 0;}
 .shares-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));position:relative;}
 .shares-label{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--black);}
+
+/* ===== MOBILE SIDEBAR TOGGLE ===== */
+.sidebar-toggle{
+  display:none;
+  position:fixed;
+  top:10px;
+  left:10px;
+  z-index:200;
+  width:40px;
+  height:40px;
+  background:var(--dark2);
+  border:1px solid rgba(201,168,76,0.3);
+  color:var(--gold);
+  cursor:pointer;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  font-size:20px;
+  line-height:1;
+}
+.sidebar-toggle span{
+  display:block;
+  width:20px;
+  height:2px;
+  background:var(--gold);
+  position:relative;
+  transition:all 0.3s;
+}
+.sidebar-toggle span::before,
+.sidebar-toggle span::after{
+  content:'';
+  position:absolute;
+  width:20px;
+  height:2px;
+  background:var(--gold);
+  left:0;
+  transition:all 0.3s;
+}
+.sidebar-toggle span::before{top:-6px;}
+.sidebar-toggle span::after{top:6px;}
+.sidebar-toggle.active span{background:transparent;}
+.sidebar-toggle.active span::before{top:0;transform:rotate(45deg);}
+.sidebar-toggle.active span::after{top:0;transform:rotate(-45deg);}
+
+.sidebar-overlay{
+  display:none;
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.5);
+  z-index:40;
+}
+.sidebar-overlay.active{display:block;}
+
+@media(max-width:768px){
+  .sidebar-toggle{display:flex;}
+  .sidebar{
+    transform:translateX(-100%);
+    transition:transform 0.3s ease;
+    z-index:60;
+  }
+  .sidebar.open{
+    transform:translateX(0);
+  }
+  .main{
+    margin-left:0 !important;
+  }
+  .topbar{
+    padding-left:56px !important;
+  }
+  /* Cards grids */
+  .alert-grid{grid-template-columns:1fr !important;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr) !important;}
+  .chart-grid{grid-template-columns:1fr !important;}
+}
+@media(max-width:480px){
+  .kpi-grid{grid-template-columns:1fr !important;}
+}
+
 </style>
 </head>
 <body>
 
 <!-- SIDEBAR -->
-<aside class="sidebar">
+<!-- MOBILE SIDEBAR TOGGLE -->
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleDashSidebar()" aria-label="Меню"><span></span></button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleDashSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="dashSidebar">
   <div class="sidebar-logo">
     <div class="sidebar-logo-text">Shikardos</div>
     <div class="sidebar-logo-sub">Command Center</div>
@@ -6538,6 +6621,30 @@ function updateTimer(){
   if(el) el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
 setInterval(updateTimer,1000);
+
+// Mobile sidebar toggle
+function toggleDashSidebar(){
+  var sb=document.getElementById('dashSidebar');
+  var btn=document.getElementById('sidebarToggle');
+  var ov=document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  btn.classList.toggle('active');
+  ov.classList.toggle('active');
+}
+// Close sidebar when nav-item clicked on mobile
+document.querySelectorAll('.nav-item').forEach(function(item){
+  item.addEventListener('click',function(){
+    if(window.innerWidth<=768){
+      var sb=document.getElementById('dashSidebar');
+      var btn=document.getElementById('sidebarToggle');
+      var ov=document.getElementById('sidebarOverlay');
+      sb.classList.remove('open');
+      btn.classList.remove('active');
+      ov.classList.remove('active');
+    }
+  });
+});
+
 </script>
 </body>
 </html>
