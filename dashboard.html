@@ -213,93 +213,12 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
 .shares-progress{position:relative;height:24px;background:var(--dark4);margin:8px 0;}
 .shares-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));position:relative;}
 .shares-label{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--black);}
-
-/* ===== MOBILE SIDEBAR TOGGLE ===== */
-.sidebar-toggle{
-  display:none;
-  position:fixed;
-  top:10px;
-  left:10px;
-  z-index:200;
-  width:40px;
-  height:40px;
-  background:var(--dark2);
-  border:1px solid rgba(201,168,76,0.3);
-  color:var(--gold);
-  cursor:pointer;
-  align-items:center;
-  justify-content:center;
-  padding:0;
-  font-size:20px;
-  line-height:1;
-}
-.sidebar-toggle span{
-  display:block;
-  width:20px;
-  height:2px;
-  background:var(--gold);
-  position:relative;
-  transition:all 0.3s;
-}
-.sidebar-toggle span::before,
-.sidebar-toggle span::after{
-  content:'';
-  position:absolute;
-  width:20px;
-  height:2px;
-  background:var(--gold);
-  left:0;
-  transition:all 0.3s;
-}
-.sidebar-toggle span::before{top:-6px;}
-.sidebar-toggle span::after{top:6px;}
-.sidebar-toggle.active span{background:transparent;}
-.sidebar-toggle.active span::before{top:0;transform:rotate(45deg);}
-.sidebar-toggle.active span::after{top:0;transform:rotate(-45deg);}
-
-.sidebar-overlay{
-  display:none;
-  position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,0.5);
-  z-index:40;
-}
-.sidebar-overlay.active{display:block;}
-
-@media(max-width:768px){
-  .sidebar-toggle{display:flex;}
-  .sidebar{
-    transform:translateX(-100%);
-    transition:transform 0.3s ease;
-    z-index:60;
-  }
-  .sidebar.open{
-    transform:translateX(0);
-  }
-  .main{
-    margin-left:0 !important;
-  }
-  .topbar{
-    padding-left:56px !important;
-  }
-  /* Cards grids */
-  .alert-grid{grid-template-columns:1fr !important;}
-  .kpi-grid{grid-template-columns:repeat(2,1fr) !important;}
-  .chart-grid{grid-template-columns:1fr !important;}
-}
-@media(max-width:480px){
-  .kpi-grid{grid-template-columns:1fr !important;}
-}
 </style>
 </head>
 <body>
 
-<!-- MOBILE SIDEBAR TOGGLE -->
-<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleDashSidebar()" aria-label="Меню"><span></span></button>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleDashSidebar()"></div>
-
 <!-- SIDEBAR -->
-<aside class="sidebar" id="dashSidebar">
+<aside class="sidebar">
   <div class="sidebar-logo">
     <div class="sidebar-logo-text">Shikardos</div>
     <div class="sidebar-logo-sub">Command Center</div>
@@ -712,11 +631,11 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
       <div class="grid-4">
         <div class="card">
           <div class="card-title">Участников в системе</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--white);line-height:1;">5 248</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--white);line-height:1;">5 233</div>
           <div style="font-size:10px;color:var(--gray2);margin-top:4px;">+126 за эту неделю</div>
           <div style="margin-top:12px;display:flex;flex-direction:column;gap:4px;">
             <div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:var(--gray2);">Мейкеры</span><span style="color:var(--white);">5 000</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:var(--gray2);">Команда</span><span style="color:var(--white);">248</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:var(--gray2);">Команда</span><span style="color:var(--white);">233</span></div>
           </div>
         </div>
         <div class="card">
@@ -1044,7 +963,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
 
       <div class="grid-2">
         <div class="card">
-          <div class="card-title">Топ ниш по конверсии UTM</div>
+          <div class="card-title">Топ ниш по конверсии сайта</div>
           <div class="bar-chart">
             <div class="bar-row"><div class="bar-label">AI · Syntx</div><div class="bar-track"><div class="bar-fill gold" style="width:100%;"></div></div><div class="bar-value">2.1%</div></div>
             <div class="bar-row"><div class="bar-label">ChatPlace</div><div class="bar-track"><div class="bar-fill blue" style="width:67%;"></div></div><div class="bar-value">1.4%</div></div>
@@ -1083,21 +1002,26 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
     </div>
     <div class="page-section" id="page-offers">
 
+      <div class="alert info" style="margin-bottom:16px;">
+        <span class="alert-icon">🎯</span>
+        <span><strong style="color:var(--white);">250 ниш в год</strong> · 5 команд AI-офферщиков × 10 человек · каждая команда — своя ниша в неделю · жеребьёвка по результатам прошлой недели · 5 000 мейкеров = 5 групп × 1 000</span>
+      </div>
+
       <div class="kpi-row">
         <div class="kpi-card gold">
-          <div class="kpi-label">Активных офферов</div>
-          <div class="kpi-value">4</div>
-          <div class="kpi-delta neutral">→ из 48 в год</div>
+          <div class="kpi-label">Ниш в год</div>
+          <div class="kpi-value">250</div>
+          <div class="kpi-delta neutral">→ 5 ниш/нед × 50 нед</div>
         </div>
         <div class="kpi-card green">
-          <div class="kpi-label">Доход от офферов / мес</div>
-          <div class="kpi-value">$1.61M</div>
-          <div class="kpi-delta up">↑ +18% vs прошлый</div>
+          <div class="kpi-label">Команд AI-офферщиков</div>
+          <div class="kpi-value">5</div>
+          <div class="kpi-delta neutral">→ по 10 человек</div>
         </div>
         <div class="kpi-card blue">
-          <div class="kpi-label">Средняя конверсия</div>
-          <div class="kpi-value">1.23%</div>
-          <div class="kpi-delta up">↑ +0.3% за месяц</div>
+          <div class="kpi-label">Мейкеров на нишу</div>
+          <div class="kpi-value">1 000</div>
+          <div class="kpi-delta neutral">→ квота на каждую группу</div>
         </div>
         <div class="kpi-card purple">
           <div class="kpi-label">Партнёрок подключено</div>
@@ -1105,85 +1029,73 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
           <div class="kpi-delta up">↑ макс. доля 28%</div>
         </div>
         <div class="kpi-card orange">
-          <div class="kpi-label">Офферов в тесте</div>
-          <div class="kpi-value">2</div>
-          <div class="kpi-delta neutral">→ ниши: юристы, HoReCa</div>
+          <div class="kpi-label">Активных ниш на неделе</div>
+          <div class="kpi-value">5</div>
+          <div class="kpi-delta neutral">→ параллельно</div>
         </div>
       </div>
 
+      <!-- МАТРИЦА: 5 КОМАНД × ТЕКУЩИЕ 5 НИШИ НЕДЕЛИ -->
       <div class="card">
-        <div class="card-title">Все офферы · текущий месяц <span class="card-title-badge">по доходу</span></div>
+        <div class="card-title">Матрица команд × ниши недели <span class="card-title-badge">неделя 18 · 28 апр – 4 мая 2026</span></div>
         <table class="data-table">
-          <thead><tr><th>#</th><th>Оффер</th><th>Ниша</th><th>PM</th><th>Конверсия</th><th>Регистраций</th><th>Доход</th><th>Доля рынка</th><th>Статус</th></tr></thead>
+          <thead><tr><th>Команда</th><th>Ниша недели</th><th>PM</th><th>Мейкеров</th><th>Сайт-оффер</th><th>Кодовое слово</th><th>Конверсия</th><th>Статус</th></tr></thead>
           <tbody>
             <tr>
-              <td class="rank top">1</td>
-              <td class="name">Syntx.ai</td>
-              <td>AI · контент</td>
-              <td>@pm_alexey</td>
-              <td style="color:var(--green);font-weight:700;">2.1%</td>
-              <td>58 400</td>
-              <td style="color:var(--green);font-weight:700;">$806K</td>
-              <td><div style="width:80px;height:4px;background:var(--dark4);"><div style="width:28%;height:100%;background:var(--green);"></div></div><span style="font-size:9px;color:var(--gray2);">28%</span></td>
-              <td><span class="badge badge-green">● Активен</span></td>
-            </tr>
-            <tr>
-              <td class="rank top">2</td>
-              <td class="name">ChatPlace</td>
-              <td>Мессенджеры</td>
-              <td>@pm_maria</td>
-              <td style="color:var(--gold);font-weight:700;">1.4%</td>
-              <td>28 000</td>
-              <td style="color:var(--gold);font-weight:700;">$392K</td>
-              <td><div style="width:80px;height:4px;background:var(--dark4);"><div style="width:22%;height:100%;background:var(--gold);"></div></div><span style="font-size:9px;color:var(--gray2);">22%</span></td>
-              <td><span class="badge badge-green">● Активен</span></td>
-            </tr>
-            <tr>
-              <td class="rank">3</td>
-              <td class="name">Недвижимость B2B</td>
-              <td>Риелторы</td>
+              <td style="color:var(--gold);font-weight:700;">Команда A</td>
+              <td class="name">Риелторы · CRM</td>
               <td>@pm_dmitry</td>
-              <td>0.8%</td>
-              <td>12 000</td>
-              <td>$216K</td>
-              <td><div style="width:80px;height:4px;background:var(--dark4);"><div style="width:14%;height:100%;background:var(--blue);"></div></div><span style="font-size:9px;color:var(--gray2);">14%</span></td>
-              <td><span class="badge badge-green">● Активен</span></td>
+              <td>1 000</td>
+              <td style="font-size:10px;">realtorcrm.st</td>
+              <td><code style="background:var(--gold-dim);color:var(--gold);padding:2px 6px;font-size:10px;">РИЕЛТОР</code></td>
+              <td style="color:var(--green);font-weight:700;">2.1%</td>
+              <td><span class="badge badge-green">● Live</span></td>
             </tr>
             <tr>
-              <td class="rank">4</td>
-              <td class="name">Психологи B2B</td>
-              <td>Психология</td>
+              <td style="color:var(--blue);font-weight:700;">Команда B</td>
+              <td class="name">Фитнес · GymTrack</td>
               <td>@pm_alexey</td>
-              <td>0.6%</td>
-              <td>8 400</td>
-              <td>$118K</td>
-              <td><div style="width:80px;height:4px;background:var(--dark4);"><div style="width:10%;height:100%;background:var(--purple);"></div></div><span style="font-size:9px;color:var(--gray2);">10%</span></td>
-              <td><span class="badge badge-green">● Активен</span></td>
+              <td>1 000</td>
+              <td style="font-size:10px;">gymtrack.st</td>
+              <td><code style="background:rgba(76,140,175,0.15);color:var(--blue);padding:2px 6px;font-size:10px;">ФИТНЕС</code></td>
+              <td style="color:var(--green);font-weight:700;">1.8%</td>
+              <td><span class="badge badge-green">● Live</span></td>
             </tr>
             <tr>
-              <td class="rank">5</td>
-              <td class="name">Юристы · AutoDoc</td>
-              <td>Юриспруденция</td>
-              <td>@pm_sergey</td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-              <td><span class="badge badge-orange">⚡ Тест</span></td>
-            </tr>
-            <tr>
-              <td class="rank">6</td>
-              <td class="name">HoReCa · MenuPro</td>
-              <td>Рестораны</td>
+              <td style="color:var(--green);font-weight:700;">Команда C</td>
+              <td class="name">E-commerce · ShopAI</td>
               <td>@pm_maria</td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
+              <td>1 000</td>
+              <td style="font-size:10px;">shopai.st</td>
+              <td><code style="background:rgba(76,175,130,0.15);color:var(--green);padding:2px 6px;font-size:10px;">МАГАЗИН</code></td>
+              <td style="color:var(--gold);font-weight:700;">1.4%</td>
+              <td><span class="badge badge-green">● Live</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--purple);font-weight:700;">Команда D</td>
+              <td class="name">EdTech · LearnBot</td>
+              <td>@pm_sergey</td>
+              <td>1 000</td>
+              <td style="font-size:10px;">learnbot.st</td>
+              <td><code style="background:rgba(156,111,214,0.15);color:var(--purple);padding:2px 6px;font-size:10px;">ОБУЧЕНИЕ</code></td>
+              <td>0.9%</td>
               <td><span class="badge badge-orange">⚡ Тест</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--orange);font-weight:700;">Команда E</td>
+              <td class="name">B2B SaaS · Syntx.ai</td>
+              <td>@pm_oleg</td>
+              <td>1 000</td>
+              <td style="font-size:10px;">syntx.st</td>
+              <td><code style="background:rgba(230,126,34,0.15);color:var(--orange);padding:2px 6px;font-size:10px;">АВТОМАТИЗАЦИЯ</code></td>
+              <td style="color:var(--green);font-weight:700;">2.4%</td>
+              <td><span class="badge badge-green">● Live</span></td>
             </tr>
           </tbody>
         </table>
+        <div style="margin-top:12px;padding:10px;background:var(--gold-dim);border-left:3px solid var(--gold);font-size:11px;color:var(--white);">
+          🎲 <strong>Жеребьёвка:</strong> каждый понедельник команды выбирают нишу на неделю. Порядок выбора — по результатам КЭ команды за прошлую неделю (лидер выбирает первым).
+        </div>
       </div>
 
       <div class="grid-2">
@@ -1193,8 +1105,8 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
           <div class="bar-chart">
             <div class="bar-row"><div class="bar-label">Syntx.ai</div><div class="bar-track"><div class="bar-fill green" style="width:28%;"></div></div><div class="bar-value">28%</div></div>
             <div class="bar-row"><div class="bar-label">ChatPlace</div><div class="bar-track"><div class="bar-fill gold" style="width:22%;"></div></div><div class="bar-value">22%</div></div>
-            <div class="bar-row"><div class="bar-label">Недвижимость</div><div class="bar-track"><div class="bar-fill blue" style="width:14%;"></div></div><div class="bar-value">14%</div></div>
-            <div class="bar-row"><div class="bar-label">Психологи</div><div class="bar-track"><div class="bar-fill purple" style="width:10%;"></div></div><div class="bar-value">10%</div></div>
+            <div class="bar-row"><div class="bar-label">GymTrack</div><div class="bar-track"><div class="bar-fill blue" style="width:14%;"></div></div><div class="bar-value">14%</div></div>
+            <div class="bar-row"><div class="bar-label">LearnBot</div><div class="bar-track"><div class="bar-fill purple" style="width:10%;"></div></div><div class="bar-value">10%</div></div>
             <div class="bar-row"><div class="bar-label">Остальные 7</div><div class="bar-track"><div class="bar-fill orange" style="width:26%;"></div></div><div class="bar-value">26%</div></div>
           </div>
           <div style="margin-top:12px;padding:10px;background:var(--dark4);font-size:10px;color:var(--gray2);">
@@ -1203,36 +1115,46 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
         </div>
 
         <div class="card">
-          <div class="card-title">План офферов · следующие 4 недели</div>
-          <div style="display:flex;flex-direction:column;gap:4px;">
+          <div class="card-title">Конкурс команд AI-офферщиков <span class="card-title-badge">нормализованные метрики</span></div>
+          <div style="display:flex;flex-direction:column;gap:1px;">
             <div style="background:var(--dark4);padding:12px;display:flex;justify-content:space-between;align-items:center;">
               <div>
-                <div style="font-size:11px;color:var(--white);font-weight:700;">Неделя 1 · Юристы AutoDoc</div>
-                <div style="font-size:10px;color:var(--gray2);">PM @pm_sergey · AI команда @ai_01–10</div>
+                <div style="font-size:11px;color:var(--gold);font-weight:700;">Команда E · B2B SaaS</div>
+                <div style="font-size:9px;color:var(--gray2);">Конв. 2.4% · Eng. 8.1% · Collab 94% · $32.1/мейкер</div>
               </div>
-              <span class="badge badge-orange">В работе</span>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);">1st</div>
             </div>
             <div style="background:var(--dark4);padding:12px;display:flex;justify-content:space-between;align-items:center;">
               <div>
-                <div style="font-size:11px;color:var(--white);font-weight:700;">Неделя 2 · HoReCa MenuPro</div>
-                <div style="font-size:10px;color:var(--gray2);">PM @pm_maria · AI команда @ai_11–20</div>
+                <div style="font-size:11px;color:var(--blue);font-weight:700;">Команда A · Риелторы</div>
+                <div style="font-size:9px;color:var(--gray2);">Конв. 2.1% · Eng. 7.4% · Collab 91% · $28.7/мейкер</div>
               </div>
-              <span class="badge badge-orange">В работе</span>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--blue);">2nd</div>
             </div>
             <div style="background:var(--dark4);padding:12px;display:flex;justify-content:space-between;align-items:center;">
               <div>
-                <div style="font-size:11px;color:var(--white);font-weight:700;">Неделя 3 · Фитнес · GymTrack</div>
-                <div style="font-size:10px;color:var(--gray2);">PM @pm_alexey · AI команда @ai_21–30</div>
+                <div style="font-size:11px;color:var(--green);font-weight:700;">Команда B · Фитнес</div>
+                <div style="font-size:9px;color:var(--gray2);">Конв. 1.8% · Eng. 6.9% · Collab 87% · $24.3/мейкер</div>
               </div>
-              <span class="badge badge-gray">Планирование</span>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green);">3rd</div>
             </div>
             <div style="background:var(--dark4);padding:12px;display:flex;justify-content:space-between;align-items:center;">
               <div>
-                <div style="font-size:11px;color:var(--white);font-weight:700;">Неделя 4 · E-commerce · ShopAI</div>
-                <div style="font-size:10px;color:var(--gray2);">PM @pm_dmitry · AI команда @ai_31–40</div>
+                <div style="font-size:11px;color:var(--white);font-weight:700;">Команда C · E-commerce</div>
+                <div style="font-size:9px;color:var(--gray2);">Конв. 1.4% · Eng. 5.8% · Collab 82% · $19.8/мейкер</div>
               </div>
-              <span class="badge badge-gray">Планирование</span>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gray2);">4th</div>
             </div>
+            <div style="background:var(--dark4);padding:12px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:11px;color:var(--white);font-weight:700;">Команда D · EdTech</div>
+                <div style="font-size:9px;color:var(--gray2);">Конв. 0.9% · Eng. 4.2% · Collab 76% · $14.1/мейкер</div>
+              </div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gray2);">5th</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:var(--dark4);font-size:10px;color:var(--gray2);">
+            📊 <strong>Формула КЭ команды:</strong> Конверсия сайта (40%) + Engagement видео (30%) + % collab pickup (20%) + Доход/мейкер (10%). <strong style="color:var(--white);">Все метрики нормализованные</strong> — размер ниши не влияет.
           </div>
         </div>
       </div>
@@ -2017,7 +1939,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
 
       <div class="alert info" style="margin-bottom:16px;">
         <span class="alert-icon">📣</span>
-        <span><strong style="color:var(--white);">Блогеры — отдельный пул</strong>: 4% акций (4 000 штук) · 25 менеджеров по блогерам · подчинение HR-Директору #2 · задача: продвижение команды и офферов на свою аудиторию</span>
+        <span><strong style="color:var(--white);">Блогеры — отдельный пул</strong>: 1.5% акций (1 500 штук) · 10 менеджеров по блогерам · подчинение HR-Директору #2 · задача: продвижение команды и офферов на свою аудиторию</span>
       </div>
 
       <!-- KPI BLOGGERS -->
@@ -2262,15 +2184,15 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
 
       <div class="alert info" style="margin-bottom:16px;">
         <span class="alert-icon">🏢</span>
-        <span><strong style="color:var(--white);">Управляющая команда: 248 человек</strong> (247 + Founder) · 15% акций (15 000 шт, Founder &amp; CEO 1 000 акций включён внутри)</span>
+        <span><strong style="color:var(--white);">Управляющая команда: 233 человек</strong> (232 + Founder) · 17.5% акций (17 500 шт, Founder &amp; CEO 1 000 акций включён внутри)</span>
       </div>
 
       <!-- KPI TEAM -->
       <div class="kpi-row">
         <div class="kpi-card gold">
           <div class="kpi-label">Управл. команда</div>
-          <div class="kpi-value">248</div>
-          <div class="kpi-delta neutral">→ 247 + Founder</div>
+          <div class="kpi-value">233</div>
+          <div class="kpi-delta neutral">→ 232 + Founder</div>
         </div>
         <div class="kpi-card green">
           <div class="kpi-label">C-level + Директора</div>
@@ -2401,7 +2323,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
             <div style="font-size:10px;color:var(--gray2);margin-top:4px;">по 50 мейкеров каждый</div>
           </div>
           <div style="background:var(--orange-dim);border:1px solid rgba(232,148,76,0.3);padding:14px;text-align:center;">
-            <div style="font-size:9px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Ур. 6 · 25 менеджеров блогеров</div>
+            <div style="font-size:9px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Ур. 6 · 10 менеджеров блогеров</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);line-height:1;">25</div>
             <div style="font-size:10px;color:var(--gray2);margin-top:4px;">~14 блогеров на менеджера</div>
           </div>
@@ -2607,7 +2529,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
             </div>
           </div>
           <div style="margin-top:14px;padding:10px;background:var(--gold-dim);border-left:3px solid var(--gold);font-size:11px;color:var(--white);">
-            <strong style="color:var(--gold);">$346.4M за 5 лет</strong> · накопительно для всех 247 управленцев (без Founder) · средняя $1.4M на чел.
+            <strong style="color:var(--gold);">$346.4M за 5 лет</strong> · накопительно для всех 232 управленцев (без Founder) · средняя $1.4M на чел.
           </div>
         </div>
       </div>
@@ -2615,13 +2537,13 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
       <!-- РАСПРЕДЕЛЕНИЕ АКЦИЙ + ГЕОГРАФИЯ -->
       <div class="grid-2">
         <div class="card">
-          <div class="card-title">💎 Распределение 15% акций команды <span class="card-title-badge">15 000 шт · Founder включён</span></div>
+          <div class="card-title">💎 Распределение 17.5% акций команды <span class="card-title-badge">17 500 шт · Founder включён</span></div>
 
           <div style="display:flex;flex-direction:column;gap:1px;font-size:11px;">
             <!-- БЛОК 1: Базовые категории -->
             <div style="background:var(--dark4);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;">
               <span style="color:var(--white);">📦 Стартовые подарочные (за веру в проект)</span>
-              <span style="color:var(--gold);font-weight:700;">599</span>
+              <span style="color:var(--gold);font-weight:700;">2 140</span>
             </div>
             <div style="background:var(--gold-dim);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--gold);">
               <span style="color:var(--white);font-weight:700;">💵 Founder &amp; CEO (5 лет × 200 акц/год · 1%)</span>
@@ -2643,8 +2565,8 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
               <span style="color:var(--green);font-weight:700;">750</span>
             </div>
             <div style="background:var(--dark4);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="color:var(--gray2);font-size:10px;">HR-Менеджер блогеров × 25</span>
-              <span style="color:var(--green);font-weight:700;">375</span>
+              <span style="color:var(--gray2);font-size:10px;">HR-Менеджер блогеров × 10</span>
+              <span style="color:var(--green);font-weight:700;">150</span>
             </div>
             <div style="background:var(--dark4);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
               <span style="color:var(--gray2);font-size:10px;">Project Manager × 10</span>
@@ -2680,19 +2602,19 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
             <!-- ИТОГО распределено -->
             <div style="background:var(--dark2);padding:12px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);">
               <span style="color:var(--white);font-weight:700;">✅ Итого распределено</span>
-              <span style="color:var(--gold);font-weight:700;font-size:13px;">14 074</span>
+              <span style="color:var(--gold);font-weight:700;font-size:13px;">15 390</span>
             </div>
 
             <!-- РЕЗЕРВ -->
             <div style="background:var(--blue-dim);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--blue);">
               <span style="color:var(--white);">🛡️ Резерв (премии + кадровый резерв)</span>
-              <span style="color:var(--blue);font-weight:700;">926</span>
+              <span style="color:var(--blue);font-weight:700;">2 110</span>
             </div>
 
             <!-- ИТОГО общий -->
             <div style="background:var(--gold-dim);padding:14px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;border:2px solid var(--gold);">
               <span style="color:var(--gold);font-weight:700;font-size:13px;">💎 ВСЕГО АКЦИЙ КОМАНДЕ</span>
-              <span style="color:var(--gold);font-weight:700;font-family:'Bebas Neue',sans-serif;font-size:22px;">15 000</span>
+              <span style="color:var(--gold);font-weight:700;font-family:'Bebas Neue',sans-serif;font-size:22px;">17 500</span>
             </div>
           </div>
 
@@ -2700,7 +2622,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
             💎 Все акции команды на vesting 5 лет (cliff 1 год). Доход 1 акции в год 5: <strong style="color:var(--gold);">$2 036/мес</strong>. Капитал акции в год 5: <strong style="color:var(--gold);">$80 000</strong>.
           </div>
           <div style="margin-top:8px;padding:8px 10px;background:var(--dark4);font-size:10px;color:var(--gray2);">
-            📊 <strong style="color:var(--white);">Источник правды</strong>: распределение синхронизировано с модальным окном на shikardosteam.html (раздел "Команда → Распределение акций"). Founder &amp; CEO 1 000 акций — внутри 15% пула команды.
+            📊 <strong style="color:var(--white);">Источник правды</strong>: распределение синхронизировано с модальным окном на shikardosteam.html (раздел "Команда → Распределение акций"). Founder &amp; CEO 1 000 акций — внутри 17.5% пула команды.
           </div>
         </div>
 
@@ -2869,7 +2791,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
             <div style="background:var(--dark4);padding:12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--blue);">
               <div>
                 <div style="font-size:11px;color:var(--white);font-weight:700;">🏢 Управляющая команда · 15%</div>
-                <div style="font-size:10px;color:var(--gray2);">248 чел (Founder &amp; CEO 1 000 акц включён)</div>
+                <div style="font-size:10px;color:var(--gray2);">233 чел (Founder &amp; CEO 1 000 акц включён)</div>
               </div>
               <div style="text-align:right;">
                 <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--blue);">15 000</div>
@@ -4299,17 +4221,17 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
             <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);font-size:10px;color:var(--gray2);">150 акций/год · <strong style="color:var(--green);">750 за 5 лет</strong></div>
           </div>
 
-          <!-- HR блогеры × 25 -->
+          <!-- HR блогеры × 10 -->
           <div style="background:var(--dark4);padding:16px;">
-            <div style="font-size:11px;font-weight:700;color:var(--orange);letter-spacing:1px;margin-bottom:10px;">HR-МЕНЕДЖЕР (БЛОГЕРЫ) × 25</div>
+            <div style="font-size:11px;font-weight:700;color:var(--orange);letter-spacing:1px;margin-bottom:10px;">HR-МЕНЕДЖЕР (БЛОГЕРЫ) × 10</div>
             <div style="display:flex;flex-direction:column;gap:4px;font-size:11px;">
-              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">1–5 место</span><span style="color:var(--gold);font-weight:700;">+5 акций</span></div>
-              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">6–10 место</span><span style="color:var(--gold);font-weight:700;">+4 акции</span></div>
-              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">11–15 место</span><span style="color:var(--gold);font-weight:700;">+3 акции</span></div>
-              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">16–20 место</span><span style="color:var(--gold);font-weight:700;">+2 акции</span></div>
-              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">21–25 место</span><span style="color:var(--gold);font-weight:700;">+1 акция</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">1–2 место</span><span style="color:var(--gold);font-weight:700;">+5 акций</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">3–4 место</span><span style="color:var(--gold);font-weight:700;">+4 акции</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">5–6 место</span><span style="color:var(--gold);font-weight:700;">+3 акции</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">7–8 место</span><span style="color:var(--gold);font-weight:700;">+2 акции</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--gray2);">9–10 место</span><span style="color:var(--gold);font-weight:700;">+1 акция</span></div>
             </div>
-            <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);font-size:10px;color:var(--gray2);">75 акций/год · <strong style="color:var(--green);">375 за 5 лет</strong></div>
+            <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);font-size:10px;color:var(--gray2);">30 акций/год · <strong style="color:var(--green);">150 за 5 лет</strong></div>
           </div>
 
           <!-- PM × 10 -->
@@ -4382,7 +4304,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
             </tbody>
           </table>
           <div style="margin-top:12px;padding:10px;background:var(--gold-dim);border-left:3px solid var(--gold);font-size:11px;color:var(--white);">
-            💎 Конкурсные акции — бонус <strong>сверх</strong> ЗП-вестинга. Из пула 15% команды. Кайдзен и ивенты — отдельно, из Фонда развития.
+            💎 Конкурсные акции — бонус <strong>сверх</strong> ЗП-вестинга. Из пула 17.5% команды. Кайдзен и ивенты — отдельно, из Фонда развития.
           </div>
         </div>
 
@@ -4454,7 +4376,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
         <div class="kpi-card gold">
           <div class="kpi-label">Участвовали в опросе</div>
           <div class="kpi-value">89%</div>
-          <div class="kpi-delta up">↑ 220 из 248</div>
+          <div class="kpi-delta up">↑ 205 из 233</div>
         </div>
         <div class="kpi-card blue">
           <div class="kpi-label">eNPS (рекомендуют команду)</div>
@@ -4901,7 +4823,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
 
       <div class="alert info" style="margin-bottom:16px;">
         <span class="alert-icon">⚡</span>
-        <span><strong style="color:var(--white);">Коэффициент Эффективности (КЭ)</strong> · ежегодное распределение акций мейкерам по итогам года · 5 тиров: топ-20% получают +5 акций, далее +4/+3/+2/+1 · главные метрики: UTM-конверсия (главная) + просмотры</span>
+        <span><strong style="color:var(--white);">Коэффициент Эффективности (КЭ)</strong> · ежегодное распределение акций мейкерам по итогам года · 5 тиров: топ-20% получают +5 акций, далее +4/+3/+2/+1 · формула: Просмотры (40%) + Engagement (40%) + Равномерность (20%)</span>
       </div>
 
       <!-- KPI -->
@@ -5053,7 +4975,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
                 <span style="color:var(--white);font-weight:700;">847 / 1 000</span>
               </div>
               <div class="bar-track" style="height:18px;"><div class="bar-fill gold" style="width:84.7%;"></div></div>
-              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">UTM-конверсия от 4.5% · среднее 6.2%</div>
+              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">Engagement Rate от 8.0% · среднее 9.4%</div>
             </div>
             <div>
               <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
@@ -5061,7 +4983,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
                 <span style="color:var(--white);font-weight:700;">1 124 / 1 000</span>
               </div>
               <div class="bar-track" style="height:18px;"><div class="bar-fill blue" style="width:100%;"></div></div>
-              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">UTM 3.0-4.4% · ротация на 31 дек</div>
+              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">Eng. Rate 6.0-7.9% · ротация на 31 дек</div>
             </div>
             <div>
               <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
@@ -5069,7 +4991,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
                 <span style="color:var(--white);font-weight:700;">1 312 / 1 000</span>
               </div>
               <div class="bar-track" style="height:18px;"><div class="bar-fill green" style="width:100%;"></div></div>
-              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">UTM 2.0-2.9% · средний тир</div>
+              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">Eng. Rate 4.0-5.9% · средний тир</div>
             </div>
             <div>
               <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
@@ -5077,7 +4999,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
                 <span style="color:var(--white);font-weight:700;">1 028 / 1 000</span>
               </div>
               <div class="bar-track" style="height:18px;"><div class="bar-fill purple" style="width:100%;"></div></div>
-              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">UTM 1.0-1.9% · нужен рост</div>
+              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">Eng. Rate 2.0-3.9% · нужен рост</div>
             </div>
             <div>
               <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
@@ -5085,7 +5007,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
                 <span style="color:var(--white);font-weight:700;">689 / 1 000</span>
               </div>
               <div class="bar-track" style="height:18px;"><div class="bar-fill" style="width:68.9%;background:var(--gray2);"></div></div>
-              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">UTM &lt;1.0% · стартовый тир</div>
+              <div style="font-size:9px;color:var(--gray2);margin-top:3px;">Eng. Rate &lt;2.0% · стартовый тир</div>
             </div>
           </div>
 
@@ -5100,7 +5022,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
         <div class="card">
           <div class="card-title">🏆 Топ-15 мейкеров по КЭ <span class="card-title-badge">текущий ранг 2026</span></div>
           <table class="data-table">
-            <thead><tr><th class="rank">#</th><th>Мейкер</th><th>UTM %</th><th>Просм/нед</th><th>КЭ</th><th>Прогноз</th></tr></thead>
+            <thead><tr><th class="rank">#</th><th>Мейкер</th><th>Eng. Rate</th><th>Просм/нед</th><th>КЭ</th><th>Прогноз</th></tr></thead>
             <tbody>
               <tr><td class="rank top">1</td><td class="name">@kate_viral</td><td><span style="color:var(--green);font-weight:700;">11.4%</span></td><td>2.4M</td><td style="color:var(--gold);font-weight:700;">8.2</td><td><span class="badge badge-gold">+5</span></td></tr>
               <tr><td class="rank top">2</td><td class="name">@max_content</td><td><span style="color:var(--green);font-weight:700;">10.8%</span></td><td>2.1M</td><td style="color:var(--gold);font-weight:700;">7.8</td><td><span class="badge badge-gold">+5</span></td></tr>
@@ -5262,7 +5184,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
             <div style="background:var(--dark4);padding:14px;border-left:3px solid var(--green);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
                 <div>
-                  <div style="font-size:11px;color:var(--white);font-weight:700;">11.4% UTM-конверсия · YouTube</div>
+                  <div style="font-size:11px;color:var(--white);font-weight:700;">11.4% Engagement Rate · YouTube</div>
                   <div style="font-size:10px;color:var(--green);">@kate_viral · апрель 2026</div>
                 </div>
                 <span class="badge badge-green">Рекорд</span>
@@ -5310,7 +5232,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
               <div style="min-width:50px;height:50px;background:var(--gold-dim);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--gold);">ВШ</div>
               <div style="flex:1;">
                 <div style="font-size:12px;color:var(--white);font-weight:700;margin-bottom:4px;">Валерий Шикардос · Founder</div>
-                <div style="font-size:10px;color:var(--gray2);line-height:1.6;">Архитектор всей системы Shikardos Team. Превратил идею децентрализованной медиа-корпорации в работающий механизм с 248 управленцами и 5 000 мейкеров.</div>
+                <div style="font-size:10px;color:var(--gray2);line-height:1.6;">Архитектор всей системы Shikardos Team. Превратил идею децентрализованной медиа-корпорации в работающий механизм с 233 управленцами и 5 000 мейкеров.</div>
               </div>
               <span class="badge badge-gold">Founder</span>
             </div>
@@ -5328,7 +5250,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
               <div style="min-width:50px;height:50px;background:rgba(76,140,175,0.15);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--blue);">КВ</div>
               <div style="flex:1;">
                 <div style="font-size:12px;color:var(--white);font-weight:700;margin-bottom:4px;">Kate @kate_viral · Мейкер</div>
-                <div style="font-size:10px;color:var(--gray2);line-height:1.6;">Двойной рекордсмен 2026: 2.4M просмотров за 24ч + 11.4% UTM-конверсия. 14 акций — топ-1 держатель среди мейкеров. Доход $1 778/мес.</div>
+                <div style="font-size:10px;color:var(--gray2);line-height:1.6;">Двойной рекордсмен 2026: 2.4M просмотров за 24ч + 11.4% Engagement Rate. 14 акций — топ-1 держатель среди мейкеров. Доход $1 778/мес.</div>
               </div>
               <span class="badge badge-blue">Рекордсмен</span>
             </div>
@@ -5800,10 +5722,10 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
               <div style="font-size:9px;color:var(--gray2);">Сохранить состояние всех систем сейчас</div>
             </button>
 
-            <button onclick="alert('Push всем 248 управленцам отправлен')" style="background:rgba(156,111,214,0.08);border:1px solid rgba(156,111,214,0.4);padding:14px;color:var(--white);cursor:pointer;text-align:left;font-family:inherit;">
+            <button onclick="alert('Push всем 233 управленцам отправлен')" style="background:rgba(156,111,214,0.08);border:1px solid rgba(156,111,214,0.4);padding:14px;color:var(--white);cursor:pointer;text-align:left;font-family:inherit;">
               <div style="font-size:18px;margin-bottom:6px;">📢</div>
               <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:2px;">Push команде</div>
-              <div style="font-size:9px;color:var(--gray2);">Отправить уведомление всем 248 управленцам</div>
+              <div style="font-size:9px;color:var(--gray2);">Отправить уведомление всем 233 управленцам</div>
             </button>
 
             <button onclick="alert('Эскалация передана CEO @Shikardos_V')" style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.4);padding:14px;color:var(--white);cursor:pointer;text-align:left;font-family:inherit;">
@@ -6616,29 +6538,6 @@ function updateTimer(){
   if(el) el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
 setInterval(updateTimer,1000);
-
-// Mobile sidebar toggle
-function toggleDashSidebar(){
-  var sb=document.getElementById('dashSidebar');
-  var btn=document.getElementById('sidebarToggle');
-  var ov=document.getElementById('sidebarOverlay');
-  sb.classList.toggle('open');
-  btn.classList.toggle('active');
-  ov.classList.toggle('active');
-}
-// Close sidebar when nav-item clicked on mobile
-document.querySelectorAll('.nav-item').forEach(function(item){
-  item.addEventListener('click',function(){
-    if(window.innerWidth<=768){
-      var sb=document.getElementById('dashSidebar');
-      var btn=document.getElementById('sidebarToggle');
-      var ov=document.getElementById('sidebarOverlay');
-      sb.classList.remove('open');
-      btn.classList.remove('active');
-      ov.classList.remove('active');
-    }
-  });
-});
 </script>
 </body>
 </html>
