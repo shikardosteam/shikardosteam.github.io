@@ -3845,31 +3845,31 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
         </div>
 
         <div class="card">
-          <div class="card-title">📋 Процедура замены · 5 шагов</div>
+          <div class="card-title">📋 Процедура списания <span class="card-title-badge">-1 акция/мес</span></div>
           <div style="display:flex;flex-direction:column;gap:1px;">
             <div style="background:var(--dark4);padding:12px;display:flex;gap:12px;align-items:flex-start;">
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--red);min-width:28px;line-height:1;">01</div>
-              <div><div style="font-size:11px;color:var(--white);font-weight:700;">Apify фиксирует нарушение</div><div style="font-size:10px;color:var(--gray2);">Авто · 3 нед подряд &lt;6 видео → статус "Замена"</div></div>
+              <div><div style="font-size:11px;color:var(--white);font-weight:700;">Нет ссылок за неделю → заморозка</div><div style="font-size:10px;color:var(--gray2);">Авто · бот убирает ссылку из ротации, все акции заморожены, доход = 0</div></div>
             </div>
             <div style="background:var(--dark4);padding:12px;display:flex;gap:12px;align-items:flex-start;">
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--orange);min-width:28px;line-height:1;">02</div>
-              <div><div style="font-size:11px;color:var(--white);font-weight:700;">HR получает уведомление в боте</div><div style="font-size:10px;color:var(--gray2);">Авто · карточка с историей мейкера</div></div>
+              <div><div style="font-size:11px;color:var(--white);font-weight:700;">Уведомления с альтернативами</div><div style="font-size:10px;color:var(--gray2);">Бот · работай сам / найми подрядчика / продай акции</div></div>
             </div>
             <div style="background:var(--dark4);padding:12px;display:flex;gap:12px;align-items:flex-start;">
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);min-width:28px;line-height:1;">03</div>
-              <div><div style="font-size:11px;color:var(--white);font-weight:700;">Финальное предупреждение</div><div style="font-size:10px;color:var(--gray2);">HR пишет мейкеру · 48ч на ответ</div></div>
+              <div><div style="font-size:11px;color:var(--white);font-weight:700;">Каждый месяц простоя = -1 акция</div><div style="font-size:10px;color:var(--gray2);">Списывается с баланса безвозвратно</div></div>
             </div>
             <div style="background:var(--dark4);padding:12px;display:flex;gap:12px;align-items:flex-start;">
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--blue);min-width:28px;line-height:1;">04</div>
-              <div><div style="font-size:11px;color:var(--white);font-weight:700;">Отзыв акций и ротации</div><div style="font-size:10px;color:var(--gray2);">Бот убирает ссылки из Round Robin · акции замораживаются</div></div>
+              <div><div style="font-size:11px;color:var(--white);font-weight:700;">0 акций = выход из системы</div><div style="font-size:10px;color:var(--gray2);">Место передаётся новому мейкеру из очереди</div></div>
             </div>
             <div style="background:var(--dark4);padding:12px;display:flex;gap:12px;align-items:flex-start;">
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green);min-width:28px;line-height:1;">05</div>
-              <div><div style="font-size:11px;color:var(--white);font-weight:700;">Новый мейкер из очереди</div><div style="font-size:10px;color:var(--gray2);">HR берёт следующего · онбординг 1 день</div></div>
+              <div><div style="font-size:11px;color:var(--white);font-weight:700;">Возврат в любой момент</div><div style="font-size:10px;color:var(--gray2);">Скинул ссылки → разморозка, доход восстанавливается (минус списанные)</div></div>
             </div>
           </div>
           <div style="margin-top:12px;padding:10px;background:var(--dark4);font-size:11px;color:var(--white);">
-            ⏱️ <strong>Полный цикл: 3-5 дней</strong> от триггера до нового мейкера в ротации.
+            ⚠️ <strong>Исключение:</strong> документально подтверждённая мед. экстренная ситуация. <strong>Механика одинакова для всех</strong> — мейкеры, менеджеры, команда. Не выполняешь обязательства = -1 акция/мес.
           </div>
         </div>
       </div>
@@ -5036,7 +5036,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);min-width:28px;line-height:1;">05</div>
               <div>
                 <div style="font-size:11px;color:var(--white);font-weight:700;">Зачисление акций (раз в год)</div>
-                <div style="font-size:10px;color:var(--gray2);line-height:1.5;">31 декабря бот рассылает уведомления и зачисляет акции в кабинеты. Все акции остаются у мейкера навсегда — даже если в следующем году КЭ упадёт.</div>
+                <div style="font-size:10px;color:var(--gray2);line-height:1.5;">31 декабря бот рассылает уведомления и зачисляет акции в кабинеты. Акции не сгорают при снижении КЭ — но только пока мейкер активен. Неделя без видео = заморозка. Каждый месяц простоя = -1 акция. 0 акций = выход.</div>
               </div>
             </div>
           </div>
