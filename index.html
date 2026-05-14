@@ -4425,13 +4425,27 @@ function faqFilter(cat) {
 
         <div id="roadmap-countdown" style="background:linear-gradient(135deg,rgba(201,168,76,0.12),rgba(201,168,76,0.02));border:1px solid rgba(201,168,76,0.4);padding:32px;display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;">
           <div>
-            <div style="font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:10px;" id="rm-countdown-label">До старта проекта</div>
-            <div id="rm-countdown-value" style="font-family:'Bebas Neue',sans-serif;font-size:64px;color:var(--gold);line-height:0.95;letter-spacing:1px;">— : — : — : —</div>
-            <div id="rm-countdown-units" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;max-width:400px;">
-              <div style="font-size:9px;color:var(--gray2);text-align:center;letter-spacing:2px;text-transform:uppercase;">Дней</div>
-              <div style="font-size:9px;color:var(--gray2);text-align:center;letter-spacing:2px;text-transform:uppercase;">Часов</div>
-              <div style="font-size:9px;color:var(--gray2);text-align:center;letter-spacing:2px;text-transform:uppercase;">Минут</div>
-              <div style="font-size:9px;color:var(--gray2);text-align:center;letter-spacing:2px;text-transform:uppercase;">Секунд</div>
+            <div style="font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:10px;text-align:center;" id="rm-countdown-label">До старта проекта</div>
+            <div id="rm-countdown-grid" style="display:flex;justify-content:center;align-items:flex-start;gap:0;">
+              <div style="text-align:center;min-width:60px;">
+                <div id="rm-cd-days" style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;">00</div>
+                <div style="font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Дней</div>
+              </div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;padding:0 6px;">:</div>
+              <div style="text-align:center;min-width:60px;">
+                <div id="rm-cd-hours" style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;">00</div>
+                <div style="font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Часов</div>
+              </div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;padding:0 6px;">:</div>
+              <div style="text-align:center;min-width:60px;">
+                <div id="rm-cd-mins" style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;">00</div>
+                <div style="font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Минут</div>
+              </div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;padding:0 6px;">:</div>
+              <div style="text-align:center;min-width:60px;">
+                <div id="rm-cd-secs" style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;">00</div>
+                <div style="font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Секунд</div>
+              </div>
             </div>
           </div>
           <div style="border-left:1px solid rgba(201,168,76,0.2);padding-left:32px;">
@@ -5053,9 +5067,9 @@ function faqFilter(cat) {
 @media (max-width:768px) {
   #roadmap-countdown { grid-template-columns:1fr !important; gap:20px !important; padding:20px !important; }
   #roadmap-countdown > div:nth-child(2) { border-left:none !important; padding-left:0 !important; border-top:1px solid rgba(201,168,76,0.2); padding-top:20px; }
-  #rm-countdown-value { font-size:clamp(28px,9vw,38px) !important; text-align:center !important; }
-  #rm-countdown-label { text-align:center !important; }
-  #rm-countdown-units { max-width:100% !important; }
+  #rm-countdown-grid { gap:0 !important; }
+  #rm-countdown-grid > div:not(:empty) > div:first-child { font-size:clamp(32px,10vw,54px) !important; }
+  #rm-countdown-grid > div[style*="padding"] { font-size:clamp(32px,10vw,54px) !important; }
   .rm-q-head { flex-direction:column; align-items:flex-start; gap:14px; }
   .rm-q-stats { text-align:left; width:100%; }
 }
@@ -7673,32 +7687,30 @@ const RM_LAUNCH_DATE = new Date('2026-05-14T21:00:00Z');
 
 function rmUpdateCountdown() {
   const labelEl = document.getElementById('rm-countdown-label');
-  const valueEl = document.getElementById('rm-countdown-value');
-  if (!labelEl || !valueEl) return;
+  const daysEl = document.getElementById('rm-cd-days');
+  const hoursEl = document.getElementById('rm-cd-hours');
+  const minsEl = document.getElementById('rm-cd-mins');
+  const secsEl = document.getElementById('rm-cd-secs');
+  if (!labelEl || !daysEl) return;
 
   const now = new Date();
   const diff = RM_LAUNCH_DATE.getTime() - now.getTime();
 
   if (diff > 0) {
-    // До старта
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
     labelEl.textContent = 'До старта проекта';
-    valueEl.textContent =
-      String(days).padStart(2, '0') + ' : ' +
-      String(hours).padStart(2, '0') + ' : ' +
-      String(minutes).padStart(2, '0') + ' : ' +
-      String(seconds).padStart(2, '0');
+    daysEl.textContent = String(days).padStart(2, '0');
+    hoursEl.textContent = String(hours).padStart(2, '0');
+    minsEl.textContent = String(minutes).padStart(2, '0');
+    secsEl.textContent = String(seconds).padStart(2, '0');
   } else {
-    // После старта — день #N с запуска
     const elapsedDays = Math.floor(-diff / (1000 * 60 * 60 * 24)) + 1;
     labelEl.textContent = 'Дней с запуска проекта';
-    valueEl.textContent = '#' + elapsedDays;
-    // Скрыть подписи Дней/Часов/Минут/Секунд
-    const unitsEl = document.getElementById('rm-countdown-units');
-    if (unitsEl) unitsEl.style.display = 'none';
+    const gridEl = document.getElementById('rm-countdown-grid');
+    if (gridEl) gridEl.innerHTML = '<div style="font-family:Bebas Neue,sans-serif;font-size:54px;color:var(--gold);line-height:1;">#' + elapsedDays + '</div>';
   }
 }
 
