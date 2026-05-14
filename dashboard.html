@@ -2786,6 +2786,100 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
         </div>
       </div>
 
+      <!-- РЕФЕРАЛЬНАЯ ПРОГРАММА -->
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title">🤝 Реферальная программа · Бонусы за привлечение ТОПов</div>
+
+        <!-- ПРАВИЛА -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+          <div style="background:linear-gradient(135deg,rgba(201,168,76,0.12),var(--dark4));border:1px solid rgba(201,168,76,0.3);padding:16px;text-align:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);">+1</div>
+            <div style="font-size:11px;color:var(--white);font-weight:600;margin:4px 0;">акция за C-Level</div>
+            <div style="font-size:10px;color:var(--gray2);">CTO, CMO, CFO, CCO, COO</div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(76,140,175,0.12),var(--dark4));border:1px solid rgba(76,140,175,0.3);padding:16px;text-align:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--blue);">+1</div>
+            <div style="font-size:11px;color:var(--white);font-weight:600;margin:4px 0;">акция за 2 PM/Спецов</div>
+            <div style="font-size:10px;color:var(--gray2);">PM, PR, Affiliate, SEO, Копирайтер</div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(76,175,130,0.12),var(--dark4));border:1px solid rgba(76,175,130,0.3);padding:16px;text-align:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);">+1</div>
+            <div style="font-size:11px;color:var(--white);font-weight:600;margin:4px 0;">акция за 3 Линейных</div>
+            <div style="font-size:10px;color:var(--gray2);">HR-менеджер, БМ, AI-авто, Support</div>
+          </div>
+        </div>
+
+        <!-- УСЛОВИЯ -->
+        <div style="background:var(--dark4);border:1px solid var(--border);padding:14px 16px;margin-bottom:16px;">
+          <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:8px;">⚙️ Условия начисления</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div style="font-size:11px;color:var(--gray2);">⏱ Retention: <span style="color:var(--white);">6 месяцев</span> — привлечённый должен быть активен</div>
+            <div style="font-size:11px;color:var(--gray2);">🎯 Качество: <span style="color:var(--white);">стандартный отбор</span> — кандидат проходит все этапы</div>
+            <div style="font-size:11px;color:var(--gray2);">📊 Подсчёт: <span style="color:var(--white);">группами</span> — 1 C-Level, 2 PM, 3 Линейных = +1 акция</div>
+            <div style="font-size:11px;color:var(--gray2);">❌ Отмена: <span style="color:var(--white);">если реферал ушёл до 6 мес</span> — бонус аннулируется</div>
+          </div>
+        </div>
+
+        <!-- KPI -->
+        <div class="kpi-row" style="margin-bottom:16px;">
+          <div class="kpi-card green">
+            <div class="kpi-label">Начислено бонусов</div>
+            <div class="kpi-value">0</div>
+            <div class="kpi-delta neutral">→ старт после запуска</div>
+          </div>
+          <div class="kpi-card orange">
+            <div class="kpi-label">В ожидании (retention)</div>
+            <div class="kpi-value">0</div>
+            <div class="kpi-delta neutral">→ отсчёт 6 мес</div>
+          </div>
+          <div class="kpi-card red">
+            <div class="kpi-label">Отменённые</div>
+            <div class="kpi-value">0</div>
+            <div class="kpi-delta neutral">→ реферал ушёл</div>
+          </div>
+          <div class="kpi-card gold">
+            <div class="kpi-label">Акций выдано</div>
+            <div class="kpi-value">0</div>
+            <div class="kpi-delta neutral">из резерва 926 шт</div>
+          </div>
+        </div>
+
+        <!-- ТАБЛИЦА РЕФЕРАЛОВ -->
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:11px;">
+            <thead>
+              <tr style="background:var(--dark4);color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:1px;">
+                <th style="padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);">Реферер</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);">Привлечённый</th>
+                <th style="padding:10px 12px;text-align:center;border-bottom:1px solid var(--border);">Категория</th>
+                <th style="padding:10px 12px;text-align:center;border-bottom:1px solid var(--border);">Дата входа</th>
+                <th style="padding:10px 12px;text-align:center;border-bottom:1px solid var(--border);">До бонуса</th>
+                <th style="padding:10px 12px;text-align:center;border-bottom:1px solid var(--border);">Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td colspan="6" style="padding:24px;text-align:center;color:var(--gray2);">
+                  🚀 Данные появятся после запуска Telegram-бота и первых рефералов
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- АЛЕРТЫ -->
+        <div style="margin-top:16px;">
+          <div style="background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:16px;">🔔</span>
+            <div>
+              <div style="font-size:11px;color:var(--green);font-weight:600;">Ближайшие начисления</div>
+              <div style="font-size:10px;color:var(--gray2);">Нет бонусов, созревающих в ближайшие 30 дней</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
     <!-- ============ 11. АКЦИИ И ДОХОД ============ -->
     <div class="page-section" id="page-shares">
