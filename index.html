@@ -2547,22 +2547,31 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
 
       <div class="reveal" style="margin-bottom:40px;">
         <div class="hero-badge">Вопросы и ответы</div>
-        <h2 class="section-title">FAQ для <span class="gold">инвесторов</span></h2>
-        <p class="section-sub">40 ответов на самые частые вопросы. Если твоего вопроса здесь нет — напиши в Telegram, добавим в FAQ.</p>
+        <h2 class="section-title">FAQ — <span class="gold">вопросы и ответы</span></h2>
+        <p class="section-sub">64 ответа на самые частые вопросы от инвесторов, мейкеров, блогеров и команды. Если твоего вопроса здесь нет — напиши в Telegram, добавим в FAQ.</p>
       </div>
 
       <!-- ФИЛЬТРЫ -->
       <div class="reveal" style="margin-bottom:24px;">
-        <div class="faq-tabs">
+        <!-- Главные табы -->
+        <div class="faq-tabs" id="faq-main-tabs">
           <button class="faq-tab active" data-cat="all" onclick="faqFilter('all')">Все вопросы</button>
-          <button class="faq-tab" data-cat="model" onclick="faqFilter('model')">💡 Модель</button>
-          <button class="faq-tab" data-cat="money" onclick="faqFilter('money')">💰 Деньги</button>
-          <button class="faq-tab" data-cat="risks" onclick="faqFilter('risks')">🛡️ Риски</button>
-          <button class="faq-tab" data-cat="legal" onclick="faqFilter('legal')">⚖️ Юридика</button>
-          <button class="faq-tab" data-cat="team" onclick="faqFilter('team')">👥 Команда</button>
-          <button class="faq-tab" data-cat="numbers" onclick="faqFilter('numbers')">📊 Цифры</button>
-          <button class="faq-tab" data-cat="exit" onclick="faqFilter('exit')">🚪 Выход</button>
-          <button class="faq-tab" data-cat="traffic" onclick="faqFilter('traffic')">🔄 Трафик</button>
+          <button class="faq-tab" data-cat="investor" onclick="faqFilter('investor')">💼 Инвестор</button>
+          <button class="faq-tab" data-cat="maker" onclick="faqFilter('maker')">🎬 Мейкер</button>
+          <button class="faq-tab" data-cat="blogger" onclick="faqFilter('blogger')">📹 Блогер</button>
+          <button class="faq-tab" data-cat="general" onclick="faqFilter('general')">🌐 Общие</button>
+        </div>
+        <!-- Подкатегории инвестора -->
+        <div class="faq-tabs" id="faq-sub-tabs" style="margin-top:8px;display:none;">
+          <button class="faq-tab faq-sub-tab active" data-cat="investor-all" onclick="faqFilter('investor-all')">Все</button>
+          <button class="faq-tab faq-sub-tab" data-cat="model" onclick="faqFilter('model')">💡 Модель</button>
+          <button class="faq-tab faq-sub-tab" data-cat="money" onclick="faqFilter('money')">💰 Деньги</button>
+          <button class="faq-tab faq-sub-tab" data-cat="risks" onclick="faqFilter('risks')">🛡️ Риски</button>
+          <button class="faq-tab faq-sub-tab" data-cat="legal" onclick="faqFilter('legal')">⚖️ Юридика</button>
+          <button class="faq-tab faq-sub-tab" data-cat="team" onclick="faqFilter('team')">👥 Команда</button>
+          <button class="faq-tab faq-sub-tab" data-cat="numbers" onclick="faqFilter('numbers')">📊 Цифры</button>
+          <button class="faq-tab faq-sub-tab" data-cat="exit" onclick="faqFilter('exit')">🚪 Выход</button>
+          <button class="faq-tab faq-sub-tab" data-cat="traffic" onclick="faqFilter('traffic')">🔄 Трафик</button>
         </div>
       </div>
 
@@ -2945,6 +2954,189 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
           </div>
         </details>
 
+        <!-- МЕЙКЕР -->
+        <details class="faq-item" data-cat="maker">
+          <summary class="faq-q"><span class="faq-cat-tag">🎬 Мейкер</span>Что если у нового мейкера менее 50 просмотров на видео?</summary>
+          <div class="faq-a">
+            <p>Для новых аккаунтов действует исключение. Первые 4 недели — период раскачки: КЭ считается, но акции не списываются даже при низких просмотрах. Это время, чтобы алгоритмы платформ начали показывать твой контент.</p>
+            <p>Если после 4 недель просмотры всё ещё ниже 50 — HR-менеджер проводит анализ: качество контента, оптимизация заголовков, время публикации. Цель — помочь, а не наказать.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="maker">
+          <summary class="faq-q"><span class="faq-cat-tag">🎬 Мейкер</span>Можно ли вернуться в проект после выхода?</summary>
+          <div class="faq-a">
+            <p>Да, через 1 месяц после выхода. Повторная подача заявки — на общих основаниях, через HR-менеджера. Старые акции не восстанавливаются — начинаешь заново, как новый мейкер.</p>
+            <p>Это сделано намеренно: мы не хотим создавать ситуацию, когда мейкеры «прыгают» туда-сюда. Месяц ожидания — достаточный фильтр серьёзности намерений.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="maker">
+          <summary class="faq-q"><span class="faq-cat-tag">🎬 Мейкер</span>Есть ли сезонная корректировка КЭ?</summary>
+          <div class="faq-a">
+            <p>Нет. КЭ считается одинаково круглый год — без скидок на праздники, лето или «мёртвый сезон». Причина простая: 5 000 мейкеров работают в 250+ нишах одновременно, и сезонность у каждой ниши разная.</p>
+            <p>Если у тебя просели просмотры в январе — у кого-то в другой нише наоборот пик. Система сбалансирована за счёт масштаба.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="maker">
+          <summary class="faq-q"><span class="faq-cat-tag">🎬 Мейкер</span>Можно ли работать в нескольких нишах одновременно?</summary>
+          <div class="faq-a">
+            <p>Да. Мейкер может создать 2 аккаунта в боте и работать в двух нишах параллельно — 6 видео в неделю вместо 3, заливать на 8 площадок (24 ссылки). Соответственно, вместо 1 акции получаешь 2.</p>
+            <p>Рекомендуется разделять ниши на разные аккаунты: это диверсифицирует риски (если один аккаунт забанят — второй работает), и в будущем один аккаунт можно перепродать.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="maker">
+          <summary class="faq-q"><span class="faq-cat-tag">🎬 Мейкер</span>Можно ли делать больше 3 видео в неделю?</summary>
+          <div class="faq-a">
+            <p>Да. Больше видео = больше акций в ротации. Если делаешь 6 видео — получаешь 2 акции вместо 1. Технически можно и на одном аккаунте, но лучше разделить на два: меньше рисков выгорания аккаунта и возможность перепродажи.</p>
+            <p>Минимум — 3 видео в неделю. Максимум не ограничен, но считается по полным «тройкам»: 3 видео = 1 слот в ротации.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="maker">
+          <summary class="faq-q"><span class="faq-cat-tag">🎬 Мейкер</span>Как мейкер получает темы и офферы для видео?</summary>
+          <div class="faq-a">
+            <p>HR-менеджер назначает офферы. У каждого HR — 100 мейкеров. Каждую неделю он получает пакет офферов от команды AI-автоматизаторов (50 человек готовят офферы по 5 нишам), распределяет их по своей группе и контролирует выполнение.</p>
+            <p>Мейкер получает в боте: нишу недели, SaaS-оффер, примеры видео, кодовое слово для комментариев. Делает 3 видео → заливает на 4 платформы → отправляет ссылки боту. Всё автоматизировано.</p>
+          </div>
+        </details>
+
+        <!-- БЛОГЕР -->
+        <details class="faq-item" data-cat="blogger">
+          <summary class="faq-q"><span class="faq-cat-tag">📹 Блогер</span>Нужно ли согласовывать обзор перед публикацией?</summary>
+          <div class="faq-a">
+            <p>Нет. Мы предоставляем гайдлайны — основные правила, что должно быть в обзоре (упоминание проекта, ссылка, основные тезисы). Блогер сам решает формат, подачу, стиль. Доверяем экспертизе блогера — он лучше знает свою аудиторию.</p>
+            <p>Единственное требование — обзор должен быть честным и сбалансированным. Не нужно врать или преувеличивать. Наша модель прозрачна, и честный обзор работает лучше рекламного.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="blogger">
+          <summary class="faq-q"><span class="faq-cat-tag">📹 Блогер</span>Сколько обзоров можно сделать для проекта?</summary>
+          <div class="faq-a">
+            <p>Зависит от размера аудитории. Чем больше аудитория — тем больше обзоров мы готовы заказать. Конкретное количество обсуждается с менеджером по блогерам индивидуально.</p>
+            <p>Мы не ограничиваем одним обзором — если аудитория откликается, можно делать серию. Оплата каждого обзора — акциями, расчёт по средним просмотрам последних 30 видео блогера.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="blogger">
+          <summary class="faq-q"><span class="faq-cat-tag">📹 Блогер</span>Можно ли делать коллаборации с другими блогерами?</summary>
+          <div class="faq-a">
+            <p>Нет. Каждый блогер работает индивидуально, без коллабораций с другими блогерами проекта. Это позволяет точно отслеживать эффективность каждого обзора и правильно начислять оплату.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="blogger">
+          <summary class="faq-q"><span class="faq-cat-tag">📹 Блогер</span>Когда и как оплачивается обзор?</summary>
+          <div class="faq-a">
+            <p>Оплата — сразу после доставки обзора. Сумма рассчитывается на основе средних просмотров последних 30 видео блогера <strong>до</strong> заказа обзора. Это фиксирует стоимость заранее — никаких сюрпризов.</p>
+            <p>Оплата в акциях проекта. Акции сразу попадают в ротацию и начинают приносить доход. Конкретная формула пересчёта просмотров в акции — у менеджера по блогерам.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="blogger">
+          <summary class="faq-q"><span class="faq-cat-tag">📹 Блогер</span>Обязательно ли вставлять ссылку в описание видео?</summary>
+          <div class="faq-a">
+            <p>Да, это обязательное условие. Ссылка на общий домен проекта должна быть в описании видео — это основной канал конверсии. Без ссылки обзор не засчитывается и не оплачивается.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="blogger">
+          <summary class="faq-q"><span class="faq-cat-tag">📹 Блогер</span>Можно ли делать критический обзор с минусами?</summary>
+          <div class="faq-a">
+            <p>Да, мы приветствуем сбалансированные обзоры. Блогер может и должен показать как плюсы, так и минусы — это вызывает больше доверия у аудитории. Чисто рекламные обзоры без критики выглядят неубедительно.</p>
+            <p>Главное — честность. Если нашёл реальный минус — скажи. Аудитория ценит объективность, и такие обзоры конвертируют лучше, чем слепая похвала.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="blogger">
+          <summary class="faq-q"><span class="faq-cat-tag">📹 Блогер</span>На каких языках принимаются обзоры?</summary>
+          <div class="faq-a">
+            <p>В первый год — только на русском языке. Мы фокусируемся на русскоязычном рынке, чтобы отладить все процессы.</p>
+            <p>В будущем планируется расширение на топ-10 языков мира. Распределение акций под другие языки уже заложено в модель — но это Год 2+.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="blogger">
+          <summary class="faq-q"><span class="faq-cat-tag">📹 Блогер</span>Что если блогер удалит обзор после получения акций?</summary>
+          <div class="faq-a">
+            <p>Чёрный список + все акции за этот обзор забираются обратно. Это жёсткое правило без исключений.</p>
+            <p>Единственный случай, когда это не применяется — если блогер докажет, что видео удалила сама платформа (страйк, нарушение, технический сбой). В таком случае предоставляется скриншот или уведомление от платформы. Если доказательств нет — считается намеренным удалением.</p>
+          </div>
+        </details>
+
+        <!-- ОБЩИЕ -->
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Есть ли ограничение по возрасту для участия?</summary>
+          <div class="faq-a">
+            <p>Нет ограничений по возрасту. Если делаешь качественный контент — добро пожаловать. Мы оцениваем по результатам работы, а не по паспорту.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Принимаете ли участников из любой страны?</summary>
+          <div class="faq-a">
+            <p>Да, из любой. Мы работаем полностью удалённо, официально никого не оформляем на начальном этапе. Географических ограничений нет — важны только навыки и результат.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Как решаются споры и конфликты внутри проекта?</summary>
+          <div class="faq-a">
+            <p>Первая линия — HR-менеджер (для мейкеров) или PM (для команды). Если вопрос не решается — эскалация на директора департамента, затем на COO. Founder вмешивается только в критических случаях.</p>
+            <p>Все споры по КЭ разбираются на основе данных из трёх независимых источников (Apify, UTM, бот) — это исключает субъективность.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Какие данные вы собираете об участниках?</summary>
+          <div class="faq-a">
+            <p>Telegram ID, ссылки на аккаунты в 4 соцсетях (для верификации), статистика каналов через Apify, UTM-клики по реферальным ссылкам. Это необходимый минимум для работы системы.</p>
+            <p>Паспортные данные и документы не требуются для мейкеров и блогеров. Для управляющей команды (C-Level и выше) могут потребоваться документы — стандартная практика для ключевых позиций.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Как выплачивается доход участникам?</summary>
+          <div class="faq-a">
+            <p>Доход поступает напрямую от SaaS-партнёрок на личные реферальные аккаунты каждого участника. Мы не являемся посредником в денежных потоках — каждый участник сам зарегистрирован во всех партнёрских программах.</p>
+            <p>Способ вывода зависит от конкретной SaaS-партнёрки: PayPal, банковский перевод, крипта — какие методы оплаты предлагает сервис, на такие и получаешь.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Есть ли обучение для участников?</summary>
+          <div class="faq-a">
+            <p>Мы берём уже подготовленных специалистов, не новичков. Но развитие навыков — постоянный процесс. В Telegram-боте есть база знаний: гайды по AI-инструментам, шаблоны залетевших видео, практикумы по нишам.</p>
+            <p>Топ-5% мейкеров по просмотрам каждый месяц разбирают свои кейсы и делятся опытом с остальными. Это живая система обучения: не теория из учебников, а то, что реально работает прямо сейчас.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Есть ли гарантия дохода $30K/мес?</summary>
+          <div class="faq-a">
+            <p>Нет гарантий — есть математика. Цифры рассчитаны на основе консервативной модели, заниженной в 4,2 раза от среднерыночных показателей. Это прогноз, а не обещание.</p>
+            <p>При этом твой доход напрямую зависит от тебя: чем выше КЭ (качество и количество видео, просмотры, конверсии) — тем больше акций в ротации, тем больше трафика идёт через твои ссылки. Система вознаграждает усилия — кто работает лучше, тот зарабатывает больше.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Как работает защита от накруток?</summary>
+          <div class="faq-a">
+            <p>Три независимых источника данных: <strong>Apify</strong> (парсинг статистики с 4 платформ), <strong>UTM-трекер</strong> (реальные переходы на партнёрки), <strong>Telegram-бот</strong> (действия участников внутри системы). Ни один источник не зависит от другого — манипуляция одним не влияет на остальные.</p>
+            <p>Помимо этих трёх базовых инструментов, у нас есть дополнительные механизмы отслеживания, которые мы не раскрываем публично. Еженедельно система автоматически выявляет аномалии — резкие скачки, подозрительные паттерны, несовпадения между источниками. Красный флаг → проверка → санкции.</p>
+          </div>
+        </details>
+
+        <details class="faq-item" data-cat="general">
+          <summary class="faq-q"><span class="faq-cat-tag">🌐 Общие</span>Нужны ли документы (паспорт) для участия?</summary>
+          <div class="faq-a">
+            <p>Для мейкеров и блогеров — нет. Достаточно Telegram-аккаунта и ссылок на соцсети.</p>
+            <p>Для управляющей команды (C-Level и ключевые позиции) — могут потребоваться паспортные данные. Это стандартная практика для компаний: люди, принимающие ключевые решения, должны быть идентифицированы.</p>
+          </div>
+        </details>
+
       </div>
 
       <!-- CTA в конце -->
@@ -3063,18 +3255,37 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
 
 <script>
 function faqFilter(cat) {
-  // Tab active
-  document.querySelectorAll('.faq-tab').forEach(t => t.classList.remove('active'));
-  const activeTab = document.querySelector('.faq-tab[data-cat="' + cat + '"]');
-  if (activeTab) activeTab.classList.add('active');
+  var investorCats = ['model','money','risks','legal','team','numbers','exit','traffic'];
+  var subTabs = document.getElementById('faq-sub-tabs');
 
-  // Items
-  document.querySelectorAll('.faq-item').forEach(item => {
-    if (cat === 'all' || item.getAttribute('data-cat') === cat) {
-      item.classList.remove('hidden');
-    } else {
-      item.classList.add('hidden');
-    }
+  // Main tabs active state
+  var mainGroup = cat;
+  if (investorCats.indexOf(cat) !== -1 || cat === 'investor-all') mainGroup = 'investor';
+  document.querySelectorAll('#faq-main-tabs .faq-tab').forEach(function(t){ t.classList.remove('active'); });
+  var mainActive = document.querySelector('#faq-main-tabs .faq-tab[data-cat="' + mainGroup + '"]');
+  if (!mainActive) mainActive = document.querySelector('#faq-main-tabs .faq-tab[data-cat="all"]');
+  mainActive.classList.add('active');
+
+  // Show/hide sub-tabs
+  if (mainGroup === 'investor') {
+    subTabs.style.display = '';
+    document.querySelectorAll('#faq-sub-tabs .faq-sub-tab').forEach(function(t){ t.classList.remove('active'); });
+    var subCat = (cat === 'investor' || cat === 'investor-all') ? 'investor-all' : cat;
+    var subActive = document.querySelector('#faq-sub-tabs .faq-sub-tab[data-cat="' + subCat + '"]');
+    if (subActive) subActive.classList.add('active');
+  } else {
+    subTabs.style.display = 'none';
+  }
+
+  // Filter items
+  document.querySelectorAll('.faq-item').forEach(function(item) {
+    var itemCat = item.getAttribute('data-cat');
+    var show = false;
+    if (cat === 'all') show = true;
+    else if (cat === 'investor' || cat === 'investor-all') show = investorCats.indexOf(itemCat) !== -1;
+    else show = itemCat === cat;
+    if (show) item.classList.remove('hidden');
+    else item.classList.add('hidden');
   });
 }
 </script>
