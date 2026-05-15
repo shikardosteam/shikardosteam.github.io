@@ -278,17 +278,39 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
   }
   .main{
     margin-left:0 !important;
+    max-width:100vw;
+    overflow-x:hidden;
   }
   .topbar{
     padding-left:56px !important;
   }
+  .content{
+    padding:12px !important;
+    max-width:100vw;
+    overflow-x:hidden;
+  }
   /* Cards grids */
   .alert-grid{grid-template-columns:1fr !important;}
+  .kpi-row{grid-template-columns:repeat(2,1fr) !important;gap:6px !important;}
   .kpi-grid{grid-template-columns:repeat(2,1fr) !important;}
   .chart-grid{grid-template-columns:1fr !important;}
+  .grid-2{grid-template-columns:1fr !important;}
+  .grid-3{grid-template-columns:1fr !important;}
+  .grid-4{grid-template-columns:repeat(2,1fr) !important;}
+  .grid-3-1{grid-template-columns:1fr !important;}
+  .grid-1-3{grid-template-columns:1fr !important;}
+  .infra-grid{grid-template-columns:repeat(2,1fr) !important;}
+  /* Tables scroll */
+  .data-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .card{padding:12px !important;}
+  .section-header{padding:12px 12px 0 !important;}
 }
 @media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr !important;}
   .kpi-grid{grid-template-columns:1fr !important;}
+  .grid-4{grid-template-columns:1fr !important;}
+  .infra-grid{grid-template-columns:1fr !important;}
+  .topbar-right .period-btn{padding:3px 6px;font-size:10px;}
 }
 
 </style>
@@ -2114,7 +2136,7 @@ body.light .theme-toggle{border-color:rgba(0,0,0,0.15);}
       <!-- АКЦИИ + ПЛАН -->
       <div class="grid-2">
         <div class="card">
-          <div class="card-title">💰 Акции блогеров <span class="card-title-badge">пул 4 000</span></div>
+          <div class="card-title">💰 Акции блогеров <span class="card-title-badge">пул 1 500</span></div>
           <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:16px;">
             <div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--gold);line-height:1;">820</div>
@@ -6605,13 +6627,13 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   // Income KPI period toggle (Год 1 = 2026 — текущий год для отображения)
-  // Источник: сайт ($152.5M/год вся команда + мейкеры) + Excel ($2.41M/год управл.)
+  // Источник: сайт ($152.5M/год вся команда + мейкеры) + Excel v2 ($4.50M/год управл.)
   var incomeData = {
-    day:   { main: '$417K',   sub: 'из них управл. команда: $6.6K' },
-    week:  { main: '$2.93M',  sub: 'из них управл. команда: $46.4K' },
-    month: { main: '$12.71M', sub: 'из них управл. команда: $201K' },
-    year:  { main: '$152.5M', sub: 'из них управл. команда: $2.41M' },
-    '5y':  { main: '$3.7B',   sub: 'из них управл. команда: $346.4M' }
+    day:   { main: '$417K',   sub: 'из них управл. команда: $12.3K' },
+    week:  { main: '$2.93M',  sub: 'из них управл. команда: $86.5K' },
+    month: { main: '$12.71M', sub: 'из них управл. команда: $375K' },
+    year:  { main: '$152.5M', sub: 'из них управл. команда: $4.50M' },
+    '5y':  { main: '$3.7B',   sub: 'из них управл. команда: $397.88M' }
   };
   var incomeBtns = document.querySelectorAll('.income-period-btn');
   var incomeMain = document.getElementById('incomeMain');
@@ -6639,11 +6661,11 @@ document.addEventListener('DOMContentLoaded',function(){
   // Shares page period toggle (Раздел 11 "Акции и доход")
   // Доход системы по периодам + разбивка по 6 категориям держателей
   var sharesData = {
-    day:   { total: '$417K',   team: '$6.6K',   makers: '$292K',  teamRow: '$62.5K', fund: '$20.9K', inv: '$20.9K', blog: '$16.7K', adv: '$4.2K' },
-    week:  { total: '$2.93M',  team: '$46.4K',  makers: '$2.05M', teamRow: '$439K',  fund: '$147K',  inv: '$147K',  blog: '$117K',  adv: '$29K'  },
-    month: { total: '$12.71M', team: '$201K',   makers: '$8.90M', teamRow: '$1.91M', fund: '$636K',  inv: '$636K',  blog: '$508K',  adv: '$127K' },
-    year:  { total: '$152.5M', team: '$2.41M',  makers: '$106.8M',teamRow: '$22.9M', fund: '$7.6M',  inv: '$7.6M',  blog: '$6.1M',  adv: '$1.5M' },
-    '5y':  { total: '$3.7B',   team: '$346.4M', makers: '$2.59B', teamRow: '$555M',  fund: '$185M',  inv: '$185M',  blog: '$148M',  adv: '$37M'  }
+    day:   { total: '$417K',   team: '$12.3K',  makers: '$292K',  teamRow: '$73.2K', fund: '$20.9K', inv: '$20.9K', blog: '$6.3K',  adv: '$4.2K' },
+    week:  { total: '$2.93M',  team: '$86.5K',  makers: '$2.05M', teamRow: '$514K',  fund: '$147K',  inv: '$147K',  blog: '$44K',   adv: '$29K'  },
+    month: { total: '$12.71M', team: '$375K',   makers: '$8.90M', teamRow: '$2.23M', fund: '$636K',  inv: '$636K',  blog: '$192K',  adv: '$127K' },
+    year:  { total: '$152.5M', team: '$4.50M',  makers: '$106.8M',teamRow: '$26.7M', fund: '$7.6M',  inv: '$7.6M',  blog: '$2.3M',  adv: '$1.5M' },
+    '5y':  { total: '$3.7B',   team: '$397.88M',makers: '$2.59B', teamRow: '$647.5M',fund: '$185M',  inv: '$185M',  blog: '$55.5M', adv: '$37M'  }
   };
   var sharesBtns = document.querySelectorAll('.shares-period-btn');
   var sIncomeTotal = document.getElementById('sharesIncomeTotal');
@@ -6740,3 +6762,4 @@ document.querySelectorAll('.nav-item').forEach(function(item){
 </script>
 </body>
 </html>
+                                
