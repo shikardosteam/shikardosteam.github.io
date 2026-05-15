@@ -4638,34 +4638,15 @@ function faqFilter(cat) {
         <p class="section-sub" style="margin-bottom:32px;">Каждая задача · каждая веха · каждое нанятое место. Прогресс обновляется по мере выполнения. Это не просто план — это публичный трекер всего что мы делаем.</p>
 
         <div id="roadmap-countdown" style="background:linear-gradient(135deg,rgba(201,168,76,0.12),rgba(201,168,76,0.02));border:1px solid rgba(201,168,76,0.4);padding:32px;display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;">
-          <div>
-            <div style="font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:10px;text-align:center;" id="rm-countdown-label">До старта проекта</div>
-            <div id="rm-countdown-grid" style="display:flex;justify-content:center;align-items:flex-start;gap:0;">
-              <div style="text-align:center;min-width:60px;">
-                <div id="rm-cd-days" style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;">00</div>
-                <div style="font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Дней</div>
-              </div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;padding:0 6px;">:</div>
-              <div style="text-align:center;min-width:60px;">
-                <div id="rm-cd-hours" style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;">00</div>
-                <div style="font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Часов</div>
-              </div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;padding:0 6px;">:</div>
-              <div style="text-align:center;min-width:60px;">
-                <div id="rm-cd-mins" style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;">00</div>
-                <div style="font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Минут</div>
-              </div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;padding:0 6px;">:</div>
-              <div style="text-align:center;min-width:60px;">
-                <div id="rm-cd-secs" style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);line-height:1;">00</div>
-                <div style="font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Секунд</div>
-              </div>
-            </div>
+          <div style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:200px;">
+            <div style="width:16px;height:16px;border-radius:50%;background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,0.6);margin-bottom:14px;"></div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1;letter-spacing:3px;">ПРОЕКТ</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1;letter-spacing:3px;">ЗАПУЩЕН</div>
           </div>
           <div style="border-left:1px solid rgba(201,168,76,0.2);padding-left:32px;">
-            <div style="font-size:11px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Старт проекта</div>
+            <div style="font-size:11px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Дата запуска</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);line-height:1;margin-bottom:14px;">15 МАЯ 2026</div>
-            <p style="font-size:13px;color:var(--gray2);line-height:1.7;">День, когда Shikardos Team официально открывает приём первых участников и начинает формировать команду из 233 управленцев и 5 000 контент-мейкеров. До этого момента — фундамент: сайт, дашборд, концепция.</p>
+            <p style="font-size:13px;color:var(--gray2);line-height:1.7;">Shikardos Team официально открыл приём участников и начал формировать команду из 233 управленцев и 5&nbsp;000 контент-мейкеров. Набор открыт.</p>
           </div>
         </div>
       </div>
@@ -7948,8 +7929,8 @@ function rmGoToVacancy(vacId) {
 }
 
 // Запускаем счётчик
-rmUpdateCountdown();
-setInterval(rmUpdateCountdown, 1000);
+// rmUpdateCountdown(); // Countdown removed — project launched
+// setInterval(rmUpdateCountdown, 1000);
 
 // ═══════════════════════════════════════════════
 // INVESTOR PAGE · sticky sub-menu navigation
