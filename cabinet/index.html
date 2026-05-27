@@ -461,7 +461,7 @@ h3 { font-size:18px; }
    ============================================================ */
 
 const API_BASE = 'https://worker-production-26d0.up.railway.app/api/v1';
-let token = null;
+let token = sessionStorage.getItem('st_token') || null;
 let currentUser = null;
 let charts = {};
 
@@ -538,6 +538,7 @@ async function startTelegramAuth() {
     if (res.status === 'confirmed' && res.token) {
       cancelTelegramAuth();
       token = res.token;
+      sessionStorage.setItem('st_token', token);
       await loadCabinet();
     } else if (res.status === 'expired') {
       cancelTelegramAuth();
@@ -565,6 +566,7 @@ window.handleGoogleAuth = async function(response) {
   });
   if (data && data.token) {
     token = data.token;
+    sessionStorage.setItem('st_token', token);
     await loadCabinet();
   } else {
     showAuthStep('choose');
@@ -618,6 +620,7 @@ async function verifyOTP() {
 
   if (data && data.token) {
     token = data.token;
+    sessionStorage.setItem('st_token', token);
     await loadCabinet();
   } else {
     showAuthStep('otp');
@@ -636,6 +639,7 @@ document.addEventListener('keydown', e => {
 
 function logout() {
   token = null;
+  sessionStorage.removeItem('st_token');
   currentUser = null;
   Object.values(charts).forEach(c => c.destroy());
   charts = {};
@@ -1593,14 +1597,27 @@ function fmtDate(d) {
 }
 
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Auto-login если есть сохранённый token
+  if (token) {
+    const me = await api('/auth/me');
+    if (me && me.id) {
+      currentUser = me;
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('cabinet').style.display = 'block';
+      renderTopbar();
+      renderSidebar();
+      renderPages();
+      navigateTo('home');
+      return;
+    } else {
+      token = null;
+      sessionStorage.removeItem('st_token');
+    }
+  }
   showAuthStep('choose');
-  // Google Sign-In button (нужен Client ID из Google Cloud Console)
-  // TODO: заменить YOUR_GOOGLE_CLIENT_ID на реальный
-  const gScript = document.createElement('script');
-  gScript.src = 'https://accounts.google.com/gsi/client';
-  gScript.async = true;
-  gScript.onload = () => {
+  // Google Sign-In (GSI скрипт уже загружен в <head>)
+  function initGSI() {
     if (window.google && window.GOOGLE_CLIENT_ID) {
       google.accounts.id.initialize({
         client_id: window.GOOGLE_CLIENT_ID,
@@ -1611,8 +1628,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { theme: 'filled_black', size: 'large', width: 340, text: 'signin_with', locale: 'ru' }
       );
     }
-  };
-  document.head.appendChild(gScript);
+  }
+  if (window.google) { initGSI(); }
+  else { document.querySelector('script[src*="gsi/client"]').onload = initGSI; }
 });
 </script>
 </body>
