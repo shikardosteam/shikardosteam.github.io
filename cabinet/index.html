@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shikardos Team — Личный кабинет</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script async src="https://telegram.org/js/telegram-widget.js?22"></script>
+<style>
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --gold: #d4a843;
+  --gold-dim: rgba(212,168,67,0.12);
+  --green: #3fb950;
+  --red: #f85149;
+  --blue: #58a6ff;
+  --orange: #d29922;
+  --sidebar-w: 240px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:'Manrope',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; min-height:100vh; }
+
+/* ===== TYPOGRAPHY ===== */
+h1,h2,h3,.stat-value,.section-title { font-family:'Bebas Neue',sans-serif; letter-spacing:1.5px; }
+h1 { font-size:28px; color:var(--gold); }
+h2 { font-size:22px; color:var(--text); }
+h3 { font-size:18px; }
+.section-title { font-size:26px; color:var(--gold); margin-bottom:20px; letter-spacing:2px; }
+
+/* ===== AUTH SCREEN ===== */
+#auth-screen {
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; padding:20px;
+}
+.auth-container {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:48px 40px; max-width:420px; width:100%;
+  text-align:center;
+}
+.auth-logo {
+  font-family:'Bebas Neue',sans-serif; font-size:32px;
+  color:var(--gold); letter-spacing:6px; margin-bottom:8px;
+}
+.auth-subtitle {
+  color:var(--muted); font-size:13px; margin-bottom:32px;
+}
+.auth-divider {
+  display:flex; align-items:center; gap:12px;
+  margin:24px 0; color:var(--muted); font-size:12px;
+}
+.auth-divider::before, .auth-divider::after {
+  content:''; flex:1; height:1px; background:var(--border);
+}
+.auth-input {
+  width:100%; padding:12px 16px; font-size:14px;
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); outline:none;
+  font-family:'Manrope',sans-serif; transition:border-color 0.2s;
+}
+.auth-input:focus { border-color:var(--gold); }
+.auth-input::placeholder { color:var(--muted); }
+.auth-btn {
+  width:100%; padding:12px; font-size:14px; font-weight:700;
+  background:var(--gold); color:#0d1117; border:none;
+  border-radius:8px; cursor:pointer; letter-spacing:1px;
+  text-transform:uppercase; font-family:'Manrope',sans-serif;
+  transition:opacity 0.2s; margin-top:12px;
+}
+.auth-btn:hover { opacity:0.9; }
+.auth-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.auth-error {
+  color:var(--red); font-size:12px; margin-top:8px;
+  min-height:18px;
+}
+.auth-back {
+  color:var(--muted); font-size:12px; cursor:pointer;
+  margin-top:16px; text-decoration:underline;
+}
+.auth-back:hover { color:var(--text); }
+#telegram-login-wrap {
+  display:flex; justify-content:center; margin-bottom:8px;
+}
+.tg-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:12px; font-size:14px; font-weight:600;
+  background:#2AABEE; color:#fff; border:none;
+  border-radius:8px; cursor:pointer; font-family:'Manrope',sans-serif;
+  transition:opacity 0.2s;
+}
+.tg-btn:hover { opacity:0.9; }
+.tg-btn svg { width:20px; height:20px; }
+
+/* ===== CABINET LAYOUT ===== */
+#cabinet { display:none; }
+.sidebar {
+  position:fixed; left:0; top:0; bottom:0;
+  width:var(--sidebar-w); background:var(--card);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  z-index:50; transition:transform 0.3s;
+}
+.sidebar-header {
+  padding:20px 16px 16px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-logo {
+  font-family:'Bebas Neue',sans-serif; font-size:20px;
+  color:var(--gold); letter-spacing:4px;
+}
+.sidebar-nav {
+  flex:1; overflow-y:auto; padding:8px 0;
+}
+.sidebar-section-label {
+  font-size:10px; font-weight:700; color:var(--muted);
+  letter-spacing:2px; text-transform:uppercase;
+  padding:16px 16px 6px; margin-top:4px;
+}
+.sidebar-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 16px; cursor:pointer;
+  font-size:13px; color:var(--muted);
+  transition:all 0.15s; border-left:3px solid transparent;
+}
+.sidebar-item:hover { color:var(--text); background:rgba(255,255,255,0.03); }
+.sidebar-item.active {
+  color:var(--gold); background:var(--gold-dim);
+  border-left-color:var(--gold);
+}
+.sidebar-item-icon { font-size:16px; width:22px; text-align:center; }
+.sidebar-footer {
+  padding:16px; border-top:1px solid var(--border);
+  font-size:11px; color:var(--muted); text-align:center;
+}
+.sidebar-footer a { color:var(--gold); text-decoration:none; }
+.sidebar-footer a:hover { text-decoration:underline; }
+
+/* Top bar */
+.topbar {
+  position:fixed; top:0; left:var(--sidebar-w); right:0;
+  height:56px; background:var(--card);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px; z-index:40;
+}
+.topbar-left { display:flex; align-items:center; gap:12px; }
+.hamburger {
+  display:none; background:none; border:none;
+  color:var(--text); font-size:22px; cursor:pointer; padding:4px;
+}
+.topbar-title { font-size:14px; font-weight:600; }
+.topbar-right { display:flex; align-items:center; gap:16px; }
+.role-badge {
+  font-size:10px; font-weight:700; letter-spacing:1.5px;
+  text-transform:uppercase; padding:4px 10px;
+  border-radius:4px; background:var(--gold-dim); color:var(--gold);
+}
+.status-dot {
+  width:8px; height:8px; border-radius:50%;
+  display:inline-block; margin-right:6px;
+}
+.status-dot.active { background:var(--green); }
+.status-dot.frozen { background:var(--red); }
+.status-dot.waitlist { background:var(--orange); }
+.user-name { font-size:13px; font-weight:600; }
+.logout-btn {
+  font-size:11px; color:var(--muted); cursor:pointer;
+  background:none; border:1px solid var(--border);
+  padding:4px 12px; border-radius:4px;
+  font-family:'Manrope',sans-serif; transition:all 0.2s;
+}
+.logout-btn:hover { color:var(--red); border-color:var(--red); }
+
+/* Main content */
+.main-content {
+  margin-left:var(--sidebar-w); padding-top:56px;
+  min-height:100vh;
+}
+.page { display:none; padding:28px; }
+.page.active { display:block; }
+
+/* ===== CARDS & GRIDS ===== */
+.stats-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:16px; margin-bottom:24px;
+}
+.stat-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:20px;
+}
+.stat-label {
+  font-size:11px; color:var(--muted); letter-spacing:1px;
+  text-transform:uppercase; margin-bottom:8px;
+}
+.stat-value {
+  font-size:32px; color:var(--text); line-height:1;
+}
+.stat-value.gold { color:var(--gold); }
+.stat-value.green { color:var(--green); }
+.stat-value.blue { color:var(--blue); }
+.stat-sub { font-size:12px; color:var(--muted); margin-top:6px; }
+
+.content-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:24px; margin-bottom:20px;
+}
+.content-card h3 {
+  font-size:16px; color:var(--gold); margin-bottom:16px;
+  letter-spacing:1px;
+}
+
+/* Tables */
+.data-table {
+  width:100%; border-collapse:collapse; font-size:13px;
+}
+.data-table th {
+  text-align:left; padding:10px 12px;
+  font-size:10px; font-weight:700; color:var(--muted);
+  letter-spacing:1.5px; text-transform:uppercase;
+  border-bottom:1px solid var(--border);
+}
+.data-table td {
+  padding:10px 12px; border-bottom:1px solid rgba(48,54,61,0.5);
+  color:var(--text);
+}
+.data-table tr:hover td { background:rgba(255,255,255,0.02); }
+
+/* Badge pills */
+.badge {
+  font-size:10px; font-weight:700; padding:3px 8px;
+  border-radius:3px; letter-spacing:0.5px; text-transform:uppercase;
+}
+.badge-gold { background:var(--gold-dim); color:var(--gold); }
+.badge-green { background:rgba(63,185,80,0.12); color:var(--green); }
+.badge-red { background:rgba(248,81,73,0.12); color:var(--red); }
+.badge-blue { background:rgba(88,166,255,0.12); color:var(--blue); }
+.badge-orange { background:rgba(210,153,34,0.12); color:var(--orange); }
+.badge-muted { background:rgba(139,148,158,0.12); color:var(--muted); }
+
+/* Chart containers */
+.chart-wrap {
+  position:relative; width:100%; max-width:600px;
+  margin:0 auto;
+}
+.chart-wrap canvas { width:100%!important; }
+
+/* Referral code box */
+.ref-code-box {
+  display:flex; align-items:center; gap:12px;
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:8px; padding:12px 16px; margin-top:12px;
+}
+.ref-code {
+  font-family:monospace; font-size:16px; color:var(--gold);
+  flex:1; letter-spacing:2px;
+}
+.copy-btn {
+  background:var(--gold); color:#0d1117; border:none;
+  padding:6px 14px; border-radius:6px; cursor:pointer;
+  font-size:12px; font-weight:700; font-family:'Manrope',sans-serif;
+}
+.copy-btn:hover { opacity:0.9; }
+
+/* Slider (calculator) */
+.calc-slider {
+  width:100%; margin:16px 0; accent-color:var(--gold);
+  height:6px; cursor:pointer;
+}
+.calc-result {
+  font-family:'Bebas Neue',sans-serif; font-size:36px;
+  color:var(--gold); text-align:center; margin:12px 0;
+}
+
+/* Loading spinner */
+.spinner {
+  display:inline-block; width:18px; height:18px;
+  border:2px solid var(--border); border-top-color:var(--gold);
+  border-radius:50%; animation:spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.loading-page {
+  display:flex; align-items:center; justify-content:center;
+  height:50vh; gap:12px; color:var(--muted); font-size:14px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align:center; padding:48px 20px; color:var(--muted);
+}
+.empty-state-icon { font-size:48px; margin-bottom:12px; opacity:0.5; }
+.empty-state-text { font-size:14px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:768px) {
+  :root { --sidebar-w:0px; }
+  .sidebar {
+    width:260px; transform:translateX(-100%);
+  }
+  .sidebar.open { transform:translateX(0); }
+  .hamburger { display:block; }
+  .main-content { margin-left:0; }
+  .topbar { left:0; }
+  .sidebar-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.6); z-index:45;
+  }
+  .sidebar-overlay.show { display:block; }
+  .stats-grid { grid-template-columns:1fr; }
+}
+@media (max-width:480px) {
+  .page { padding:16px; }
+  .auth-container { padding:32px 20px; }
+  .stat-value { font-size:26px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== AUTH SCREEN ==================== -->
+<div id="auth-screen">
+  <div class="auth-container">
+    <div class="auth-logo">SHIKARDOS TEAM</div>
+    <div class="auth-subtitle">Личный кабинет участника</div>
+
+    <!-- Step 1: Choose method -->
+    <div id="auth-step-choose">
+      <button class="tg-btn" onclick="initTelegramLogin()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 1 0 24 12.056A12.013 12.013 0 0 0 11.944 0Zm5.592 8.3-1.868 8.8c-.14.636-.508.79-1.03.492l-2.848-2.1-1.374 1.322c-.152.152-.28.28-.574.28l.204-2.9 5.272-4.762c.23-.204-.05-.318-.356-.114l-6.516 4.104-2.808-.876c-.61-.192-.622-.61.128-.904l10.972-4.23c.508-.184.952.124.788.898Z"/></svg>
+        Войти через Telegram
+      </button>
+
+      <div class="auth-divider">или</div>
+
+      <input type="email" id="email-input" class="auth-input" placeholder="Email" autocomplete="email">
+      <button class="auth-btn" onclick="sendOTP()">Получить код</button>
+      <div id="auth-error-choose" class="auth-error"></div>
+    </div>
+
+    <!-- Step 2: OTP code -->
+    <div id="auth-step-otp" style="display:none">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">
+        Код отправлен на <strong id="otp-email-display" style="color:var(--text)"></strong>
+      </p>
+      <input type="text" id="otp-input" class="auth-input" placeholder="Код из письма"
+             maxlength="6" autocomplete="one-time-code" inputmode="numeric"
+             style="text-align:center;letter-spacing:8px;font-size:20px">
+      <button class="auth-btn" onclick="verifyOTP()">Подтвердить</button>
+      <div id="auth-error-otp" class="auth-error"></div>
+      <div class="auth-back" onclick="showAuthStep('choose')">&larr; Другой способ входа</div>
+    </div>
+
+    <!-- Loading -->
+    <div id="auth-step-loading" style="display:none">
+      <div class="spinner" style="width:32px;height:32px;border-width:3px;margin:20px auto"></div>
+      <p style="color:var(--muted);font-size:13px;margin-top:12px">Авторизация...</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CABINET ==================== -->
+<div id="cabinet">
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">SHIKARDOS TEAM</div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <!-- filled by JS -->
+    </nav>
+    <div class="sidebar-footer">
+      Shikardos Team &copy; 2026<br>
+      <a href="https://t.me/shikardosteam" target="_blank">@shikardosteam</a>
+    </div>
+  </aside>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+      <span class="topbar-title" id="topbar-title">Главная</span>
+    </div>
+    <div class="topbar-right">
+      <span class="role-badge" id="topbar-role"></span>
+      <span>
+        <span class="status-dot" id="topbar-status-dot"></span>
+        <span class="user-name" id="topbar-name"></span>
+      </span>
+      <button class="logout-btn" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+
+  <!-- Main content area -->
+  <main class="main-content" id="main-content">
+    <!-- Pages injected by JS -->
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   Shikardos Team — Personal Cabinet
+   Single-file SPA, no frameworks, Chart.js only
+   ============================================================ */
+
+const API_BASE = 'https://worker-production-26d0.up.railway.app/api/v1';
+let token = null;
+let currentUser = null;
+let charts = {};
+
+// ===== API HELPER =====
+async function api(path, opts = {}) {
+  try {
+    const res = await fetch(API_BASE + path, {
+      ...opts,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (token || ''),
+        ...(opts.headers || {})
+      }
+    });
+    if (res.status === 401) { logout(); return null; }
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    console.error('API error:', path, e);
+    return null;
+  }
+}
+
+// ===== AUTH FUNCTIONS =====
+function showAuthStep(step) {
+  document.getElementById('auth-step-choose').style.display = step === 'choose' ? '' : 'none';
+  document.getElementById('auth-step-otp').style.display = step === 'otp' ? '' : 'none';
+  document.getElementById('auth-step-loading').style.display = step === 'loading' ? '' : 'none';
+  clearAuthErrors();
+}
+
+function clearAuthErrors() {
+  document.querySelectorAll('.auth-error').forEach(el => el.textContent = '');
+}
+
+function initTelegramLogin() {
+  /* Create Telegram Login Widget dynamically */
+  const wrap = document.getElementById('auth-step-choose');
+  const existing = document.getElementById('tg-widget-script');
+  if (existing) existing.remove();
+
+  const script = document.createElement('script');
+  script.id = 'tg-widget-script';
+  script.src = 'https://telegram.org/js/telegram-widget.js?22';
+  script.setAttribute('data-telegram-login', 'ShikardosTeamBot');
+  script.setAttribute('data-size', 'large');
+  script.setAttribute('data-radius', '8');
+  script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+  script.setAttribute('data-request-access', 'write');
+  script.async = true;
+  wrap.insertBefore(script, wrap.firstChild);
+}
+
+window.onTelegramAuth = async function(user) {
+  showAuthStep('loading');
+  const data = await api('/auth/telegram-login', {
+    method: 'POST',
+    body: JSON.stringify(user)
+  });
+  if (data && data.token) {
+    token = data.token;
+    await loadCabinet();
+  } else {
+    showAuthStep('choose');
+    document.getElementById('auth-error-choose').textContent =
+      (data && data.error) || 'Ошибка авторизации через Telegram';
+  }
+};
+
+async function sendOTP() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('auth-error-choose').textContent = 'Введите корректный email';
+    return;
+  }
+  clearAuthErrors();
+  const btn = document.querySelector('#auth-step-choose .auth-btn');
+  btn.disabled = true;
+  btn.textContent = 'Отправка...';
+
+  const data = await api('/auth/email-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Получить код';
+
+  if (data && data.ok) {
+    document.getElementById('otp-email-display').textContent = email;
+    showAuthStep('otp');
+    setTimeout(() => document.getElementById('otp-input').focus(), 100);
+  } else {
+    document.getElementById('auth-error-choose').textContent =
+      (data && data.error) || 'Не удалось отправить код';
+  }
+}
+
+async function verifyOTP() {
+  const email = document.getElementById('email-input').value.trim();
+  const code = document.getElementById('otp-input').value.trim();
+  if (!code) {
+    document.getElementById('auth-error-otp').textContent = 'Введите код';
+    return;
+  }
+  showAuthStep('loading');
+
+  const data = await api('/auth/email-verify', {
+    method: 'POST',
+    body: JSON.stringify({ email, code })
+  });
+
+  if (data && data.token) {
+    token = data.token;
+    await loadCabinet();
+  } else {
+    showAuthStep('otp');
+    document.getElementById('auth-error-otp').textContent =
+      (data && data.error) || 'Неверный код';
+  }
+}
+
+// Enter key for OTP
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('auth-step-otp').style.display !== 'none') verifyOTP();
+    else if (document.getElementById('auth-step-choose').style.display !== 'none') sendOTP();
+  }
+});
+
+function logout() {
+  token = null;
+  currentUser = null;
+  Object.values(charts).forEach(c => c.destroy());
+  charts = {};
+  document.getElementById('cabinet').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('otp-input').value = '';
+  showAuthStep('choose');
+}
+
+// ===== LOAD CABINET =====
+async function loadCabinet() {
+  const me = await api('/auth/me');
+  if (!me || !me.user) {
+    logout();
+    return;
+  }
+  currentUser = me.user;
+
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('cabinet').style.display = 'block';
+
+  renderTopbar();
+  renderSidebar();
+  renderPages();
+  navigateTo('home');
+}
+
+// ===== ROLE HELPERS =====
+function hasRole(r) {
+  if (!currentUser) return false;
+  if (currentUser.role === 'admin') return true;
+  if (r === currentUser.role) return true;
+  if (r === 'hr' && currentUser.team_role && currentUser.team_role.includes('hr')) return true;
+  if (r === 'team' && currentUser.role === 'team') return true;
+  return false;
+}
+
+function getRoleLabel(role) {
+  const m = { maker:'Мейкер', investor:'Инвестор', blogger:'Блогер',
+              admin:'Администратор', team:'Команда', hr:'HR' };
+  return m[role] || role || 'Участник';
+}
+
+function getStatusLabel(status) {
+  const m = { active:'Активен', frozen:'Заморожен', waitlist:'Waitlist',
+              pending:'Ожидание', banned:'Заблокирован' };
+  return m[status] || status || '—';
+}
+
+function getStatusClass(status) {
+  if (status === 'active') return 'active';
+  if (status === 'frozen' || status === 'banned') return 'frozen';
+  return 'waitlist';
+}
+
+// ===== TOPBAR =====
+function renderTopbar() {
+  const u = currentUser;
+  document.getElementById('topbar-name').textContent = u.display_name || u.username || u.email || 'Участник';
+  document.getElementById('topbar-role').textContent = getRoleLabel(u.role);
+
+  const dot = document.getElementById('topbar-status-dot');
+  dot.className = 'status-dot ' + getStatusClass(u.status);
+}
+
+// ===== SIDEBAR =====
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+
+  const sections = buildNavSections();
+  sections.forEach(sec => {
+    if (sec.label) {
+      const lbl = document.createElement('div');
+      lbl.className = 'sidebar-section-label';
+      lbl.textContent = sec.label;
+      nav.appendChild(lbl);
+    }
+    sec.items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'sidebar-item';
+      div.dataset.page = item.id;
+      div.innerHTML = `<span class="sidebar-item-icon">${item.icon}</span>${item.name}`;
+      div.onclick = () => navigateTo(item.id);
+      nav.appendChild(div);
+    });
+  });
+}
+
+function buildNavSections() {
+  const sections = [];
+
+  // All roles
+  sections.push({
+    label: 'Основное',
+    items: [
+      { id:'home', icon:'🏠', name:'Главная' },
+      { id:'shares', icon:'📊', name:'Мои акции' },
+      { id:'profile', icon:'👤', name:'Профиль' }
+    ]
+  });
+
+  // Maker
+  if (hasRole('maker')) {
+    sections.push({
+      label: 'Мейкер',
+      items: [
+        { id:'videos', icon:'📹', name:'Видео' },
+        { id:'ke', icon:'📈', name:'КЭ' },
+        { id:'offers', icon:'🔗', name:'SaaS офферы' }
+      ]
+    });
+  }
+
+  // HR
+  if (hasRole('hr')) {
+    sections.push({
+      label: 'HR',
+      items: [
+        { id:'hr-makers', icon:'👥', name:'Мои мейкеры' },
+        { id:'hr-review', icon:'✅', name:'Проверка контента' }
+      ]
+    });
+  }
+
+  // Investor
+  if (hasRole('investor')) {
+    sections.push({
+      label: 'Инвестор',
+      items: [
+        { id:'portfolio', icon:'💰', name:'Портфель' },
+        { id:'calculator', icon:'📊', name:'Калькулятор' }
+      ]
+    });
+  }
+
+  // Blogger
+  if (hasRole('blogger')) {
+    sections.push({
+      label: 'Блогер',
+      items: [
+        { id:'publications', icon:'📝', name:'Публикации' }
+      ]
+    });
+  }
+
+  // Team
+  if (hasRole('team')) {
+    sections.push({
+      label: 'Команда',
+      items: [
+        { id:'tasks', icon:'📋', name:'Задачи' }
+      ]
+    });
+  }
+
+  // Admin
+  if (hasRole('admin')) {
+    sections.push({
+      label: 'Администрирование',
+      items: [
+        { id:'admin-overview', icon:'🔧', name:'Обзор системы' },
+        { id:'admin-users', icon:'👥', name:'Все пользователи' }
+      ]
+    });
+  }
+
+  return sections;
+}
+
+// ===== NAVIGATION =====
+function navigateTo(pageId) {
+  // Update sidebar
+  document.querySelectorAll('.sidebar-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === pageId);
+  });
+
+  // Update topbar title
+  const activeItem = document.querySelector(`.sidebar-item[data-page="${pageId}"]`);
+  if (activeItem) {
+    document.getElementById('topbar-title').textContent = activeItem.textContent.trim();
+  }
+
+  // Show page
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) {
+    page.classList.add('active');
+    loadPageData(pageId);
+  }
+
+  // Close mobile sidebar
+  closeSidebar();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+// ===== RENDER PAGES =====
+function renderPages() {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = '';
+
+  const pages = [
+    'home','shares','profile',
+    'videos','ke','offers',
+    'hr-makers','hr-review',
+    'portfolio','calculator',
+    'publications',
+    'tasks',
+    'admin-overview','admin-users'
+  ];
+
+  pages.forEach(id => {
+    const div = document.createElement('div');
+    div.id = 'page-' + id;
+    div.className = 'page';
+    div.innerHTML = '<div class="loading-page"><div class="spinner"></div> Загрузка...</div>';
+    mc.appendChild(div);
+  });
+}
+
+// ===== PAGE DATA LOADERS =====
+async function loadPageData(pageId) {
+  switch(pageId) {
+    case 'home': await loadHome(); break;
+    case 'shares': await loadShares(); break;
+    case 'profile': await loadProfile(); break;
+    case 'videos': await loadVideos(); break;
+    case 'ke': await loadKE(); break;
+    case 'offers': await loadOffers(); break;
+    case 'hr-makers': await loadHRMakers(); break;
+    case 'hr-review': await loadHRReview(); break;
+    case 'portfolio': await loadPortfolio(); break;
+    case 'calculator': loadCalculator(); break;
+    case 'publications': await loadPublications(); break;
+    case 'tasks': await loadTasks(); break;
+    case 'admin-overview': await loadAdminOverview(); break;
+    case 'admin-users': await loadAdminUsers(); break;
+  }
+}
+
+// ---------- HOME ----------
+async function loadHome() {
+  const page = document.getElementById('page-home');
+  const u = currentUser;
+  const sharesData = await api('/shares');
+  const shares = sharesData?.shares || sharesData || {};
+  const balance = shares.balance ?? shares.total ?? 0;
+  const frozen = shares.frozen ?? 0;
+  const status = u.status || 'active';
+  const monthlyIncome = balance * 127;
+
+  page.innerHTML = `
+    <div class="section-title">Добро пожаловать, ${esc(u.display_name || u.username || 'Участник')}</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Статус</div>
+        <div class="stat-value" style="font-size:24px">
+          <span class="status-dot ${getStatusClass(status)}"></span>${getStatusLabel(status)}
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Акции</div>
+        <div class="stat-value gold">${fmtNum(balance)}</div>
+        ${frozen > 0 ? `<div class="stat-sub" style="color:var(--red)">🔒 Замор.: ${fmtNum(frozen)}</div>` : ''}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Прогноз дохода / мес</div>
+        <div class="stat-value green">$${fmtNum(monthlyIncome)}</div>
+        <div class="stat-sub">Год 1 — $127 за акцию</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Роль</div>
+        <div class="stat-value" style="font-size:24px">${getRoleLabel(u.role)}</div>
+        ${u.team_role ? `<div class="stat-sub">${esc(u.team_role)}</div>` : ''}
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h3>Прогноз дохода на 5 лет</h3>
+      <div class="chart-wrap" style="max-width:700px"><canvas id="chart-forecast"></canvas></div>
+    </div>
+  `;
+
+  renderForecastChart(balance);
+}
+
+function renderForecastChart(shares) {
+  if (charts['forecast']) charts['forecast'].destroy();
+  const multipliers = [127, 254, 508, 1018, 2036];
+  const data = multipliers.map(m => shares * m);
+
+  charts['forecast'] = new Chart(document.getElementById('chart-forecast'), {
+    type: 'line',
+    data: {
+      labels: ['Год 1','Год 2','Год 3','Год 4','Год 5'],
+      datasets: [{
+        label: 'Доход / мес ($)',
+        data: data,
+        borderColor: '#d4a843',
+        backgroundColor: 'rgba(212,168,67,0.1)',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true,
+        pointBackgroundColor: '#d4a843',
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color:'#8b949e', font:{ family:'Manrope' } } }
+      },
+      scales: {
+        x: { ticks:{ color:'#8b949e' }, grid:{ color:'rgba(48,54,61,0.5)' } },
+        y: { ticks:{ color:'#8b949e', callback: v => '$' + v.toLocaleString() }, grid:{ color:'rgba(48,54,61,0.5)' } }
+      }
+    }
+  });
+}
+
+// ---------- SHARES ----------
+async function loadShares() {
+  const page = document.getElementById('page-shares');
+  const sharesData = await api('/shares');
+  const historyData = await api('/shares/history');
+  const s = sharesData?.shares || sharesData || {};
+  const history = historyData?.history || historyData || [];
+  const balance = s.balance ?? s.total ?? 0;
+  const frozen = s.frozen ?? 0;
+  const available = balance - frozen;
+
+  let historyRows = '';
+  if (Array.isArray(history) && history.length > 0) {
+    historyRows = history.slice(0, 50).map(h => `
+      <tr>
+        <td>${fmtDate(h.date || h.created_at)}</td>
+        <td>${esc(h.type || h.action || '—')}</td>
+        <td style="color:${(h.amount||0)>=0?'var(--green)':'var(--red)'}">
+          ${(h.amount||0)>=0?'+':''}${fmtNum(h.amount||0)}
+        </td>
+        <td>${esc(h.note || h.description || '—')}</td>
+      </tr>
+    `).join('');
+  } else {
+    historyRows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Нет операций</td></tr>';
+  }
+
+  page.innerHTML = `
+    <div class="section-title">Мои акции</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Баланс</div>
+        <div class="stat-value gold">${fmtNum(balance)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Доступно</div>
+        <div class="stat-value green">${fmtNum(available)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Заморожено</div>
+        <div class="stat-value" style="color:${frozen > 0 ? 'var(--red)' : 'var(--muted)'}">${fmtNum(frozen)}</div>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h3>История операций</h3>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Дата</th><th>Тип</th><th>Кол-во</th><th>Описание</th></tr></thead>
+          <tbody>${historyRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- PROFILE ----------
+async function loadProfile() {
+  const page = document.getElementById('page-profile');
+  const u = currentUser;
+  const refData = await api('/referrals');
+  const referrals = refData?.referrals || refData || [];
+  const refCode = u.referral_code || u.ref_code || '—';
+
+  let refRows = '';
+  if (Array.isArray(referrals) && referrals.length > 0) {
+    refRows = referrals.map(r => `
+      <tr>
+        <td>${esc(r.display_name || r.username || r.email || '—')}</td>
+        <td><span class="badge badge-${r.status==='active'?'green':'muted'}">${getStatusLabel(r.status)}</span></td>
+        <td>${fmtDate(r.joined_at || r.created_at)}</td>
+      </tr>
+    `).join('');
+  } else {
+    refRows = '<tr><td colspan="3" style="text-align:center;color:var(--muted)">Нет рефералов</td></tr>';
+  }
+
+  page.innerHTML = `
+    <div class="section-title">Профиль</div>
+    <div class="content-card">
+      <h3>Личные данные</h3>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px 16px;font-size:14px">
+        <span style="color:var(--muted)">Имя</span><span>${esc(u.display_name || u.username || '—')}</span>
+        <span style="color:var(--muted)">Email</span><span>${esc(u.email || '—')}</span>
+        <span style="color:var(--muted)">Telegram</span><span>${u.telegram_username ? '@' + esc(u.telegram_username) : '—'}</span>
+        <span style="color:var(--muted)">Роль</span><span>${getRoleLabel(u.role)}</span>
+        <span style="color:var(--muted)">Статус</span><span><span class="status-dot ${getStatusClass(u.status)}"></span>${getStatusLabel(u.status)}</span>
+        <span style="color:var(--muted)">Дата регистрации</span><span>${fmtDate(u.created_at || u.joined_at)}</span>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h3>Реферальный код</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:4px">Делитесь кодом для приглашения участников</p>
+      <div class="ref-code-box">
+        <span class="ref-code" id="ref-code-value">${esc(refCode)}</span>
+        <button class="copy-btn" onclick="copyRefCode()">Копировать</button>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h3>Мои рефералы (${Array.isArray(referrals) ? referrals.length : 0})</h3>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Участник</th><th>Статус</th><th>Дата</th></tr></thead>
+          <tbody>${refRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function copyRefCode() {
+  const code = document.getElementById('ref-code-value')?.textContent;
+  if (code && code !== '—') {
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Скопировано!';
+      setTimeout(() => btn.textContent = 'Копировать', 2000);
+    });
+  }
+}
+
+// ---------- VIDEOS ----------
+async function loadVideos() {
+  const page = document.getElementById('page-videos');
+  const data = await api('/videos');
+  const videos = data?.videos || data || [];
+
+  // Aggregate by platform
+  const platforms = {};
+  if (Array.isArray(videos)) {
+    videos.forEach(v => {
+      const p = v.platform || 'Другое';
+      if (!platforms[p]) platforms[p] = { count: 0, views: 0 };
+      platforms[p].count++;
+      platforms[p].views += (v.views || 0);
+    });
+  }
+
+  const total = Array.isArray(videos) ? videos.length : 0;
+  const totalViews = Object.values(platforms).reduce((s, p) => s + p.views, 0);
+  const platLabels = Object.keys(platforms);
+  const platCounts = platLabels.map(p => platforms[p].count);
+
+  page.innerHTML = `
+    <div class="section-title">Видео</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Всего видео</div>
+        <div class="stat-value blue">${fmtNum(total)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Суммарные просмотры</div>
+        <div class="stat-value green">${fmtNum(totalViews)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Платформ</div>
+        <div class="stat-value">${platLabels.length}</div>
+      </div>
+    </div>
+    <div class="content-card">
+      <h3>По платформам</h3>
+      <div class="chart-wrap" style="max-width:500px"><canvas id="chart-platforms"></canvas></div>
+    </div>
+  `;
+
+  if (platLabels.length > 0) {
+    if (charts['platforms']) charts['platforms'].destroy();
+    const colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff'];
+    charts['platforms'] = new Chart(document.getElementById('chart-platforms'), {
+      type: 'bar',
+      data: {
+        labels: platLabels,
+        datasets: [{ label:'Видео', data: platCounts,
+          backgroundColor: platLabels.map((_,i) => colors[i % colors.length]),
+          borderRadius: 4 }]
+      },
+      options: {
+        responsive: true,
+        plugins:{ legend:{ display:false } },
+        scales: {
+          x:{ ticks:{ color:'#8b949e' }, grid:{ display:false } },
+          y:{ ticks:{ color:'#8b949e', stepSize:1 }, grid:{ color:'rgba(48,54,61,0.5)' } }
+        }
+      }
+    });
+  }
+}
+
+// ---------- KE ----------
+async function loadKE() {
+  const page = document.getElementById('page-ke');
+  const data = await api('/ke');
+  const ke = data?.ke || data || {};
+  const score = ke.score ?? ke.total ?? 0;
+  const tier = ke.tier || ke.level || '—';
+  const breakdown = ke.breakdown || {};
+
+  const breakdownItems = Object.entries(breakdown);
+
+  page.innerHTML = `
+    <div class="section-title">Коэффициент эффективности (КЭ)</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Текущий КЭ</div>
+        <div class="stat-value gold">${typeof score === 'number' ? score.toFixed(2) : score}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Уровень</div>
+        <div class="stat-value" style="font-size:24px">${esc(String(tier))}</div>
+      </div>
+    </div>
+    ${breakdownItems.length > 0 ? `
+    <div class="content-card">
+      <h3>Детализация</h3>
+      <div class="chart-wrap" style="max-width:350px"><canvas id="chart-ke"></canvas></div>
+    </div>` : ''}
+  `;
+
+  if (breakdownItems.length > 0) {
+    if (charts['ke']) charts['ke'].destroy();
+    const colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff'];
+    charts['ke'] = new Chart(document.getElementById('chart-ke'), {
+      type: 'doughnut',
+      data: {
+        labels: breakdownItems.map(([k]) => k),
+        datasets: [{ data: breakdownItems.map(([,v]) => v),
+          backgroundColor: breakdownItems.map((_,i) => colors[i % colors.length]),
+          borderWidth: 0 }]
+      },
+      options: {
+        responsive: true,
+        plugins:{
+          legend:{ position:'bottom', labels:{ color:'#8b949e', font:{ family:'Manrope' }, padding:12 } }
+        }
+      }
+    });
+  }
+}
+
+// ---------- OFFERS ----------
+async function loadOffers() {
+  const page = document.getElementById('page-offers');
+  const data = await api('/offers');
+  const offers = data?.offers || data || [];
+
+  let rows = '';
+  if (Array.isArray(offers) && offers.length > 0) {
+    rows = offers.map(o => `
+      <tr>
+        <td><strong>${esc(o.name || o.title || '—')}</strong></td>
+        <td>${esc(o.platform || '—')}</td>
+        <td><span class="badge badge-${o.status==='active'?'green':o.status==='paused'?'orange':'muted'}">${esc(o.status || '—')}</span></td>
+        <td>${o.payout ? '$' + fmtNum(o.payout) : '—'}</td>
+        <td>${esc(o.rotation || '—')}</td>
+      </tr>
+    `).join('');
+  } else {
+    rows = '<tr><td colspan="5" class="empty-state-text" style="text-align:center;color:var(--muted)">Нет активных офферов</td></tr>';
+  }
+
+  page.innerHTML = `
+    <div class="section-title">SaaS офферы</div>
+    <div class="content-card">
+      <h3>Ваши офферы</h3>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Оффер</th><th>Платформа</th><th>Статус</th><th>Выплата</th><th>Ротация</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- HR: MAKERS ----------
+async function loadHRMakers() {
+  const page = document.getElementById('page-hr-makers');
+  const data = await api('/hr/overview');
+  const makers = data?.makers || data || [];
+
+  let rows = '';
+  if (Array.isArray(makers) && makers.length > 0) {
+    rows = makers.map(m => `
+      <tr>
+        <td>${esc(m.display_name || m.username || '—')}</td>
+        <td><span class="badge badge-${m.status==='active'?'green':'muted'}">${getStatusLabel(m.status)}</span></td>
+        <td>${fmtNum(m.videos_count || m.videos || 0)}</td>
+        <td>${m.ke_score != null ? Number(m.ke_score).toFixed(2) : '—'}</td>
+        <td>${fmtNum(m.shares || 0)}</td>
+      </tr>
+    `).join('');
+  } else {
+    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Нет мейкеров</td></tr>';
+  }
+
+  const total = Array.isArray(makers) ? makers.length : 0;
+  const active = Array.isArray(makers) ? makers.filter(m => m.status === 'active').length : 0;
+
+  page.innerHTML = `
+    <div class="section-title">Мои мейкеры</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Всего</div>
+        <div class="stat-value">${total}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Активных</div>
+        <div class="stat-value green">${active}</div>
+      </div>
+    </div>
+    <div class="content-card">
+      <h3>Список мейкеров</h3>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Имя</th><th>Статус</th><th>Видео</th><th>КЭ</th><th>Акции</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- HR: REVIEW ----------
+async function loadHRReview() {
+  const page = document.getElementById('page-hr-review');
+  page.innerHTML = `
+    <div class="section-title">Проверка контента</div>
+    <div class="empty-state">
+      <div class="empty-state-icon">✅</div>
+      <div class="empty-state-text">Нет контента на проверку</div>
+    </div>
+  `;
+}
+
+// ---------- PORTFOLIO ----------
+async function loadPortfolio() {
+  const page = document.getElementById('page-portfolio');
+  const sharesData = await api('/shares');
+  const s = sharesData?.shares || sharesData || {};
+  const balance = s.balance ?? s.total ?? 0;
+
+  const multipliers = [127, 254, 508, 1018, 2036];
+
+  page.innerHTML = `
+    <div class="section-title">Инвестиционный портфель</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Ваши акции</div>
+        <div class="stat-value gold">${fmtNum(balance)}</div>
+      </div>
+      ${multipliers.map((m, i) => `
+        <div class="stat-card">
+          <div class="stat-label">Год ${i + 1} — доход/мес</div>
+          <div class="stat-value green">$${fmtNum(balance * m)}</div>
+          <div class="stat-sub">$${fmtNum(m)} за акцию</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="content-card">
+      <h3>Рост дохода</h3>
+      <div class="chart-wrap" style="max-width:700px"><canvas id="chart-portfolio"></canvas></div>
+    </div>
+  `;
+
+  renderForecastChart(balance);
+  // re-use forecast chart logic but with different canvas
+  if (charts['portfolio']) charts['portfolio'].destroy();
+  charts['portfolio'] = new Chart(document.getElementById('chart-portfolio'), {
+    type: 'line',
+    data: {
+      labels: ['Год 1','Год 2','Год 3','Год 4','Год 5'],
+      datasets: [{
+        label: 'Доход / мес ($)',
+        data: multipliers.map(m => balance * m),
+        borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,0.1)',
+        borderWidth: 2, tension: 0.3, fill: true,
+        pointBackgroundColor: '#3fb950', pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins:{ legend:{ labels:{ color:'#8b949e', font:{ family:'Manrope' } } } },
+      scales: {
+        x:{ ticks:{ color:'#8b949e' }, grid:{ color:'rgba(48,54,61,0.5)' } },
+        y:{ ticks:{ color:'#8b949e', callback: v=>'$'+v.toLocaleString() }, grid:{ color:'rgba(48,54,61,0.5)' } }
+      }
+    }
+  });
+}
+
+// ---------- CALCULATOR ----------
+function loadCalculator() {
+  const page = document.getElementById('page-calculator');
+  const initShares = currentUser?.shares?.balance || 10;
+
+  page.innerHTML = `
+    <div class="section-title">Калькулятор дохода</div>
+    <div class="content-card" style="text-align:center">
+      <h3>Сколько у вас акций?</h3>
+      <input type="range" class="calc-slider" id="calc-shares-slider"
+             min="1" max="500" value="${initShares}">
+      <div style="font-size:14px;color:var(--muted);margin-bottom:8px">
+        Акций: <strong id="calc-shares-label" style="color:var(--gold);font-size:18px">${initShares}</strong>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:24px;text-align:left" id="calc-results"></div>
+
+      <div style="margin-top:28px">
+        <div class="chart-wrap" style="max-width:600px"><canvas id="chart-calc"></canvas></div>
+      </div>
+    </div>
+  `;
+
+  const slider = document.getElementById('calc-shares-slider');
+  const label = document.getElementById('calc-shares-label');
+
+  function updateCalc() {
+    const n = parseInt(slider.value);
+    label.textContent = n;
+    const multipliers = [127, 254, 508, 1018, 2036];
+    const results = document.getElementById('calc-results');
+    results.innerHTML = multipliers.map((m, i) => `
+      <div class="stat-card">
+        <div class="stat-label">Год ${i+1}</div>
+        <div class="stat-value green" style="font-size:22px">$${fmtNum(n * m)}/мес</div>
+        <div class="stat-sub">$${fmtNum(n * m * 12)}/год</div>
+      </div>
+    `).join('');
+
+    if (charts['calc']) charts['calc'].destroy();
+    charts['calc'] = new Chart(document.getElementById('chart-calc'), {
+      type: 'bar',
+      data: {
+        labels: ['Год 1','Год 2','Год 3','Год 4','Год 5'],
+        datasets: [{
+          label: 'Доход / мес ($)',
+          data: multipliers.map(m => n * m),
+          backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d29922','#bc8cff'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins:{ legend:{ display:false } },
+        scales: {
+          x:{ ticks:{ color:'#8b949e' }, grid:{ display:false } },
+          y:{ ticks:{ color:'#8b949e', callback: v=>'$'+v.toLocaleString() }, grid:{ color:'rgba(48,54,61,0.5)' } }
+        }
+      }
+    });
+  }
+
+  slider.addEventListener('input', updateCalc);
+  updateCalc();
+}
+
+// ---------- PUBLICATIONS ----------
+async function loadPublications() {
+  const page = document.getElementById('page-publications');
+  const data = await api('/blogger/content');
+  const content = data?.content || data || [];
+
+  let rows = '';
+  if (Array.isArray(content) && content.length > 0) {
+    rows = content.map(c => `
+      <tr>
+        <td>${esc(c.title || '—')}</td>
+        <td><span class="badge badge-${c.status==='published'?'green':c.status==='pending'?'orange':'muted'}">${esc(c.status || '—')}</span></td>
+        <td>${fmtDate(c.submitted_at || c.created_at)}</td>
+        <td>${esc(c.platform || '—')}</td>
+      </tr>
+    `).join('');
+  } else {
+    rows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Нет публикаций</td></tr>';
+  }
+
+  page.innerHTML = `
+    <div class="section-title">Публикации</div>
+    <div class="content-card">
+      <h3>Ваш контент</h3>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Название</th><th>Статус</th><th>Дата</th><th>Платформа</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- TASKS ----------
+async function loadTasks() {
+  const page = document.getElementById('page-tasks');
+  const data = await api('/team/tasks');
+  const tasks = data?.tasks || data || [];
+
+  let rows = '';
+  if (Array.isArray(tasks) && tasks.length > 0) {
+    rows = tasks.map(t => {
+      const priorityColor = t.priority === 'high' ? 'red' : t.priority === 'medium' ? 'orange' : 'muted';
+      return `
+        <tr>
+          <td>${esc(t.title || '—')}</td>
+          <td><span class="badge badge-${t.status==='done'?'green':t.status==='in_progress'?'blue':'muted'}">${esc(t.status || '—')}</span></td>
+          <td><span class="badge badge-${priorityColor}">${esc(t.priority || '—')}</span></td>
+          <td>${esc(t.assignee || '—')}</td>
+          <td>${fmtDate(t.due_date || t.deadline)}</td>
+        </tr>
+      `;
+    }).join('');
+  } else {
+    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Нет задач</td></tr>';
+  }
+
+  page.innerHTML = `
+    <div class="section-title">Задачи команды</div>
+    <div class="content-card">
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Задача</th><th>Статус</th><th>Приоритет</th><th>Исполнитель</th><th>Срок</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- ADMIN: OVERVIEW ----------
+async function loadAdminOverview() {
+  const page = document.getElementById('page-admin-overview');
+  const data = await api('/admin/overview');
+  const o = data || {};
+
+  page.innerHTML = `
+    <div class="section-title">Обзор системы</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Всего пользователей</div>
+        <div class="stat-value">${fmtNum(o.total_users ?? o.users_count ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Активных</div>
+        <div class="stat-value green">${fmtNum(o.active_users ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Замороженных</div>
+        <div class="stat-value" style="color:var(--red)">${fmtNum(o.frozen_users ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Waitlist</div>
+        <div class="stat-value" style="color:var(--orange)">${fmtNum(o.waitlist_count ?? o.waitlist ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Всего акций</div>
+        <div class="stat-value gold">${fmtNum(o.total_shares ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Офферов</div>
+        <div class="stat-value blue">${fmtNum(o.offers_count ?? o.total_offers ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Видео</div>
+        <div class="stat-value">${fmtNum(o.total_videos ?? 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Баги / проблемы</div>
+        <div class="stat-value" style="color:var(--red)">${fmtNum(o.bugs_count ?? o.issues ?? 0)}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- ADMIN: USERS ----------
+async function loadAdminUsers() {
+  const page = document.getElementById('page-admin-users');
+  const data = await api('/admin/overview');
+  const o = data || {};
+  const byRole = o.users_by_role || o.roles || {};
+
+  const roleEntries = Object.entries(byRole);
+
+  page.innerHTML = `
+    <div class="section-title">Все пользователи</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Всего</div>
+        <div class="stat-value">${fmtNum(o.total_users ?? o.users_count ?? 0)}</div>
+      </div>
+    </div>
+    <div class="content-card">
+      <h3>По ролям</h3>
+      ${roleEntries.length > 0 ? `
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px">
+        ${roleEntries.map(([role, count]) => `
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${esc(getRoleLabel(role))}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold)">${fmtNum(count)}</div>
+          </div>
+        `).join('')}
+      </div>` : '<p style="color:var(--muted);font-size:13px">Нет данных по ролям</p>'}
+    </div>
+  `;
+}
+
+// ===== UTILITY FUNCTIONS =====
+function esc(s) {
+  if (s == null) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+function fmtNum(n) {
+  if (n == null) return '0';
+  return Number(n).toLocaleString('ru-RU');
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  try {
+    const dt = new Date(d);
+    if (isNaN(dt)) return String(d);
+    return dt.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric' });
+  } catch { return String(d); }
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  showAuthStep('choose');
+});
+</script>
+</body>
+</html>

@@ -7,38 +7,80 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--gold:#d4a843;--green:#3fb950;--red:#f85149;--blue:#58a6ff}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--gold:#d4a843;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--orange:#d29922}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);padding:12px;min-height:100vh}
-.header{display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:16px}
-.avatar{width:48px;height:48px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:var(--bg)}
-.user-info h2{font-size:18px;font-weight:600}
-.user-info p{font-size:13px;color:var(--muted)}
-.role-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(212,168,67,0.15);color:var(--gold)}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
-.stat-value{font-size:24px;font-weight:700;color:var(--gold)}
-.stat-label{font-size:12px;color:var(--muted);margin-top:2px}
-.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
-.section h3{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.progress-bar{width:100%;height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:8px 0}
-.progress-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
-.progress-fill.green{background:var(--green)}
-.row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
-.row-label{font-size:13px;color:var(--muted)}
-.row-value{font-size:14px;font-weight:600}
-.rotation-status{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600}
-.rotation-status.active{background:rgba(63,185,80,0.12);color:var(--green)}
-.rotation-status.inactive{background:rgba(248,81,73,0.12);color:var(--red)}
-.chart-container{position:relative;width:100%;height:200px}
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:70px}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
 .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .error-msg{text-align:center;padding:40px 20px;color:var(--red)}
-.income-table{width:100%;font-size:13px;border-collapse:collapse}
-.income-table td{padding:6px 4px;border-bottom:1px solid var(--border)}
+
+/* Header */
+.header{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border)}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--bg);flex-shrink:0}
+.user-info h2{font-size:16px;font-weight:600;line-height:1.2}
+.user-info p{font-size:12px;color:var(--muted)}
+.role-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:rgba(212,168,67,0.15);color:var(--gold)}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle}
+.status-dot.active{background:var(--green)}
+.status-dot.frozen{background:var(--red)}
+
+/* Tabs */
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;padding:4px 0 env(safe-area-inset-bottom)}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;gap:2px}
+.tab-btn.active{color:var(--gold)}
+.tab-btn .ico{font-size:20px}
+.tab-page{display:none;padding:12px}
+.tab-page.active{display:block}
+
+/* Cards */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stats-grid.three{grid-template-columns:1fr 1fr 1fr}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+.stat-value{font-size:22px;font-weight:700;color:var(--gold)}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-value.blue{color:var(--blue)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.section h3{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+.row-label{font-size:12px;color:var(--muted)}
+.row-value{font-size:13px;font-weight:600}
+.progress-bar{width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:6px 0}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+.chart-container{position:relative;width:100%;height:180px}
+
+/* List items */
+.list-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.list-item:last-child{border-bottom:none}
+.badge{display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:600}
+.badge.pending{background:rgba(210,153,34,0.15);color:var(--orange)}
+.badge.approved{background:rgba(63,185,80,0.12);color:var(--green)}
+.badge.rejected{background:rgba(248,81,73,0.12);color:var(--red)}
+.badge.active{background:rgba(63,185,80,0.12);color:var(--green)}
+.badge.frozen{background:rgba(248,81,73,0.12);color:var(--red)}
+
+/* Rotation */
+.rotation-status{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600}
+.rotation-status.active{background:rgba(63,185,80,0.12);color:var(--green)}
+.rotation-status.inactive{background:rgba(248,81,73,0.12);color:var(--red)}
+
+/* Empty state */
+.empty{text-align:center;padding:20px;color:var(--muted);font-size:13px}
+
+/* Income table */
+.income-table{width:100%;font-size:12px;border-collapse:collapse}
+.income-table td{padding:4px;border-bottom:1px solid var(--border)}
 .income-table td:last-child{text-align:right;font-weight:600;color:var(--gold)}
-.saas-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+
+/* Admin cards */
+.admin-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.admin-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.admin-card .num{font-size:20px;font-weight:700}
+.admin-card .lbl{font-size:10px;color:var(--muted);margin-top:2px}
+
+.saas-item{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
 .saas-item:last-child{border-bottom:none}
 </style>
 </head>
@@ -50,73 +92,95 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div id="app-content" style="display:none">
+  <!-- HEADER -->
   <div class="header">
     <div class="avatar" id="avatar">?</div>
     <div class="user-info">
       <h2 id="user-name">—</h2>
-      <p><span class="role-badge" id="user-role">—</span> <span id="user-status" style="margin-left:4px;font-size:12px;color:var(--muted)"></span></p>
+      <p><span class="role-badge" id="user-role">—</span><span class="status-dot" id="user-status-dot"></span></p>
     </div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-value" id="shares-count">0</div>
-      <div class="stat-label">Акции</div>
+  <!-- TAB: ГЛАВНАЯ -->
+  <div id="page-home" class="tab-page active">
+    <div class="stats-grid" id="home-stats"></div>
+    <div class="section">
+      <h3>💰 Прогноз дохода</h3>
+      <div class="chart-container"><canvas id="income-chart"></canvas></div>
+      <table class="income-table" style="margin-top:8px" id="income-table"></table>
     </div>
-    <div class="stat-card">
-      <div class="stat-value" id="monthly-income">$0</div>
-      <div class="stat-label">Доход / мес</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="videos-week">0/12</div>
-      <div class="stat-label">Видео за неделю</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="ke-tier">—</div>
-      <div class="stat-label">КЭ тир</div>
-    </div>
-  </div>
-
-  <div id="rotation-section" class="section">
-    <h3>🔄 Ротация</h3>
-    <div class="rotation-status" id="rotation-badge">—</div>
-    <div style="margin-top:10px">
-      <div class="row">
-        <span class="row-label">SaaS ссылки заполнены</span>
-        <span class="row-value" id="saas-filled">0/0</span>
+    <div id="home-rotation" class="section" style="display:none">
+      <h3>🔄 Ротация</h3>
+      <div class="rotation-status" id="rotation-badge">—</div>
+      <div style="margin-top:8px">
+        <div class="row"><span class="row-label">SaaS ссылки</span><span class="row-value" id="saas-filled">0/0</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="saas-progress" style="width:0%;background:var(--green)"></div></div>
       </div>
-      <div class="progress-bar"><div class="progress-fill green" id="saas-progress" style="width:0%"></div></div>
     </div>
-    <div id="saas-list" style="margin-top:8px"></div>
-  </div>
-
-  <div class="section">
-    <h3>💰 Прогноз дохода</h3>
-    <div class="chart-container">
-      <canvas id="income-chart"></canvas>
-    </div>
-    <table class="income-table" style="margin-top:12px">
-      <tr><td>Год 1</td><td id="income-y1">$0</td></tr>
-      <tr><td>Год 2</td><td id="income-y2">$0</td></tr>
-      <tr><td>Год 3</td><td id="income-y3">$0</td></tr>
-      <tr><td>Год 4</td><td id="income-y4">$0</td></tr>
-      <tr><td>Год 5</td><td id="income-y5">$0</td></tr>
-    </table>
-  </div>
-
-  <div id="weekly-section" class="section" style="display:none">
-    <h3>📊 Прогресс недели</h3>
-    <div class="chart-container" style="height:160px">
-      <canvas id="weekly-chart"></canvas>
+    <div id="home-project" class="section">
+      <h3>📈 Проект</h3>
+      <div class="row"><span class="row-label">Мейкеров</span><span class="row-value" id="stat-makers">—</span></div>
+      <div class="row"><span class="row-label">Видео за неделю</span><span class="row-value" id="stat-videos">—</span></div>
+      <div class="row"><span class="row-label">Просмотров</span><span class="row-value" id="stat-views">—</span></div>
+      <div class="row"><span class="row-label">SaaS офферов</span><span class="row-value" id="stat-offers">—</span></div>
     </div>
   </div>
 
-  <div class="section">
-    <h3>📈 Проект</h3>
-    <div class="row"><span class="row-label">Мейкеров</span><span class="row-value" id="stat-makers">—</span></div>
-    <div class="row"><span class="row-label">Видео за неделю</span><span class="row-value" id="stat-videos">—</span></div>
-    <div class="row"><span class="row-label">Просмотров всего</span><span class="row-value" id="stat-views">—</span></div>
-    <div class="row"><span class="row-label">SaaS офферов</span><span class="row-value" id="stat-offers">—</span></div>
+  <!-- TAB: АНАЛИТИКА (ролевая) -->
+  <div id="page-analytics" class="tab-page">
+    <div id="analytics-content"></div>
+  </div>
+
+  <!-- TAB: АКЦИИ -->
+  <div id="page-shares" class="tab-page">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" id="sh-balance">0</div><div class="stat-label">Баланс акций</div></div>
+      <div class="stat-card"><div class="stat-value" id="sh-income">$0</div><div class="stat-label">Доход / мес</div></div>
+    </div>
+    <div class="section" id="sh-frozen-section" style="display:none">
+      <div style="color:var(--red);font-weight:600">❄️ Акции заморожены</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Доход = $0. Загрузите видео чтобы разморозить.</div>
+    </div>
+    <div class="section">
+      <h3>📜 История транзакций</h3>
+      <div id="sh-history"><div class="empty">Нет транзакций</div></div>
+    </div>
+    <div class="section">
+      <h3>📦 SaaS ссылки</h3>
+      <div id="sh-saas-list"><div class="empty">Загрузка...</div></div>
+    </div>
+  </div>
+
+  <!-- TAB: ПРОФИЛЬ -->
+  <div id="page-profile" class="tab-page">
+    <div class="section">
+      <h3>👤 Мой профиль</h3>
+      <div class="row"><span class="row-label">Имя</span><span class="row-value" id="pf-name">—</span></div>
+      <div class="row"><span class="row-label">Роль</span><span class="row-value" id="pf-role">—</span></div>
+      <div class="row"><span class="row-label">Позиция</span><span class="row-value" id="pf-team-role">—</span></div>
+      <div class="row"><span class="row-label">Статус</span><span class="row-value" id="pf-status">—</span></div>
+      <div class="row"><span class="row-label">В системе с</span><span class="row-value" id="pf-date">—</span></div>
+      <div class="row"><span class="row-label">Телефон</span><span class="row-value" id="pf-phone">—</span></div>
+      <div class="row"><span class="row-label">Email</span><span class="row-value" id="pf-email">—</span></div>
+    </div>
+    <div class="section">
+      <h3>🔗 Реферальная программа</h3>
+      <div class="row"><span class="row-label">Мой код</span><span class="row-value" id="pf-ref-code" style="color:var(--gold)">—</span></div>
+      <div class="row"><span class="row-label">Привлечено</span><span class="row-value" id="pf-ref-count">0</span></div>
+      <div id="pf-ref-list" style="margin-top:8px"></div>
+    </div>
+    <div class="section" id="pf-ref-groups" style="display:none">
+      <h3>🏆 Реферальные группы</h3>
+      <div id="pf-groups-list"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="home"><span class="ico">🏠</span>Главная</button>
+    <button class="tab-btn" data-tab="analytics"><span class="ico">📊</span>Аналитика</button>
+    <button class="tab-btn" data-tab="shares"><span class="ico">💎</span>Акции</button>
+    <button class="tab-btn" data-tab="profile"><span class="ico">👤</span>Профиль</button>
   </div>
 </div>
 
@@ -130,106 +194,211 @@ const tg=window.Telegram.WebApp;
 tg.ready();tg.expand();
 tg.setHeaderColor('#0d1117');tg.setBackgroundColor('#0d1117');
 
-const API_BASE='https://worker-production-26d0.up.railway.app/api/v1';
-const INCOME_RATES=[127,254,508,1018,2036];
+const API='https://worker-production-26d0.up.railway.app/api/v1';
+const RATES=[127,254,508,1018,2036];
 const ROLE_NAMES={maker:'Мейкер',hr:'HR-менеджер',investor:'Инвестор',blogger:'Блогер',team:'Управляющая команда',advisor:'Адвизор'};
-
-let initData=tg.initData||'';
-
-async function api(path){
-  const res=await fetch(API_BASE+path,{headers:{'X-Telegram-Init-Data':initData}});
-  if(!res.ok)throw new Error('API '+res.status);
-  return res.json();
-}
+let USER={};let initData=tg.initData||'';
 
 function $(id){return document.getElementById(id)}
-function fmt(n){return n.toLocaleString('en-US')}
-function fmtUSD(n){return '$'+fmt(n)}
+function fmt(n){return(n||0).toLocaleString('en-US')}
+function fmtUSD(n){return'$'+fmt(n)}
+function fmtDate(s){if(!s)return'—';const d=new Date(s);return d.toLocaleDateString('ru-RU')}
 
-async function loadProfile(){
-  const u=await api('/profile');
-  $('avatar').textContent=(u.full_name||'?')[0].toUpperCase();
-  $('user-name').textContent=u.full_name||'Участник';
-  $('user-role').textContent=ROLE_NAMES[u.role]||u.role;
-  $('user-status').textContent=u.status==='active'?'🟢':u.status==='frozen'?'❄️':'';
-  return u;
+async function api(path){
+  const r=await fetch(API+path,{headers:{'X-Telegram-Init-Data':initData}});
+  if(!r.ok)throw new Error('API '+r.status);
+  return r.json();
 }
 
-async function loadShares(){
-  const data=await api('/shares');
-  const shares=data.shares_count||0;
-  const frozen=data.shares_frozen||false;
-  $('shares-count').textContent=fmt(shares);
-  $('shares-count').style.color=frozen?'var(--red)':'var(--gold)';
-  $('monthly-income').textContent=fmtUSD(shares*INCOME_RATES[0]);
-  for(let i=0;i<5;i++){
-    $('income-y'+(i+1)).textContent=fmtUSD(shares*INCOME_RATES[i])+'/мес';
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $('page-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ===== HOME TAB =====
+function buildHomeStats(profile,shares){
+  const role=profile.role;
+  const sc=shares.shares_count||0;
+  let html='';
+  html+='<div class="stat-card"><div class="stat-value'+(shares.shares_frozen?' red':'')+'">'+fmt(sc)+'</div><div class="stat-label">Акции</div></div>';
+  html+='<div class="stat-card"><div class="stat-value">'+fmtUSD(sc*RATES[0])+'</div><div class="stat-label">Доход / мес</div></div>';
+  if(role==='maker'){
+    html+='<div class="stat-card"><div class="stat-value blue" id="home-videos">—</div><div class="stat-label">Видео / нед</div></div>';
+    html+='<div class="stat-card"><div class="stat-value" id="home-ke">—</div><div class="stat-label">КЭ тир</div></div>';
   }
+  $('home-stats').innerHTML=html;
+  if(role==='maker')$('home-stats').classList.add('');
+}
+
+function buildIncomeChart(shares){
+  const sc=shares.shares_count||0;
+  const tbl=$('income-table');
+  let h='';for(let i=0;i<5;i++)h+='<tr><td>Год '+(i+1)+'</td><td>'+fmtUSD(sc*RATES[i])+'/мес</td></tr>';
+  tbl.innerHTML=h;
   new Chart($('income-chart'),{
     type:'bar',
-    data:{labels:['Год 1','Год 2','Год 3','Год 4','Год 5'],datasets:[{data:INCOME_RATES.map(r=>shares*r),backgroundColor:'#d4a843',borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#8b949e',font:{size:10},callback:v=>'$'+(v>=1000?Math.round(v/1000)+'K':v)},grid:{color:'rgba(48,54,61,0.5)'}}}}
+    data:{labels:['Год 1','Год 2','Год 3','Год 4','Год 5'],datasets:[{data:RATES.map(r=>sc*r),backgroundColor:'#d4a843',borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#8b949e',font:{size:9},callback:v=>'$'+(v>=1000?Math.round(v/1000)+'K':v)},grid:{color:'rgba(48,54,61,0.5)'}}}}
   });
 }
 
-async function loadOffers(){
+// ===== ANALYTICS TAB (role-specific) =====
+async function buildAnalytics(profile){
+  const el=$('analytics-content');
+  const role=profile.role;
+
+  if(role==='maker'){
+    el.innerHTML='<div class="section"><h3>🎬 Видео за неделю</h3><div class="chart-container" style="height:140px"><canvas id="ch-platforms"></canvas></div></div><div class="section"><h3>📊 КЭ рейтинг</h3><div id="an-ke"></div></div>';
+    try{
+      const v=await api('/maker/videos');
+      $('home-videos').textContent=(v.this_week_count||0)+'/12';
+      new Chart($('ch-platforms'),{type:'bar',data:{labels:['YouTube','TikTok','Instagram','Facebook'],datasets:[{data:[v.youtube_count||0,v.tiktok_count||0,v.instagram_count||0,v.facebook_count||0],backgroundColor:['#f85149','#58a6ff','#d4a843','#3fb950'],borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{max:3,ticks:{color:'#8b949e',stepSize:1},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}}}});
+    }catch(e){}
+    try{const k=await api('/maker/ke');$('home-ke').textContent=k.tier?'Тир '+k.tier:'—';$('an-ke').innerHTML='<div class="row"><span class="row-label">Текущий тир</span><span class="row-value" style="color:var(--gold)">'+(k.tier?'Тир '+k.tier:'Не определён')+'</span></div><div class="row"><span class="row-label">Бонус акций/год</span><span class="row-value">+'+(k.tier?({1:5,2:4,3:3,4:2,5:1}[k.tier]||0):0)+'</span></div><div style="font-size:11px;color:var(--muted);margin-top:8px">Формула: (Просмотры×0.4)+(Engagement×0.4)+(Равномерность×0.2)</div>';}catch(e){$('an-ke').innerHTML='<div class="empty">Нет данных КЭ</div>';}
+
+  }else if(role==='hr'||(role==='team'&&profile.team_role==='hr')){
+    el.innerHTML='<div class="section"><h3>👥 Мои мейкеры</h3><div id="an-hr-stats"></div></div><div class="section"><h3>📋 Список мейкеров</h3><div id="an-hr-list"></div></div>';
+    try{
+      const h=await api('/hr/overview');
+      $('an-hr-stats').innerHTML='<div class="stats-grid three"><div class="stat-card"><div class="stat-value">'+h.total_makers+'</div><div class="stat-label">Всего</div></div><div class="stat-card"><div class="stat-value green">'+h.active_makers+'</div><div class="stat-label">Активных</div></div><div class="stat-card"><div class="stat-value red">'+h.frozen_makers+'</div><div class="stat-label">Заморожено</div></div></div><div class="row"><span class="row-label">Ожидают проверки</span><span class="row-value" style="color:var(--orange)">'+h.pending_reviews+'</span></div><div class="row"><span class="row-label">Видео за неделю</span><span class="row-value">'+h.videos_this_week+'</span></div>';
+      if(h.makers.length){let ml='';h.makers.forEach(m=>{ml+='<div class="list-item"><span>'+m.full_name+'</span><span class="badge '+(m.shares_frozen?'frozen':'active')+'">'+(m.shares_frozen?'❄️':'🟢')+' '+m.shares_count+' акц.</span></div>';});$('an-hr-list').innerHTML=ml;}else{$('an-hr-list').innerHTML='<div class="empty">Нет мейкеров</div>';}
+    }catch(e){el.innerHTML='<div class="empty">Нет данных HR</div>';}
+
+  }else if(role==='investor'){
+    el.innerHTML='<div class="section"><h3>💼 Портфель</h3><div id="an-inv"></div></div><div class="section"><h3>🧮 Калькулятор</h3><div id="an-calc"></div></div>';
+    const sc=USER.shares?.shares_count||0;
+    const prices=[5000,10000,20000,40000,80000];
+    const val=sc*prices[0];
+    $('an-inv').innerHTML='<div class="stats-grid"><div class="stat-card"><div class="stat-value">'+fmt(sc)+'</div><div class="stat-label">Акций</div></div><div class="stat-card"><div class="stat-value">'+fmtUSD(val)+'</div><div class="stat-label">Стоимость (Год 1)</div></div></div><div class="row"><span class="row-label">Цена акции сейчас</span><span class="row-value">$5 000</span></div>';
+    let ct='<table class="income-table">';for(let i=0;i<5;i++)ct+='<tr><td>Год '+(i+1)+'</td><td>'+fmtUSD(sc*RATES[i])+'/мес</td></tr>';ct+='</table>';$('an-calc').innerHTML=ct;
+
+  }else if(role==='blogger'){
+    el.innerHTML='<div class="section"><h3>📝 Мои публикации</h3><div id="an-blog-stats"></div><div id="an-blog-list" style="margin-top:8px"></div></div>';
+    try{
+      const b=await api('/blogger/content');
+      $('an-blog-stats').innerHTML='<div class="stats-grid three"><div class="stat-card"><div class="stat-value">'+b.total+'</div><div class="stat-label">Всего</div></div><div class="stat-card"><div class="stat-value" style="color:var(--orange)">'+b.pending+'</div><div class="stat-label">На проверке</div></div><div class="stat-card"><div class="stat-value green">'+b.approved+'</div><div class="stat-label">Одобрено</div></div></div>';
+      if(b.items.length){let bl='';b.items.forEach(i=>{bl+='<div class="list-item"><span style="max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+i.url+'</span><span class="badge '+i.status+'">'+({pending:'⏳',approved:'✅',rejected:'❌'}[i.status]||'')+'</span></div>';});$('an-blog-list').innerHTML=bl;}else{$('an-blog-list').innerHTML='<div class="empty">Нет публикаций</div>';}
+    }catch(e){el.innerHTML='<div class="empty">Нет данных</div>';}
+
+  }else if(role==='team'){
+    el.innerHTML='<div class="section"><h3>📋 Задачи</h3><div id="an-tasks-stats"></div><div id="an-tasks-list" style="margin-top:8px"></div></div>';
+    try{
+      const t=await api('/team/tasks');
+      const bs=t.by_status||{};
+      $('an-tasks-stats').innerHTML='<div class="stats-grid"><div class="stat-card"><div class="stat-value">'+t.total+'</div><div class="stat-label">Всего задач</div></div><div class="stat-card"><div class="stat-value" style="color:var(--orange)">'+(bs.new||0)+'</div><div class="stat-label">Новых</div></div></div>';
+      if(t.items.length){let tl='';t.items.forEach(i=>{const em={low:'⚪',normal:'🔵',high:'🟡',urgent:'🔴'}[i.priority]||'⚪';const se={new:'📋',in_progress:'⏳',done:'✅',cancelled:'❌'}[i.status]||'📋';tl+='<div class="list-item"><span>'+em+' '+i.title.substring(0,40)+'</span><span>'+se+'</span></div>';});$('an-tasks-list').innerHTML=tl;}else{$('an-tasks-list').innerHTML='<div class="empty">Нет задач</div>';}
+    }catch(e){el.innerHTML='<div class="empty">Нет данных</div>';}
+  }
+
+  // Admin section — append to any role
+  if(profile.is_admin){
+    const adm=document.createElement('div');adm.innerHTML='<div class="section" style="margin-top:12px"><h3>🔧 Админ-панель</h3><div id="an-admin"></div></div>';
+    el.appendChild(adm);
+    try{
+      const a=await api('/admin/overview');
+      const rc=a.role_counts||{};
+      $('an-admin').innerHTML='<div class="admin-grid"><div class="admin-card"><div class="num">'+a.total_users+'</div><div class="lbl">Юзеров</div></div><div class="admin-card"><div class="num" style="color:var(--green)">'+a.active_users+'</div><div class="lbl">Активных</div></div><div class="admin-card"><div class="num" style="color:var(--red)">'+a.frozen_users+'</div><div class="lbl">Заморожено</div></div></div><div class="admin-grid"><div class="admin-card"><div class="num" style="color:var(--orange)">'+a.waitlist_new+'</div><div class="lbl">Waitlist</div></div><div class="admin-card"><div class="num" style="color:var(--red)">'+a.bugs_open+'</div><div class="lbl">Баги</div></div><div class="admin-card"><div class="num" style="color:var(--blue)">'+a.kaizen_new+'</div><div class="lbl">Кайдзен</div></div></div><div class="row"><span class="row-label">Мейкеров</span><span class="row-value">'+(rc.maker||0)+'</span></div><div class="row"><span class="row-label">HR</span><span class="row-value">'+(rc.hr||0)+'</span></div><div class="row"><span class="row-label">Инвесторов</span><span class="row-value">'+(rc.investor||0)+'</span></div><div class="row"><span class="row-label">Блогеров</span><span class="row-value">'+(rc.blogger||0)+'</span></div><div class="row"><span class="row-label">Команда</span><span class="row-value">'+(rc.team||0)+'</span></div><div class="row"><span class="row-label">Всего акций</span><span class="row-value" style="color:var(--gold)">'+fmt(a.total_shares)+'</span></div><div class="row"><span class="row-label">Видео за неделю</span><span class="row-value">'+a.videos_this_week+'</span></div><div class="row"><span class="row-label">SaaS офферов</span><span class="row-value">'+a.offers_active+'</span></div><div class="row"><span class="row-label">Конкурсов</span><span class="row-value">'+a.contests_active+'</span></div>';
+    }catch(e){}
+  }
+}
+
+// ===== SHARES TAB =====
+async function buildSharesTab(shares){
+  const sc=shares.shares_count||0;
+  $('sh-balance').textContent=fmt(sc);
+  $('sh-balance').style.color=shares.shares_frozen?'var(--red)':'var(--gold)';
+  $('sh-income').textContent=fmtUSD(sc*RATES[0]);
+  if(shares.shares_frozen)$('sh-frozen-section').style.display='block';
+
   try{
-    const data=await api('/offers');
-    const items=data.items||[];
+    const h=await api('/shares/history');
+    if(h.items&&h.items.length){
+      let hl='';h.items.forEach(t=>{
+        const sign=t.amount>0?'+':'';const color=t.amount>0?'var(--green)':'var(--red)';
+        hl+='<div class="list-item"><div><div style="font-weight:600">'+t.reason+'</div><div style="font-size:10px;color:var(--muted)">'+fmtDate(t.created_at)+'</div></div><span style="color:'+color+';font-weight:700">'+sign+t.amount+'</span></div>';
+      });$('sh-history').innerHTML=hl;
+    }
+  }catch(e){}
+
+  try{
+    const o=await api('/offers');
+    const items=o.items||[];
     const filled=items.filter(i=>i.my_link).length;
-    const total=items.length;
-    $('saas-filled').textContent=filled+'/'+total;
-    $('saas-progress').style.width=(total>0?Math.round(filled/total*100):0)+'%';
-    const inRotation=filled>=total&&total>0;
-    const badge=$('rotation-badge');
-    badge.className='rotation-status '+(inRotation?'active':'inactive');
-    badge.textContent=inRotation?'✅ В ротации':'❌ Не в ротации';
-    let h='';
-    for(const item of items){h+='<div class="saas-item"><span>'+(item.my_link?'✅':'❌')+'</span>'+item.name+'</div>';}
-    $('saas-list').innerHTML=h;
-  }catch(e){$('rotation-section').style.display='none';}
+    $('saas-filled').textContent=filled+'/'+items.length;
+    $('saas-progress').style.width=(items.length>0?Math.round(filled/items.length*100):0)+'%';
+    const inR=filled>=items.length&&items.length>0;
+    const rb=$('rotation-badge');
+    rb.className='rotation-status '+(inR?'active':'inactive');
+    rb.textContent=inR?'✅ В ротации':'❌ Не в ротации';
+    $('home-rotation').style.display='block';
+    let sl='';items.forEach(i=>{sl+='<div class="saas-item"><span>'+(i.my_link?'✅':'❌')+'</span><span>'+i.name+'</span></div>';});
+    $('sh-saas-list').innerHTML=sl||'<div class="empty">Нет офферов</div>';
+  }catch(e){$('sh-saas-list').innerHTML='<div class="empty">Нет офферов</div>';}
 }
 
-async function loadVideos(role){
-  if(role!=='maker'){$('videos-week').parentElement.style.display='none';$('ke-tier').parentElement.style.display='none';return;}
+// ===== PROFILE TAB =====
+async function buildProfileTab(profile){
+  $('pf-name').textContent=profile.full_name||'—';
+  $('pf-role').textContent=ROLE_NAMES[profile.role]||profile.role;
+  $('pf-team-role').textContent=profile.team_role?profile.team_role.toUpperCase():'—';
+  $('pf-status').textContent=profile.status==='active'?'🟢 Активен':profile.status==='frozen'?'❄️ Заморожен':'⚪ '+profile.status;
+  $('pf-date').textContent=fmtDate(profile.registered_at);
+  $('pf-phone').textContent=profile.phone||'—';
+  $('pf-email').textContent=profile.email||'—';
+
   try{
-    const data=await api('/maker/videos');
-    $('videos-week').textContent=(data.this_week_count||0)+'/12';
-    $('weekly-section').style.display='block';
-    new Chart($('weekly-chart'),{
-      type:'bar',
-      data:{labels:['YouTube','TikTok','Instagram','Facebook'],datasets:[{data:[data.youtube_count||0,data.tiktok_count||0,data.instagram_count||0,data.facebook_count||0],backgroundColor:['#f85149','#58a6ff','#d4a843','#3fb950'],borderRadius:6}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{max:3,ticks:{color:'#8b949e',stepSize:1},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:12}},grid:{display:false}}}}
-    });
-  }catch(e){$('videos-week').textContent='—';}
-}
-
-async function loadKE(role){
-  if(role!=='maker')return;
-  try{const data=await api('/maker/ke');$('ke-tier').textContent=data.tier?'Тир '+data.tier:'—';}catch(e){$('ke-tier').textContent='—';}
-}
-
-async function loadStats(){
-  try{
-    const data=await api('/stats/project');
-    $('stat-makers').textContent=fmt(data.total_makers||0);
-    $('stat-videos').textContent=fmt(data.videos_this_week||0);
-    $('stat-views').textContent=fmt(data.total_views||0);
-    $('stat-offers').textContent=data.total_offers||0;
+    const r=await api('/referrals');
+    $('pf-ref-code').textContent=r.referral_code||'—';
+    $('pf-ref-count').textContent=r.total_referrals;
+    if(r.referrals.length){let rl='';r.referrals.forEach(ref=>{rl+='<div class="list-item"><span>'+ref.full_name+'</span><span class="badge active">'+(ROLE_NAMES[ref.role]||ref.role)+'</span></div>';});$('pf-ref-list').innerHTML=rl;}
+    if(r.groups.length){$('pf-ref-groups').style.display='block';let gl='';r.groups.forEach(g=>{gl+='<div class="list-item"><span>'+g.category+' ('+g.current_count+'/'+g.required_count+')</span><span class="badge '+(g.status==='credited'?'approved':'pending')+'">'+g.status+'</span></div>';});$('pf-groups-list').innerHTML=gl;}
   }catch(e){}
 }
 
+// ===== PROJECT STATS =====
+async function loadProjectStats(){
+  try{
+    const s=await api('/stats/project');
+    $('stat-makers').textContent=fmt(s.total_makers);
+    $('stat-videos').textContent=fmt(s.videos_this_week);
+    $('stat-views').textContent=fmt(s.total_views);
+    $('stat-offers').textContent=s.total_offers||0;
+  }catch(e){}
+}
+
+// ===== INIT =====
 async function init(){
   try{
     if(!initData&&!tg.initDataUnsafe?.user)throw new Error('Откройте через Telegram бот');
-    const profile=await loadProfile();
-    await Promise.all([loadShares(),loadOffers(),loadVideos(profile.role),loadKE(profile.role),loadStats()]);
+    const [profile,shares]=await Promise.all([api('/profile'),api('/shares')]);
+    USER={profile,shares};
+
+    // Header
+    $('avatar').textContent=(profile.full_name||'?')[0].toUpperCase();
+    $('user-name').textContent=profile.full_name||'Участник';
+    $('user-role').textContent=ROLE_NAMES[profile.role]||profile.role;
+    const dot=$('user-status-dot');
+    dot.classList.add(profile.status==='active'?'active':'frozen');
+
+    // Build tabs
+    buildHomeStats(profile,shares);
+    buildIncomeChart(shares);
+    buildAnalytics(profile);
+    buildSharesTab(shares);
+    buildProfileTab(profile);
+    loadProjectStats();
+
     $('app-loading').style.display='none';
     $('app-content').style.display='block';
   }catch(err){
     $('app-loading').style.display='none';
     $('app-error').style.display='block';
-    $('error-text').textContent=err.message||'Ошибка загрузки данных';
+    $('error-text').textContent=err.message||'Ошибка загрузки';
   }
 }
 init();
