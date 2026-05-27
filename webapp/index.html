@@ -82,6 +82,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 .saas-item{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
 .saas-item:last-child{border-bottom:none}
+
+/* Leaderboard */
+.lb-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.lb-rank.gold{background:rgba(212,168,67,0.2);color:var(--gold)}
+.lb-rank.silver{background:rgba(139,148,158,0.2);color:var(--muted)}
+.lb-rank.bronze{background:rgba(210,153,34,0.15);color:var(--orange)}
+.lb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-val{font-weight:700;color:var(--gold);font-size:13px}
 </style>
 </head>
 <body>
@@ -123,6 +133,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="row"><span class="row-label">Видео за неделю</span><span class="row-value" id="stat-videos">—</span></div>
       <div class="row"><span class="row-label">Просмотров</span><span class="row-value" id="stat-views">—</span></div>
       <div class="row"><span class="row-label">SaaS офферов</span><span class="row-value" id="stat-offers">—</span></div>
+    </div>
+    <!-- CONTESTS -->
+    <div id="home-contests" class="section" style="display:none">
+      <h3>🏆 Конкурсы</h3>
+      <div id="contests-list"><div class="empty">Загрузка...</div></div>
+    </div>
+    <!-- HALL OF FAME -->
+    <div id="home-hall" class="section" style="display:none">
+      <h3>🏅 Зал славы</h3>
+      <div id="hall-content"><div class="empty">Загрузка...</div></div>
     </div>
   </div>
 
@@ -173,6 +193,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <h3>🏆 Реферальные группы</h3>
       <div id="pf-groups-list"></div>
     </div>
+    <!-- KAIZEN -->
+    <div class="section" id="pf-kaizen" style="display:none">
+      <h3>💡 Кайдзен</h3>
+      <div id="kaizen-stats" class="stats-grid three" style="margin-bottom:8px"></div>
+      <div id="kaizen-list"><div class="empty">Загрузка...</div></div>
+    </div>
   </div>
 
   <!-- BOTTOM TABS -->
@@ -200,6 +226,8 @@ const ROLE_NAMES={maker:'Мейкер',hr:'HR-менеджер',investor:'Инв
 const STATUS_NAMES={active:'Активен',frozen:'Заморожен',pending:'Ожидание',waitlist:'В очереди',banned:'Заблокирован',inactive:'Неактивен'};
 const GROUP_STATUS={credited:'✅ Зачтено',pending:'⏳ Заполняется',filling:'⏳ Заполняется',completed:'✅ Завершено'};
 const GROUP_CATEGORY={linear:'Линейная',exponential:'Экспоненциальная',team:'Командная',special:'Специальная'};
+const KAIZEN_STATUS={new:'🟡 Новое',reviewing:'🟠 На рассм.',approved:'✅ Одобрено',rejected:'❌ Отклонено',implemented:'🚀 Внедрено'};
+const CONTEST_STATUS={active:'🟢 Активный',upcoming:'🟡 Скоро',ended:'⏹ Завершён'};
 let USER={};let initData=tg.initData||'';
 
 function $(id){return document.getElementById(id)}
@@ -250,6 +278,70 @@ function buildIncomeChart(shares){
   });
 }
 
+// ===== CONTESTS (Home tab) =====
+async function loadContests(){
+  try{
+    const c=await api('/contests');
+    if(!c.items||!c.items.length){$('contests-list').innerHTML='<div class="empty">Нет активных конкурсов</div>';$('home-contests').style.display='block';return;}
+    let h='';
+    c.items.forEach(i=>{
+      const st=CONTEST_STATUS[i.status]||i.status;
+      const prize=i.prize_shares?('🏆 '+i.prize_shares+' акц.'):'';
+      h+='<div class="list-item"><div><div style="font-weight:600">'+i.title+'</div><div style="font-size:10px;color:var(--muted)">'+st+(prize?' · '+prize:'')+'</div></div>'+(i.my_entry?'<span class="badge approved">Участвую</span>':'')+'</div>';
+    });
+    $('contests-list').innerHTML=h;
+    $('home-contests').style.display='block';
+  }catch(e){$('home-contests').style.display='none';}
+}
+
+// ===== HALL OF FAME (Home tab) =====
+async function loadHallOfFame(){
+  try{
+    const h=await api('/hall-of-fame');
+    let html='';
+    if(h.top_by_shares&&h.top_by_shares.length){
+      html+='<div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted)">💰 Топ по акциям</div>';
+      h.top_by_shares.forEach((u,idx)=>{
+        const cls=idx===0?'gold':idx===1?'silver':'bronze';
+        html+='<div class="lb-row"><div class="lb-rank '+cls+'">'+(idx+1)+'</div><div class="lb-name">'+u.full_name+'</div><div class="lb-val">'+u.shares_count+'</div></div>';
+      });
+    }
+    if(h.top_by_videos&&h.top_by_videos.length){
+      html+='<div style="font-size:12px;font-weight:600;margin:10px 0 6px;color:var(--muted)">🎥 Топ по видео (неделя)</div>';
+      h.top_by_videos.forEach((u,idx)=>{
+        const cls=idx===0?'gold':idx===1?'silver':'bronze';
+        html+='<div class="lb-row"><div class="lb-rank '+cls+'">'+(idx+1)+'</div><div class="lb-name">'+u.full_name+'</div><div class="lb-val">'+u.video_count+'</div></div>';
+      });
+    }
+    if(h.my_rank){
+      html+='<div style="margin-top:10px;padding:8px;background:rgba(212,168,67,0.08);border-radius:8px;font-size:12px">📍 Ваше место: <strong style="color:var(--gold)">#'+h.my_rank+'</strong></div>';
+    }
+    $('hall-content').innerHTML=html||'<div class="empty">Нет данных</div>';
+    $('home-hall').style.display='block';
+  }catch(e){$('home-hall').style.display='none';}
+}
+
+// ===== KAIZEN (Profile tab) =====
+async function loadKaizen(){
+  try{
+    const k=await api('/kaizen');
+    if(k.stats){
+      $('kaizen-stats').innerHTML='<div class="stat-card"><div class="stat-value">'+k.stats.total+'</div><div class="stat-label">Всего</div></div><div class="stat-card"><div class="stat-value" style="color:var(--orange)">'+k.stats.new+'</div><div class="stat-label">Новых</div></div><div class="stat-card"><div class="stat-value green">'+k.stats.approved+'</div><div class="stat-label">Одобрено</div></div>';
+    }
+    if(k.items&&k.items.length){
+      let h='';
+      k.items.forEach(i=>{
+        const st=KAIZEN_STATUS[i.status]||i.status;
+        h+='<div class="list-item"><div><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+i.text+'</div><div style="font-size:10px;color:var(--muted)">'+fmtDate(i.created_at)+'</div></div><span style="font-size:10px">'+st+'</span></div>';
+      });
+      $('kaizen-list').innerHTML=h;
+    }else{
+      $('kaizen-list').innerHTML='<div class="empty">Нет предложений</div>';
+    }
+    $('pf-kaizen').style.display='block';
+  }catch(e){$('pf-kaizen').style.display='none';}
+}
+
 // ===== ANALYTICS TAB (role-specific) =====
 async function buildAnalytics(profile){
   const el=$('analytics-content');
@@ -262,7 +354,7 @@ async function buildAnalytics(profile){
       $('home-videos').textContent=(v.this_week_count||0)+'/12';
       new Chart($('ch-platforms'),{type:'bar',data:{labels:['YouTube','TikTok','Instagram','Facebook'],datasets:[{data:[v.youtube_count||0,v.tiktok_count||0,v.instagram_count||0,v.facebook_count||0],backgroundColor:['#f85149','#58a6ff','#d4a843','#3fb950'],borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{max:3,ticks:{color:'#8b949e',stepSize:1},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}}}});
     }catch(e){}
-    try{const k=await api('/maker/ke');$('home-ke').textContent=k.tier?'Тир '+k.tier:'—';$('an-ke').innerHTML='<div class="row"><span class="row-label">Текущий тир</span><span class="row-value" style="color:var(--gold)">'+(k.tier?'Тир '+k.tier:'Не определён')+'</span></div><div class="row"><span class="row-label">Бонус акций/год</span><span class="row-value">+'+(k.tier?({1:5,2:4,3:3,4:2,5:1}[k.tier]||0):0)+'</span></div><div style="font-size:11px;color:var(--muted);margin-top:8px">Формула: (Просмотры×0.4)+(Engagement×0.4)+(Равномерность×0.2)</div>';}catch(e){$('an-ke').innerHTML='<div class="empty">Нет данных КЭ</div>';}
+    try{const k=await api('/maker/ke');$('home-ke').textContent=k.tier?'Тир '+k.tier:'—';$('an-ke').innerHTML='<div class="row"><span class="row-label">Текущий тир</span><span class="row-value" style="color:var(--gold)">'+(k.tier?'Тир '+k.tier:'Не определён')+'</span></div><div class="row"><span class="row-label">Бонус акций/год</span><span class="row-value">+'+(k.tier?({1:5,2:4,3:3,4:2,5:1}[k.tier]||0):0)+'</span></div><div style="font-size:11px;color:var(--muted);margin-top:8px">Формула: (Просмотры×0.4)+(Еngagement×0.4)+(Равномерность×0.2)</div>';}catch(e){$('an-ke').innerHTML='<div class="empty">Нет данных КЭ</div>';}
 
   }else if(role==='hr'||(role==='team'&&profile.team_role==='hr')){
     el.innerHTML='<div class="section"><h3>👥 Мои мейкеры</h3><div id="an-hr-stats"></div></div><div class="section"><h3>📋 Список мейкеров</h3><div id="an-hr-list"></div></div>';
@@ -294,7 +386,7 @@ async function buildAnalytics(profile){
       const t=await api('/team/tasks');
       const bs=t.by_status||{};
       $('an-tasks-stats').innerHTML='<div class="stats-grid"><div class="stat-card"><div class="stat-value">'+t.total+'</div><div class="stat-label">Всего задач</div></div><div class="stat-card"><div class="stat-value" style="color:var(--orange)">'+(bs.new||0)+'</div><div class="stat-label">Новых</div></div></div>';
-      if(t.items.length){let tl='';t.items.forEach(i=>{const em={low:'⚪',normal:'🔵',high:'🟡',urgent:'🔴'}[i.priority]||'⚪';const se={new:'📋',in_progress:'⏳',done:'✅',cancelled:'❌'}[i.status]||'📋';tl+='<div class="list-item"><span>'+em+' '+i.title.substring(0,40)+'</span><span>'+se+'</span></div>';});$('an-tasks-list').innerHTML=tl;}else{$('an-tasks-list').innerHTML='<div class="empty">Нет задач</div>';}
+      if(t.items.length){let tl='';t.items.forEach(i=>{const em={low:'⚪',normal:'🟣',high:'🟡',urgent:'🔴'}[i.priority]||'⚪';const se={new:'📋',in_progress:'⏳',done:'✅',cancelled:'❌'}[i.status]||'📋';tl+='<div class="list-item"><span>'+em+' '+i.title.substring(0,40)+'</span><span>'+se+'</span></div>';});$('an-tasks-list').innerHTML=tl;}else{$('an-tasks-list').innerHTML='<div class="empty">Нет задач</div>';}
     }catch(e){el.innerHTML='<div class="empty">Нет данных</div>';}
   }
 
@@ -395,6 +487,9 @@ async function init(){
     buildSharesTab(shares);
     buildProfileTab(profile);
     loadProjectStats();
+    loadContests();
+    loadHallOfFame();
+    loadKaizen();
 
     $('app-loading').style.display='none';
     $('app-content').style.display='block';
