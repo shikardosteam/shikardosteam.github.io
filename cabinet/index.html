@@ -649,8 +649,8 @@ function getRoleLabel(role) {
 }
 
 function getStatusLabel(status) {
-  const m = { active:'Активен', frozen:'Заморожен', waitlist:'Waitlist',
-              pending:'Ожидание', banned:'Заблокирован' };
+  const m = { active:'Активен', frozen:'Заморожен', waitlist:'В очереди',
+              pending:'Ожидание', banned:'Заблокирован', inactive:'Неактивен' };
   return m[status] || status || '—';
 }
 

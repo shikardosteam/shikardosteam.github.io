@@ -197,6 +197,9 @@ tg.setHeaderColor('#0d1117');tg.setBackgroundColor('#0d1117');
 const API='https://worker-production-26d0.up.railway.app/api/v1';
 const RATES=[127,254,508,1018,2036];
 const ROLE_NAMES={maker:'Мейкер',hr:'HR-менеджер',investor:'Инвестор',blogger:'Блогер',team:'Управляющая команда',advisor:'Адвизор'};
+const STATUS_NAMES={active:'Активен',frozen:'Заморожен',pending:'Ожидание',waitlist:'В очереди',banned:'Заблокирован',inactive:'Неактивен'};
+const GROUP_STATUS={credited:'✅ Зачтено',pending:'⏳ Заполняется',filling:'⏳ Заполняется',completed:'✅ Завершено'};
+const GROUP_CATEGORY={linear:'Линейная',exponential:'Экспоненциальная',team:'Командная',special:'Специальная'};
 let USER={};let initData=tg.initData||'';
 
 function $(id){return document.getElementById(id)}
@@ -346,7 +349,7 @@ async function buildProfileTab(profile){
   $('pf-name').textContent=profile.full_name||'—';
   $('pf-role').textContent=ROLE_NAMES[profile.role]||profile.role;
   $('pf-team-role').textContent=profile.team_role?profile.team_role.toUpperCase():'—';
-  $('pf-status').textContent=profile.status==='active'?'🟢 Активен':profile.status==='frozen'?'❄️ Заморожен':'⚪ '+profile.status;
+  $('pf-status').textContent=profile.status==='active'?'🟢 Активен':profile.status==='frozen'?'❄️ Заморожен':'⚪ '+(STATUS_NAMES[profile.status]||profile.status);
   $('pf-date').textContent=fmtDate(profile.registered_at);
   $('pf-phone').textContent=profile.phone||'—';
   $('pf-email').textContent=profile.email||'—';
@@ -356,7 +359,7 @@ async function buildProfileTab(profile){
     $('pf-ref-code').textContent=r.referral_code||'—';
     $('pf-ref-count').textContent=r.total_referrals;
     if(r.referrals.length){let rl='';r.referrals.forEach(ref=>{rl+='<div class="list-item"><span>'+ref.full_name+'</span><span class="badge active">'+(ROLE_NAMES[ref.role]||ref.role)+'</span></div>';});$('pf-ref-list').innerHTML=rl;}
-    if(r.groups.length){$('pf-ref-groups').style.display='block';let gl='';r.groups.forEach(g=>{gl+='<div class="list-item"><span>'+g.category+' ('+g.current_count+'/'+g.required_count+')</span><span class="badge '+(g.status==='credited'?'approved':'pending')+'">'+g.status+'</span></div>';});$('pf-groups-list').innerHTML=gl;}
+    if(r.groups.length){$('pf-ref-groups').style.display='block';let gl='';r.groups.forEach(g=>{gl+='<div class="list-item"><span>'+(GROUP_CATEGORY[g.category]||g.category)+' ('+g.current_count+'/'+g.required_count+')</span><span class="badge '+(g.status==='credited'?'approved':'pending')+'">'+(GROUP_STATUS[g.status]||g.status)+'</span></div>';});$('pf-groups-list').innerHTML=gl;}
   }catch(e){}
 }
 
