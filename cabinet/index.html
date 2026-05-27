@@ -362,11 +362,6 @@ h3 { font-size:18px; }
         </div>
       </div>
 
-      <button class="auth-btn" style="background:transparent;border:1px solid var(--border);color:var(--text);margin-top:12px" onclick="showAuthStep('email')">
-        <span style="margin-right:8px">✉</span> Почта
-      </button>
-      <p style="color:var(--muted);font-size:11px;margin:8px 0 0;text-align:center">доступ только к сайту</p>
-
       <div id="auth-error-choose" class="auth-error"></div>
     </div>
 
@@ -382,27 +377,6 @@ h3 { font-size:18px; }
       <p id="tg-timer" style="color:var(--gold);font-size:14px;text-align:center;margin:12px 0"></p>
       <a id="tg-open-btn" href="#" target="_blank" class="tg-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px">Открыть Telegram</a>
       <div class="auth-back" onclick="cancelTelegramAuth();showAuthStep('choose')">&larr; Другой способ входа</div>
-    </div>
-
-    <!-- Step: Email input -->
-    <div id="auth-step-email" style="display:none">
-      <input type="email" id="email-input" class="auth-input" placeholder="Email" autocomplete="email">
-      <button class="auth-btn" onclick="sendOTP()">Получить код</button>
-      <div id="auth-error-email" class="auth-error"></div>
-      <div class="auth-back" onclick="showAuthStep('choose')">&larr; Другой способ входа</div>
-    </div>
-
-    <!-- Step 2: OTP code -->
-    <div id="auth-step-otp" style="display:none">
-      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">
-        Код отправлен на <strong id="otp-email-display" style="color:var(--text)"></strong>
-      </p>
-      <input type="text" id="otp-input" class="auth-input" placeholder="Код из письма"
-             maxlength="6" autocomplete="one-time-code" inputmode="numeric"
-             style="text-align:center;letter-spacing:8px;font-size:20px">
-      <button class="auth-btn" onclick="verifyOTP()">Подтвердить</button>
-      <div id="auth-error-otp" class="auth-error"></div>
-      <div class="auth-back" onclick="showAuthStep('choose')">&larr; Другой способ входа</div>
     </div>
 
     <!-- Loading -->
@@ -487,7 +461,7 @@ async function api(path, opts = {}) {
 
 // ===== AUTH FUNCTIONS =====
 function showAuthStep(step) {
-  ['choose','tg','email','otp','loading'].forEach(s => {
+  ['choose','tg','loading'].forEach(s => {
     const el = document.getElementById('auth-step-' + s);
     if (el) el.style.display = s === step ? '' : 'none';
   });
@@ -575,68 +549,6 @@ window.handleGoogleAuth = async function(response) {
   }
 };
 
-async function sendOTP() {
-  const email = document.getElementById('email-input').value.trim();
-  if (!email || !email.includes('@')) {
-    document.getElementById('auth-error-email').textContent = 'Введите корректный email';
-    return;
-  }
-  clearAuthErrors();
-  const btn = document.querySelector('#auth-step-email .auth-btn');
-  btn.disabled = true;
-  btn.textContent = 'Отправка...';
-
-  const data = await api('/auth/email-otp', {
-    method: 'POST',
-    body: JSON.stringify({ email })
-  });
-
-  btn.disabled = false;
-  btn.textContent = 'Получить код';
-
-  if (data && data.ok) {
-    document.getElementById('otp-email-display').textContent = email;
-    showAuthStep('otp');
-    setTimeout(() => document.getElementById('otp-input').focus(), 100);
-  } else {
-    document.getElementById('auth-error-email').textContent =
-      (data && data.detail) || 'Не удалось отправить код';
-  }
-}
-
-async function verifyOTP() {
-  const email = document.getElementById('email-input').value.trim();
-  const code = document.getElementById('otp-input').value.trim();
-  if (!code) {
-    document.getElementById('auth-error-otp').textContent = 'Введите код';
-    return;
-  }
-  showAuthStep('loading');
-
-  const data = await api('/auth/email-verify', {
-    method: 'POST',
-    body: JSON.stringify({ email, code })
-  });
-
-  if (data && data.token) {
-    token = data.token;
-    sessionStorage.setItem('st_token', token);
-    await loadCabinet();
-  } else {
-    showAuthStep('otp');
-    document.getElementById('auth-error-otp').textContent =
-      (data && data.error) || 'Неверный код';
-  }
-}
-
-// Enter key for OTP
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('auth-step-otp').style.display !== 'none') verifyOTP();
-    else if (document.getElementById('auth-step-choose').style.display !== 'none') sendOTP();
-  }
-});
-
 function logout() {
   token = null;
   sessionStorage.removeItem('st_token');
@@ -645,7 +557,6 @@ function logout() {
   charts = {};
   document.getElementById('cabinet').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('otp-input').value = '';
   showAuthStep('choose');
 }
 
