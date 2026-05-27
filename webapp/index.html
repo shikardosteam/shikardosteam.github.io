@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Shikardos Team — Кабинет</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--gold:#d4a843;--green:#3fb950;--red:#f85149;--blue:#58a6ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);padding:12px;min-height:100vh}
+.header{display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.avatar{width:48px;height:48px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:var(--bg)}
+.user-info h2{font-size:18px;font-weight:600}
+.user-info p{font-size:13px;color:var(--muted)}
+.role-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(212,168,67,0.15);color:var(--gold)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+.stat-value{font-size:24px;font-weight:700;color:var(--gold)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:2px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.section h3{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.progress-bar{width:100%;height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+.progress-fill.green{background:var(--green)}
+.row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+.row-label{font-size:13px;color:var(--muted)}
+.row-value{font-size:14px;font-weight:600}
+.rotation-status{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600}
+.rotation-status.active{background:rgba(63,185,80,0.12);color:var(--green)}
+.rotation-status.inactive{background:rgba(248,81,73,0.12);color:var(--red)}
+.chart-container{position:relative;width:100%;height:200px}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{text-align:center;padding:40px 20px;color:var(--red)}
+.income-table{width:100%;font-size:13px;border-collapse:collapse}
+.income-table td{padding:6px 4px;border-bottom:1px solid var(--border)}
+.income-table td:last-child{text-align:right;font-weight:600;color:var(--gold)}
+.saas-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.saas-item:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+
+<div id="app-loading" class="loading">
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-size:14px">Загрузка кабинета...</div>
+</div>
+
+<div id="app-content" style="display:none">
+  <div class="header">
+    <div class="avatar" id="avatar">?</div>
+    <div class="user-info">
+      <h2 id="user-name">—</h2>
+      <p><span class="role-badge" id="user-role">—</span> <span id="user-status" style="margin-left:4px;font-size:12px;color:var(--muted)"></span></p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="shares-count">0</div>
+      <div class="stat-label">Акции</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="monthly-income">$0</div>
+      <div class="stat-label">Доход / мес</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="videos-week">0/12</div>
+      <div class="stat-label">Видео за неделю</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="ke-tier">—</div>
+      <div class="stat-label">КЭ тир</div>
+    </div>
+  </div>
+
+  <div id="rotation-section" class="section">
+    <h3>🔄 Ротация</h3>
+    <div class="rotation-status" id="rotation-badge">—</div>
+    <div style="margin-top:10px">
+      <div class="row">
+        <span class="row-label">SaaS ссылки заполнены</span>
+        <span class="row-value" id="saas-filled">0/0</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill green" id="saas-progress" style="width:0%"></div></div>
+    </div>
+    <div id="saas-list" style="margin-top:8px"></div>
+  </div>
+
+  <div class="section">
+    <h3>💰 Прогноз дохода</h3>
+    <div class="chart-container">
+      <canvas id="income-chart"></canvas>
+    </div>
+    <table class="income-table" style="margin-top:12px">
+      <tr><td>Год 1</td><td id="income-y1">$0</td></tr>
+      <tr><td>Год 2</td><td id="income-y2">$0</td></tr>
+      <tr><td>Год 3</td><td id="income-y3">$0</td></tr>
+      <tr><td>Год 4</td><td id="income-y4">$0</td></tr>
+      <tr><td>Год 5</td><td id="income-y5">$0</td></tr>
+    </table>
+  </div>
+
+  <div id="weekly-section" class="section" style="display:none">
+    <h3>📊 Прогресс недели</h3>
+    <div class="chart-container" style="height:160px">
+      <canvas id="weekly-chart"></canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>📈 Проект</h3>
+    <div class="row"><span class="row-label">Мейкеров</span><span class="row-value" id="stat-makers">—</span></div>
+    <div class="row"><span class="row-label">Видео за неделю</span><span class="row-value" id="stat-videos">—</span></div>
+    <div class="row"><span class="row-label">Просмотров всего</span><span class="row-value" id="stat-views">—</span></div>
+    <div class="row"><span class="row-label">SaaS офферов</span><span class="row-value" id="stat-offers">—</span></div>
+  </div>
+</div>
+
+<div id="app-error" class="error-msg" style="display:none">
+  <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+  <div id="error-text">Ошибка загрузки</div>
+</div>
+
+<script>
+const tg=window.Telegram.WebApp;
+tg.ready();tg.expand();
+tg.setHeaderColor('#0d1117');tg.setBackgroundColor('#0d1117');
+
+const API_BASE='https://shikardos-api.up.railway.app/api/v1';
+const INCOME_RATES=[127,254,508,1018,2036];
+const ROLE_NAMES={maker:'Мейкер',hr:'HR-менеджер',investor:'Инвестор',blogger:'Блогер',team:'Управляющая команда',advisor:'Адвизор'};
+
+let initData=tg.initData||'';
+
+async function api(path){
+  const res=await fetch(API_BASE+path,{headers:{'X-Telegram-Init-Data':initData}});
+  if(!res.ok)throw new Error('API '+res.status);
+  return res.json();
+}
+
+function $(id){return document.getElementById(id)}
+function fmt(n){return n.toLocaleString('en-US')}
+function fmtUSD(n){return '$'+fmt(n)}
+
+async function loadProfile(){
+  const u=await api('/profile');
+  $('avatar').textContent=(u.full_name||'?')[0].toUpperCase();
+  $('user-name').textContent=u.full_name||'Участник';
+  $('user-role').textContent=ROLE_NAMES[u.role]||u.role;
+  $('user-status').textContent=u.status==='active'?'🟢':u.status==='frozen'?'❄️':'';
+  return u;
+}
+
+async function loadShares(){
+  const data=await api('/shares');
+  const shares=data.shares_count||0;
+  const frozen=data.shares_frozen||false;
+  $('shares-count').textContent=fmt(shares);
+  $('shares-count').style.color=frozen?'var(--red)':'var(--gold)';
+  $('monthly-income').textContent=fmtUSD(shares*INCOME_RATES[0]);
+  for(let i=0;i<5;i++){
+    $('income-y'+(i+1)).textContent=fmtUSD(shares*INCOME_RATES[i])+'/мес';
+  }
+  new Chart($('income-chart'),{
+    type:'bar',
+    data:{labels:['Год 1','Год 2','Год 3','Год 4','Год 5'],datasets:[{data:INCOME_RATES.map(r=>shares*r),backgroundColor:'#d4a843',borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#8b949e',font:{size:10},callback:v=>'$'+(v>=1000?Math.round(v/1000)+'K':v)},grid:{color:'rgba(48,54,61,0.5)'}}}}
+  });
+}
+
+async function loadOffers(){
+  try{
+    const data=await api('/offers');
+    const items=data.items||[];
+    const filled=items.filter(i=>i.my_link).length;
+    const total=items.length;
+    $('saas-filled').textContent=filled+'/'+total;
+    $('saas-progress').style.width=(total>0?Math.round(filled/total*100):0)+'%';
+    const inRotation=filled>=total&&total>0;
+    const badge=$('rotation-badge');
+    badge.className='rotation-status '+(inRotation?'active':'inactive');
+    badge.textContent=inRotation?'✅ В ротации':'❌ Не в ротации';
+    let h='';
+    for(const item of items){h+='<div class="saas-item"><span>'+(item.my_link?'✅':'❌')+'</span>'+item.name+'</div>';}
+    $('saas-list').innerHTML=h;
+  }catch(e){$('rotation-section').style.display='none';}
+}
+
+async function loadVideos(role){
+  if(role!=='maker'){$('videos-week').parentElement.style.display='none';$('ke-tier').parentElement.style.display='none';return;}
+  try{
+    const data=await api('/maker/videos');
+    $('videos-week').textContent=(data.this_week_count||0)+'/12';
+    $('weekly-section').style.display='block';
+    new Chart($('weekly-chart'),{
+      type:'bar',
+      data:{labels:['YouTube','TikTok','Instagram','Facebook'],datasets:[{data:[data.youtube_count||0,data.tiktok_count||0,data.instagram_count||0,data.facebook_count||0],backgroundColor:['#f85149','#58a6ff','#d4a843','#3fb950'],borderRadius:6}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{max:3,ticks:{color:'#8b949e',stepSize:1},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:12}},grid:{display:false}}}}
+    });
+  }catch(e){$('videos-week').textContent='—';}
+}
+
+async function loadKE(role){
+  if(role!=='maker')return;
+  try{const data=await api('/maker/ke');$('ke-tier').textContent=data.tier?'Тир '+data.tier:'—';}catch(e){$('ke-tier').textContent='—';}
+}
+
+async function loadStats(){
+  try{
+    const data=await api('/stats/project');
+    $('stat-makers').textContent=fmt(data.total_makers||0);
+    $('stat-videos').textContent=fmt(data.videos_this_week||0);
+    $('stat-views').textContent=fmt(data.total_views||0);
+    $('stat-offers').textContent=data.total_offers||0;
+  }catch(e){}
+}
+
+async function init(){
+  try{
+    if(!initData&&!tg.initDataUnsafe?.user)throw new Error('Откройте через Telegram бот');
+    const profile=await loadProfile();
+    await Promise.all([loadShares(),loadOffers(),loadVideos(profile.role),loadKE(profile.role),loadStats()]);
+    $('app-loading').style.display='none';
+    $('app-content').style.display='block';
+  }catch(err){
+    $('app-loading').style.display='none';
+    $('app-error').style.display='block';
+    $('error-text').textContent=err.message||'Ошибка загрузки данных';
+  }
+}
+init();
+</script>
+</body>
+</html>

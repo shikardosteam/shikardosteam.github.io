@@ -4,7 +4,7 @@
 
 ## Файлы
 
-- **`shikardosteam.html`** — главный публичный сайт (открывать через GitHub Pages)
+- **`index.html`** — главный публичный сайт (https://shikardos.team)
 - **`dashboard.html`** — внутренний Command Center (22 раздела). Доступ через прямой URL, для команды.
 
 ## Запуск локально
@@ -27,4 +27,4 @@
 ## Контакты
 
 - Telegram: [@shikardosteam](https://t.me/shikardosteam)
-- LinkedIn: [Valerii Barkov](https://linkedin.com/in/valerii-barkov-55469939a/)
+- LinkedIn: [Valerii Barkov](https://linkedin.com/in/shikardos/)
