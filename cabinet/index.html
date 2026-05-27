@@ -22,6 +22,7 @@
   --red: #f85149;
   --blue: #58a6ff;
   --orange: #d29922;
+  --purple: #bc8cff;
   --sidebar-w: 240px;
 }
 
@@ -299,6 +300,60 @@ h3 { font-size:18px; }
 .empty-state-icon { font-size:48px; margin-bottom:12px; opacity:0.5; }
 .empty-state-text { font-size:14px; }
 
+
+/* ===== ALERTS ===== */
+.alert{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:8px}
+.alert.danger{background:rgba(248,81,73,0.1);border-left:3px solid var(--red)}
+.alert.warn{background:rgba(210,153,34,0.1);border-left:3px solid var(--orange)}
+.alert.success{background:rgba(63,185,80,0.1);border-left:3px solid var(--green)}
+.alert.info{background:rgba(88,166,255,0.1);border-left:3px solid var(--blue)}
+.alert-icon{font-size:16px;flex-shrink:0}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:16px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:8px;padding:16px}
+.kpi-card.green{border-top-color:var(--green)}.kpi-card.gold{border-top-color:var(--gold)}
+.kpi-card.blue{border-top-color:var(--blue)}.kpi-card.purple{border-top-color:var(--purple)}
+.kpi-card.orange{border-top-color:var(--orange)}
+.kpi-label{font-size:11px;color:var(--muted);letter-spacing:.5px;margin-bottom:6px}
+.kpi-value{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text);line-height:1.1}
+.kpi-delta{font-size:11px;margin-top:4px}
+.kpi-delta.up{color:var(--green)}.kpi-delta.down{color:var(--red)}.kpi-delta.neutral{color:var(--muted)}
+.bar-chart{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar-label{font-size:12px;color:var(--muted);min-width:80px}
+.bar-track{flex:1;height:20px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.bar-fill.blue{background:var(--blue)}.bar-fill.gold{background:var(--gold)}
+.bar-fill.green{background:var(--green)}.bar-fill.orange{background:var(--orange)}
+.bar-fill.purple{background:var(--purple)}
+.bar-value{font-size:12px;color:var(--text);min-width:60px;text-align:right;font-weight:600}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.tier-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:900px){.tier-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.tier-grid{grid-template-columns:1fr 1fr}}
+.tier-card{padding:14px 8px;text-align:center;border-radius:8px}
+.tier-value{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;margin-bottom:2px}
+.tier-label{font-size:10px;margin-bottom:6px}
+.tier-name{font-size:11px;color:var(--text);font-weight:700}
+.formula-box{padding:14px;background:var(--card);border-left:3px solid var(--gold);margin-bottom:14px;border:1px solid var(--border);border-radius:0 8px 8px 0}
+.formula-text{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);margin-bottom:6px}
+.formula-desc{font-size:11px;color:var(--muted);line-height:1.6}
+.formula-step{background:var(--card);padding:12px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border)}
+.formula-num{font-family:'Bebas Neue',sans-serif;font-size:22px;min-width:28px;line-height:1}
+.note-box{padding:10px 12px;border-left:3px solid var(--gold);background:rgba(212,168,67,.08);font-size:11px;color:var(--text);margin-top:12px;border-radius:0 6px 6px 0}
+.note-box.info{border-left-color:var(--blue);background:rgba(88,166,255,.08)}
+
+.alert-info{background:rgba(88,166,255,.08);border-left-color:var(--blue)}
+.alert-warn{background:rgba(210,153,34,.08);border-left-color:#d29922}
+.form-input{width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:inherit}
+.form-input:focus{outline:none;border-color:var(--gold)}
+.btn{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn-primary{background:var(--gold);color:#000;border-color:var(--gold);font-weight:600}
+.btn-primary:hover{background:#e6bc50;border-color:#e6bc50}
+.btn-sm{padding:4px 10px;font-size:12px}
+.tier-card.active{border-width:2px;box-shadow:0 0 12px rgba(212,168,67,.3)}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width:768px) {
   :root { --sidebar-w:0px; }
@@ -440,14 +495,16 @@ let currentUser = null;
 let charts = {};
 
 // ===== API HELPER =====
-async function api(path, opts = {}) {
+async function api(path, method, body) {
+  if (typeof method === 'object') { body = method; method = 'POST'; }
+  var opts = { method: method || 'GET' };
+  if (body) opts.body = JSON.stringify(body);
   try {
     const res = await fetch(API_BASE + path, {
       ...opts,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (token || ''),
-        ...(opts.headers || {})
+        'Authorization': 'Bearer ' + (token || '')
       }
     });
     if (res.status === 401) { logout(); return null; }
@@ -477,7 +534,7 @@ let _tgPollInterval = null;
 
 async function startTelegramAuth() {
   showAuthStep('tg');
-  const data = await api('/auth/request-link', { method: 'POST' });
+  const data = await api('/auth/request-link', 'POST');
   if (!data || !data.auth_token) {
     showAuthStep('choose');
     return;
@@ -534,10 +591,7 @@ function cancelTelegramAuth() {
 // ── Google OAuth ──
 window.handleGoogleAuth = async function(response) {
   showAuthStep('loading');
-  const data = await api('/auth/google', {
-    method: 'POST',
-    body: JSON.stringify({ credential: response.credential })
-  });
+  const data = await api('/auth/google', 'POST', { credential: response.credential });
   if (data && data.token) {
     token = data.token;
     sessionStorage.setItem('st_token', token);
@@ -809,40 +863,59 @@ async function loadHome() {
   const frozen = shares.frozen ?? 0;
   const status = u.status || 'active';
   const monthlyIncome = balance * 127;
+  var stats = {};
+  try { stats = await api('/stats') || {}; } catch(e) {}
 
-  page.innerHTML = `
-    <div class="section-title">Добро пожаловать, ${esc(u.display_name || u.username || 'Участник')}</div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Статус</div>
-        <div class="stat-value" style="font-size:24px">
-          <span class="status-dot ${getStatusClass(status)}"></span>${getStatusLabel(status)}
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Акции</div>
-        <div class="stat-value gold">${fmtNum(balance)}</div>
-        ${frozen > 0 ? `<div class="stat-sub" style="color:var(--red)">🔒 Замор.: ${fmtNum(frozen)}</div>` : ''}
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Прогноз дохода / мес</div>
-        <div class="stat-value green">$${fmtNum(monthlyIncome)}</div>
-        <div class="stat-sub">Год 1 — $127 за акцию</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Роль</div>
-        <div class="stat-value" style="font-size:24px">${getRoleLabel(u.role)}</div>
-        ${u.team_role ? `<div class="stat-sub">${esc(u.team_role)}</div>` : ''}
-      </div>
-    </div>
+  var alertsHtml = '';
+  if (frozen > 0) alertsHtml += '<div class="alert alert-danger">\u26a0\ufe0f Ваши акции заморожены. Публикуйте видео чтобы разморозить.</div>';
+  if (status === 'active' && balance > 0) alertsHtml += '<div class="alert alert-success">\u2705 Всё в порядке. Система работает, акции активны.</div>';
 
-    <div class="content-card">
-      <h3>Прогноз дохода на 5 лет</h3>
-      <div class="chart-wrap" style="max-width:700px"><canvas id="chart-forecast"></canvas></div>
-    </div>
-  `;
+  var statsExtra = '';
+  if (u.role === 'admin' || u.role === 'team' || u.is_admin) {
+    statsExtra = '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">Участников</div><div class="stat-value blue">' + fmtNum(stats.total_users || 0) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">Мейкеров</div><div class="stat-value">' + fmtNum(stats.total_makers || 0) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">Видео всего</div><div class="stat-value green">' + fmtNum(stats.total_videos || 0) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">Офферов</div><div class="stat-value">' + fmtNum(stats.offers_count || 0) + '</div></div>' +
+      (stats.frozen_users !== undefined ? '<div class="kpi-card"><div class="stat-label">Заморожено</div><div class="stat-value" style="color:var(--red)">' + fmtNum(stats.frozen_users || 0) + '</div></div>' : '') +
+      (stats.waitlist_count !== undefined ? '<div class="kpi-card"><div class="stat-label">Waitlist</div><div class="stat-value">' + fmtNum(stats.waitlist_count || 0) + '</div></div>' : '') +
+    '</div>';
+  }
+
+  var tiers = [{n:'Tier 1',s:'+5',d:'\u0422\u043e\u043f-20%'},{n:'Tier 2',s:'+4',d:'20-40%'},{n:'Tier 3',s:'+3',d:'40-60%'},{n:'Tier 4',s:'+2',d:'60-80%'},{n:'Tier 5',s:'+1',d:'80-100%'}];
+  var tierInfo = '<div class="content-card"><h3>\u0421\u0438\u0441\u0442\u0435\u043c\u0430 \u0442\u0438\u0440\u043e\u0432 (\u0430\u043a\u0446\u0438\u0438/\u0433\u043e\u0434)</h3><div class="tier-grid">';
+  for (var i = 0; i < tiers.length; i++) tierInfo += '<div class="tier-card"><strong>' + tiers[i].n + '</strong><div class="stat-value gold" style="font-size:20px">' + tiers[i].s + '</div><div style="color:var(--muted);font-size:12px">' + tiers[i].d + '</div></div>';
+  tierInfo += '</div></div>';
+
+  var incomeTable = '<div class="content-card"><h3>\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0434\u043e\u0445\u043e\u0434\u0430 \u043f\u043e \u0433\u043e\u0434\u0430\u043c</h3><table class="data-table"><thead><tr><th>\u0413\u043e\u0434</th><th>$/\u0430\u043a\u0446/\u043c\u0435\u0441</th><th>\u0412\u0430\u0448 \u0434\u043e\u0445\u043e\u0434/\u043c\u0435\u0441</th><th>\u0412\u0430\u0448 \u0434\u043e\u0445\u043e\u0434/\u0433\u043e\u0434</th></tr></thead><tbody>';
+  var mults = [127, 254, 508, 1018, 2036];
+  for (var y = 0; y < 5; y++) incomeTable += '<tr><td>\u0413\u043e\u0434 ' + (y+1) + '</td><td>$' + fmtNum(mults[y]) + '</td><td class="gold">$' + fmtNum(balance * mults[y]) + '</td><td>$' + fmtNum(balance * mults[y] * 12) + '</td></tr>';
+  incomeTable += '</tbody></table></div>';
+
+  page.innerHTML =
+    '<div class="section-title">\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, ' + esc(u.display_name || u.username || '\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a') + '</div>' +
+    alertsHtml +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0421\u0442\u0430\u0442\u0443\u0441</div><div class="stat-value" style="font-size:22px"><span class="status-dot ' + getStatusClass(status) + '"></span>' + getStatusLabel(status) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0410\u043a\u0446\u0438\u0438</div><div class="stat-value gold">' + fmtNum(balance) + '</div>' + (frozen > 0 ? '<div class="stat-sub" style="color:var(--red)">\ud83d\udd12 \u0417\u0430\u043c\u043e\u0440.: ' + fmtNum(frozen) + '</div>' : '') + '</div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0414\u043e\u0445\u043e\u0434 / \u043c\u0435\u0441</div><div class="stat-value green">$' + fmtNum(monthlyIncome) + '</div><div class="stat-sub">\u0413\u043e\u0434 1 \u2014 $127/\u0430\u043a\u0446\u0438\u044f</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0420\u043e\u043b\u044c</div><div class="stat-value" style="font-size:22px">' + getRoleLabel(u.role) + '</div>' + (u.team_role ? '<div class="stat-sub">' + esc(u.team_role) + '</div>' : '') + '</div>' +
+    '</div>' +
+    statsExtra +
+    '<div class="content-card"><h3>\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0434\u043e\u0445\u043e\u0434\u0430 \u043d\u0430 5 \u043b\u0435\u0442</h3><div class="chart-wrap" style="max-width:700px"><canvas id="chart-forecast"></canvas></div></div>' +
+    incomeTable +
+    tierInfo;
 
   renderForecastChart(balance);
+}
+
+
+function fmtViews(n) {
+  if (!n || n === 0) return '0';
+  if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return String(n);
 }
 
 function renderForecastChart(shares) {
@@ -889,51 +962,62 @@ async function loadShares() {
   const balance = s.balance ?? s.total ?? 0;
   const frozen = s.frozen ?? 0;
   const available = balance - frozen;
+  var mults = [127, 254, 508, 1018, 2036];
+  var monthlyNow = balance * mults[0];
+  var yearlyNow = monthlyNow * 12;
+  var total5y = 0;
+  for (var y = 0; y < 5; y++) total5y += balance * mults[y] * 12;
 
-  let historyRows = '';
+  var historyRows = '';
   if (Array.isArray(history) && history.length > 0) {
-    historyRows = history.slice(0, 50).map(h => `
-      <tr>
-        <td>${fmtDate(h.date || h.created_at)}</td>
-        <td>${esc(h.type || h.action || '—')}</td>
-        <td style="color:${(h.amount||0)>=0?'var(--green)':'var(--red)'}">
-          ${(h.amount||0)>=0?'+':''}${fmtNum(h.amount||0)}
-        </td>
-        <td>${esc(h.note || h.description || '—')}</td>
-      </tr>
-    `).join('');
+    for (var i = 0; i < Math.min(history.length, 50); i++) {
+      var h = history[i];
+      var amt = h.amount || 0;
+      historyRows += '<tr><td>' + fmtDate(h.date || h.created_at) + '</td>' +
+        '<td>' + esc(h.type || h.action || '\u2014') + '</td>' +
+        '<td style="color:' + (amt >= 0 ? 'var(--green)' : 'var(--red)') + '">' + (amt >= 0 ? '+' : '') + fmtNum(amt) + '</td>' +
+        '<td>' + esc(h.note || h.description || '\u2014') + '</td></tr>';
+    }
   } else {
-    historyRows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Нет операций</td></tr>';
+    historyRows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u0439</td></tr>';
   }
 
-  page.innerHTML = `
-    <div class="section-title">Мои акции</div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Баланс</div>
-        <div class="stat-value gold">${fmtNum(balance)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Доступно</div>
-        <div class="stat-value green">${fmtNum(available)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Заморожено</div>
-        <div class="stat-value" style="color:${frozen > 0 ? 'var(--red)' : 'var(--muted)'}">${fmtNum(frozen)}</div>
-      </div>
-    </div>
+  page.innerHTML =
+    '<div class="section-title">\u041c\u043e\u0438 \u0430\u043a\u0446\u0438\u0438</div>' +
+    (frozen > 0 ? '<div class="alert alert-danger">\u26a0\ufe0f \u0427\u0430\u0441\u0442\u044c \u0430\u043a\u0446\u0438\u0439 \u0437\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u0430. \u041f\u0443\u0431\u043b\u0438\u043a\u0443\u0439\u0442\u0435 \u0432\u0438\u0434\u0435\u043e \u0434\u043b\u044f \u0440\u0430\u0437\u043c\u043e\u0440\u043e\u0437\u043a\u0438.</div>' : '') +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0411\u0430\u043b\u0430\u043d\u0441</div><div class="stat-value gold">' + fmtNum(balance) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0414\u043e\u0441\u0442\u0443\u043f\u043d\u043e</div><div class="stat-value green">' + fmtNum(available) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0417\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u043e</div><div class="stat-value" style="color:' + (frozen > 0 ? 'var(--red)' : 'var(--muted)') + '">' + fmtNum(frozen) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0414\u043e\u0445\u043e\u0434/\u043c\u0435\u0441 (\u0413\u043e\u04341)</div><div class="stat-value green">$' + fmtNum(monthlyNow) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0414\u043e\u0445\u043e\u0434/\u0433\u043e\u0434</div><div class="stat-value">$' + fmtNum(yearlyNow) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0417\u0430 5 \u043b\u0435\u0442</div><div class="stat-value gold">$' + fmtNum(total5y) + '</div></div>' +
+    '</div>' +
+    '<div class="grid-2">' +
+      '<div class="content-card"><h3>\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0434\u043e\u0445\u043e\u0434\u0430</h3><div class="chart-wrap"><canvas id="chart-shares-forecast"></canvas></div></div>' +
+      '<div class="content-card"><h3>\u041a\u0430\u043a \u0440\u0430\u0441\u0442\u0451\u0442 \u0434\u043e\u0445\u043e\u0434</h3>' +
+        '<div class="note-box">\u041a\u0430\u0436\u0434\u044b\u0439 \u0433\u043e\u0434 \u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c \u0430\u043a\u0446\u0438\u0438 \u0443\u0434\u0432\u0430\u0438\u0432\u0430\u0435\u0442\u0441\u044f: $127 \u2192 $254 \u2192 $508 \u2192 $1018 \u2192 $2036/\u043c\u0435\u0441. \u041f\u043b\u044e\u0441 \u0432\u044b \u043f\u043e\u043b\u0443\u0447\u0430\u0435\u0442\u0435 \u043d\u043e\u0432\u044b\u0435 \u0430\u043a\u0446\u0438\u0438 \u043f\u043e \u041a\u042d \u043a\u0430\u0436\u0434\u044b\u0439 \u0433\u043e\u0434.</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="content-card"><h3>\u0418\u0441\u0442\u043e\u0440\u0438\u044f \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u0439</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>\u0414\u0430\u0442\u0430</th><th>\u0422\u0438\u043f</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435</th></tr></thead>' +
+        '<tbody>' + historyRows + '</tbody>' +
+      '</table></div>' +
+    '</div>';
 
-    <div class="content-card">
-      <h3>История операций</h3>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>Дата</th><th>Тип</th><th>Кол-во</th><th>Описание</th></tr></thead>
-          <tbody>${historyRows}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
+  // Shares forecast chart
+  if (charts['shares-forecast']) charts['shares-forecast'].destroy();
+  charts['shares-forecast'] = new Chart(document.getElementById('chart-shares-forecast'), {
+    type: 'bar',
+    data: {
+      labels: ['\u0413\u043e\u04341','\u0413\u043e\u04342','\u0413\u043e\u04343','\u0413\u043e\u04344','\u0413\u043e\u04345'],
+      datasets: [{ label: '$/\u043c\u0435\u0441', data: mults.map(function(m){return balance*m;}), backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d29922','#bc8cff'], borderRadius: 4 }]
+    },
+    options: { responsive: true, plugins:{ legend:{ display:false } }, scales: { x:{ ticks:{ color:'#8b949e' }, grid:{ display:false } }, y:{ ticks:{ color:'#8b949e', callback: function(v){return '$'+v.toLocaleString();} }, grid:{ color:'rgba(48,54,61,0.5)' } } } }
+  });
 }
+
 
 // ---------- PROFILE ----------
 async function loadProfile() {
@@ -941,55 +1025,70 @@ async function loadProfile() {
   const u = currentUser;
   const refData = await api('/referrals');
   const referrals = refData?.referrals || refData || [];
-  const refCode = u.referral_code || u.ref_code || '—';
+  const refCode = u.referral_code || u.ref_code || '\u2014';
 
-  let refRows = '';
+  var refRows = '';
   if (Array.isArray(referrals) && referrals.length > 0) {
-    refRows = referrals.map(r => `
-      <tr>
-        <td>${esc(r.display_name || r.username || r.email || '—')}</td>
-        <td><span class="badge badge-${r.status==='active'?'green':'muted'}">${getStatusLabel(r.status)}</span></td>
-        <td>${fmtDate(r.joined_at || r.created_at)}</td>
-      </tr>
-    `).join('');
+    for (var i = 0; i < referrals.length; i++) {
+      var r = referrals[i];
+      refRows += '<tr><td>' + esc(r.display_name || r.username || r.email || '\u2014') + '</td>' +
+        '<td><span class="badge badge-' + (r.status==='active'?'green':'muted') + '">' + getStatusLabel(r.status) + '</span></td>' +
+        '<td>' + fmtDate(r.joined_at || r.created_at) + '</td></tr>';
+    }
   } else {
-    refRows = '<tr><td colspan="3" style="text-align:center;color:var(--muted)">Нет рефералов</td></tr>';
+    refRows = '<tr><td colspan="3" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u043e\u0432</td></tr>';
   }
 
-  page.innerHTML = `
-    <div class="section-title">Профиль</div>
-    <div class="content-card">
-      <h3>Личные данные</h3>
-      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px 16px;font-size:14px">
-        <span style="color:var(--muted)">Имя</span><span>${esc(u.display_name || u.username || '—')}</span>
-        <span style="color:var(--muted)">Email</span><span>${esc(u.email || '—')}</span>
-        <span style="color:var(--muted)">Telegram</span><span>${u.telegram_username ? '@' + esc(u.telegram_username) : '—'}</span>
-        <span style="color:var(--muted)">Роль</span><span>${getRoleLabel(u.role)}</span>
-        <span style="color:var(--muted)">Статус</span><span><span class="status-dot ${getStatusClass(u.status)}"></span>${getStatusLabel(u.status)}</span>
-        <span style="color:var(--muted)">Дата регистрации</span><span>${fmtDate(u.created_at || u.joined_at)}</span>
-      </div>
-    </div>
+  var botLink = 'https://t.me/ShikardosTeamBot?start=ref_' + (refCode !== '\u2014' ? refCode : '');
 
-    <div class="content-card">
-      <h3>Реферальный код</h3>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:4px">Делитесь кодом для приглашения участников</p>
-      <div class="ref-code-box">
-        <span class="ref-code" id="ref-code-value">${esc(refCode)}</span>
-        <button class="copy-btn" onclick="copyRefCode()">Копировать</button>
-      </div>
-    </div>
-
-    <div class="content-card">
-      <h3>Мои рефералы (${Array.isArray(referrals) ? referrals.length : 0})</h3>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>Участник</th><th>Статус</th><th>Дата</th></tr></thead>
-          <tbody>${refRows}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
+  page.innerHTML =
+    '<div class="section-title">\u041f\u0440\u043e\u0444\u0438\u043b\u044c</div>' +
+    '<div class="grid-2">' +
+      '<div class="content-card" id="profile-view">' +
+        '<h3>\u041b\u0438\u0447\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435 <button class="btn btn-sm" onclick="showProfileEdit()" style="float:right;font-size:12px">\u270e \u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c</button></h3>' +
+        '<div style="display:grid;grid-template-columns:140px 1fr;gap:10px 16px;font-size:14px">' +
+          '<span style="color:var(--muted)">\u0418\u043c\u044f</span><span>' + esc(u.display_name || u.username || '\u2014') + '</span>' +
+          '<span style="color:var(--muted)">Email</span><span>' + esc(u.email || '\u2014') + '</span>' +
+          '<span style="color:var(--muted)">Telegram</span><span>' + (u.telegram_username ? '@' + esc(u.telegram_username) : '\u2014') + '</span>' +
+          '<span style="color:var(--muted)">\u0420\u043e\u043b\u044c</span><span>' + getRoleLabel(u.role) + '</span>' +
+          '<span style="color:var(--muted)">\u0421\u0442\u0430\u0442\u0443\u0441</span><span><span class="status-dot ' + getStatusClass(u.status) + '"></span>' + getStatusLabel(u.status) + '</span>' +
+          '<span style="color:var(--muted)">\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f</span><span>' + fmtDate(u.created_at || u.joined_at) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="content-card" id="profile-edit" style="display:none">' +
+        '<h3>\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435</h3>' +
+        '<div style="display:flex;flex-direction:column;gap:12px">' +
+          '<label style="font-size:13px;color:var(--muted)">\u041e\u0442\u043e\u0431\u0440\u0430\u0436\u0430\u0435\u043c\u043e\u0435 \u0438\u043c\u044f</label>' +
+          '<input id="edit-name" class="form-input" value="' + esc(u.display_name || u.full_name || '') + '">' +
+          '<label style="font-size:13px;color:var(--muted)">Email</label>' +
+          '<input id="edit-email" class="form-input" value="' + esc(u.email || '') + '">' +
+          '<div style="display:flex;gap:8px;margin-top:8px">' +
+            '<button class="btn btn-primary" onclick="saveProfile()">\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c</button>' +
+            '<button class="btn" onclick="cancelProfileEdit()">\u041e\u0442\u043c\u0435\u043d\u0430</button>' +
+          '</div>' +
+          '<div id="profile-msg" style="font-size:13px;min-height:20px"></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="content-card">' +
+      '<h3>\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u0430\u044f \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u0430</h3>' +
+      '<div class="grid-2" style="margin-bottom:16px">' +
+        '<div><p style="color:var(--muted);font-size:13px;margin-bottom:8px">\u0412\u0430\u0448 \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u043a\u043e\u0434</p>' +
+          '<div class="ref-code-box"><span class="ref-code" id="ref-code-value">' + esc(refCode) + '</span><button class="copy-btn" onclick="copyRefCode()">\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c</button></div></div>' +
+        '<div><p style="color:var(--muted);font-size:13px;margin-bottom:8px">\u0421\u0441\u044b\u043b\u043a\u0430 \u043d\u0430 \u0431\u043e\u0442\u0430</p>' +
+          '<div class="ref-code-box"><span class="ref-code" style="font-size:12px">' + esc(botLink) + '</span><button class="copy-btn" onclick="navigator.clipboard.writeText(\'' + botLink + '\')">\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c</button></div></div>' +
+      '</div>' +
+      '<div class="note-box">\ud83d\udca1 \u0417\u0430 \u043a\u0430\u0436\u0434\u043e\u0433\u043e \u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0451\u043d\u043d\u043e\u0433\u043e \u0443\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u0430 \u0432\u044b \u043f\u043e\u043b\u0443\u0447\u0430\u0435\u0442\u0435 \u0431\u043e\u043d\u0443\u0441\u044b \u0441\u043e\u0433\u043b\u0430\u0441\u043d\u043e \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u043e\u0439 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u0435 \u0432\u0430\u0448\u0435\u0439 \u0440\u043e\u043b\u0438.</div>' +
+    '</div>' +
+    '<div class="content-card">' +
+      '<h3>\u041c\u043e\u0438 \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u044b (' + (Array.isArray(referrals) ? referrals.length : 0) + ')</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u0414\u0430\u0442\u0430</th></tr></thead>' +
+        '<tbody>' + refRows + '</tbody>' +
+      '</table></div>' +
+    '</div>';
 }
+
 
 function copyRefCode() {
   const code = document.getElementById('ref-code-value')?.textContent;
@@ -1002,72 +1101,115 @@ function copyRefCode() {
   }
 }
 
+function showProfileEdit() {
+  document.getElementById('profile-view').style.display = 'none';
+  document.getElementById('profile-edit').style.display = 'block';
+}
+function cancelProfileEdit() {
+  document.getElementById('profile-view').style.display = 'block';
+  document.getElementById('profile-edit').style.display = 'none';
+}
+async function saveProfile() {
+  var name = document.getElementById('edit-name').value.trim();
+  var email = document.getElementById('edit-email').value.trim();
+  var msg = document.getElementById('profile-msg');
+  msg.style.color = 'var(--muted)';
+  msg.textContent = 'Сохранение...';
+  var res = await api('/profile', 'PUT', { display_name: name, email: email });
+  if (res && !res.error) {
+    msg.style.color = 'var(--green)';
+    msg.textContent = '✓ Сохранено';
+    if (name) { currentUser.display_name = name; currentUser.full_name = name; }
+    if (email) currentUser.email = email;
+    setTimeout(function() { cancelProfileEdit(); loadProfile(); }, 1000);
+  } else {
+    msg.style.color = 'var(--red)';
+    msg.textContent = (res && (res.error || res.detail)) || 'Ошибка';
+  }
+}
+
 // ---------- VIDEOS ----------
 async function loadVideos() {
   const page = document.getElementById('page-videos');
   const data = await api('/videos');
   const videos = data?.videos || data || [];
 
-  // Aggregate by platform
-  const platforms = {};
+  var platforms = {};
+  var weeklyCount = 0;
+  var now = Date.now();
+  var weekAgo = now - 7*24*3600*1000;
   if (Array.isArray(videos)) {
-    videos.forEach(v => {
-      const p = v.platform || 'Другое';
+    for (var i = 0; i < videos.length; i++) {
+      var v = videos[i];
+      var p = v.platform || 'Other';
       if (!platforms[p]) platforms[p] = { count: 0, views: 0 };
       platforms[p].count++;
       platforms[p].views += (v.views || 0);
-    });
+      if (v.created_at && new Date(v.created_at).getTime() > weekAgo) weeklyCount++;
+    }
   }
 
-  const total = Array.isArray(videos) ? videos.length : 0;
-  const totalViews = Object.values(platforms).reduce((s, p) => s + p.views, 0);
-  const platLabels = Object.keys(platforms);
-  const platCounts = platLabels.map(p => platforms[p].count);
+  var total = Array.isArray(videos) ? videos.length : 0;
+  var totalViews = 0;
+  var platLabels = Object.keys(platforms);
+  for (var k = 0; k < platLabels.length; k++) totalViews += platforms[platLabels[k]].views;
+  var avgViews = total > 0 ? Math.round(totalViews / total) : 0;
 
-  page.innerHTML = `
-    <div class="section-title">Видео</div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Всего видео</div>
-        <div class="stat-value blue">${fmtNum(total)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Суммарные просмотры</div>
-        <div class="stat-value green">${fmtNum(totalViews)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Платформ</div>
-        <div class="stat-value">${platLabels.length}</div>
-      </div>
-    </div>
-    <div class="content-card">
-      <h3>По платформам</h3>
-      <div class="chart-wrap" style="max-width:500px"><canvas id="chart-platforms"></canvas></div>
-    </div>
-  `;
+  var alertHtml = '';
+  if (total === 0) alertHtml = '<div class="alert alert-warn">\ud83c\udfa5 \u0412\u044b \u043f\u043e\u043a\u0430 \u043d\u0435 \u043e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043b\u0438 \u043d\u0438 \u043e\u0434\u043d\u043e\u0433\u043e \u0432\u0438\u0434\u0435\u043e.</div>';
+  else if (weeklyCount < 3) alertHtml = '<div class="alert alert-warn">\u26a0\ufe0f \u0417\u0430 \u044d\u0442\u0443 \u043d\u0435\u0434\u0435\u043b\u044e: ' + weeklyCount + '/3 \u0432\u0438\u0434\u0435\u043e. \u041c\u0438\u043d\u0438\u043c\u0443\u043c 3 \u0447\u0442\u043e\u0431\u044b \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044c \u0437\u0430\u043c\u043e\u0440\u043e\u0437\u043a\u0438.</div>';
+
+  var barsHtml = '';
+  for (var j = 0; j < platLabels.length; j++) {
+    var pl = platLabels[j];
+    var pct = total > 0 ? Math.round(platforms[pl].count / total * 100) : 0;
+    barsHtml += '<div class="bar-row"><span style="min-width:80px">' + esc(pl) + '</span>' +
+      '<div style="flex:1;background:var(--card-border);border-radius:4px;height:22px;overflow:hidden">' +
+      '<div style="width:' + pct + '%;background:var(--gold);height:100%;border-radius:4px;min-width:2px"></div></div>' +
+      '<span style="min-width:60px;text-align:right">' + platforms[pl].count + ' (' + fmtViews(platforms[pl].views) + ')</span></div>';
+  }
+
+  var sorted = Array.isArray(videos) ? videos.slice().sort(function(a,b) { return new Date(b.created_at||0) - new Date(a.created_at||0); }).slice(0, 10) : [];
+  var recentHtml = '';
+  if (sorted.length > 0) {
+    recentHtml = '<div class="content-card"><h3>\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 \u0432\u0438\u0434\u0435\u043e</h3><div style="overflow-x:auto"><table class="data-table"><thead><tr><th>\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430</th><th>\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b</th><th>\u0414\u0430\u0442\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th></tr></thead><tbody>';
+    for (var r = 0; r < sorted.length; r++) {
+      var sv = sorted[r];
+      recentHtml += '<tr><td>' + esc(sv.platform || '\u2014') + '</td><td>' + fmtViews(sv.views || 0) + '</td><td>' + fmtDate(sv.created_at) + '</td>' +
+        '<td><span class="badge badge-' + (sv.status === 'verified' ? 'green' : sv.status === 'rejected' ? 'red' : 'muted') + '">' + (sv.status || 'pending') + '</span></td></tr>';
+    }
+    recentHtml += '</tbody></table></div></div>';
+  }
+
+  page.innerHTML =
+    '<div class="section-title">\u0412\u0438\u0434\u0435\u043e</div>' +
+    alertHtml +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e \u0432\u0438\u0434\u0435\u043e</div><div class="stat-value blue">' + fmtNum(total) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b</div><div class="stat-value green">' + fmtViews(totalViews) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0421\u0440\u0435\u0434\u043d\u0435\u0435</div><div class="stat-value">' + fmtViews(avgViews) + '</div><div class="stat-sub">\u043f\u0440\u043e\u0441\u043c/\u0432\u0438\u0434\u0435\u043e</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0417\u0430 \u043d\u0435\u0434\u0435\u043b\u044e</div><div class="stat-value' + (weeklyCount < 3 ? '" style="color:var(--red)"' : ' gold"') + '>' + weeklyCount + '/3</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c</div><div class="stat-value">' + platLabels.length + '</div></div>' +
+    '</div>' +
+    '<div class="grid-2">' +
+      '<div class="content-card"><h3>\u041f\u043e \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430\u043c</h3>' + (barsHtml || '<p style="color:var(--muted)">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</p>') + '</div>' +
+      '<div class="content-card"><h3>\u0420\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u0438\u0435</h3><div class="chart-wrap" style="max-width:300px"><canvas id="chart-platforms"></canvas></div></div>' +
+    '</div>' +
+    recentHtml;
 
   if (platLabels.length > 0) {
     if (charts['platforms']) charts['platforms'].destroy();
-    const colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff'];
+    var colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff'];
+    var platCounts = [];
+    for (var c = 0; c < platLabels.length; c++) platCounts.push(platforms[platLabels[c]].count);
     charts['platforms'] = new Chart(document.getElementById('chart-platforms'), {
-      type: 'bar',
-      data: {
-        labels: platLabels,
-        datasets: [{ label:'Видео', data: platCounts,
-          backgroundColor: platLabels.map((_,i) => colors[i % colors.length]),
-          borderRadius: 4 }]
-      },
-      options: {
-        responsive: true,
-        plugins:{ legend:{ display:false } },
-        scales: {
-          x:{ ticks:{ color:'#8b949e' }, grid:{ display:false } },
-          y:{ ticks:{ color:'#8b949e', stepSize:1 }, grid:{ color:'rgba(48,54,61,0.5)' } }
-        }
-      }
+      type: 'doughnut',
+      data: { labels: platLabels, datasets: [{ data: platCounts, backgroundColor: platLabels.map(function(_,i) { return colors[i % colors.length]; }), borderWidth: 0 }] },
+      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8b949e', font:{ family:'Manrope' }, padding:12 } } } }
     });
   }
 }
+
 
 // ---------- KE ----------
 async function loadKE() {
@@ -1075,50 +1217,81 @@ async function loadKE() {
   const data = await api('/ke');
   const ke = data?.ke || data || {};
   const score = ke.score ?? ke.total ?? 0;
-  const tier = ke.tier || ke.level || '—';
+  const tier = ke.tier || ke.level || '\u2014';
+  const rank = ke.rank || '\u2014';
   const breakdown = ke.breakdown || {};
+  var breakdownItems = [];
+  var bKeys = Object.keys(breakdown);
+  for (var b = 0; b < bKeys.length; b++) breakdownItems.push([bKeys[b], breakdown[bKeys[b]]]);
 
-  const breakdownItems = Object.entries(breakdown);
+  var tierData = [
+    {name:'Tier 1',bonus:'+5 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'1-1000',color:'var(--gold)'},
+    {name:'Tier 2',bonus:'+4 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'1001-2000',color:'#3fb950'},
+    {name:'Tier 3',bonus:'+3 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'2001-3000',color:'#58a6ff'},
+    {name:'Tier 4',bonus:'+2 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'3001-4000',color:'#d29922'},
+    {name:'Tier 5',bonus:'+1 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'4001-5000',color:'#8b949e'}
+  ];
+  var tiersHtml = '<div class="tier-grid">';
+  for (var t = 0; t < tierData.length; t++) {
+    var td = tierData[t];
+    var isActive = (String(tier).indexOf(String(t+1)) !== -1);
+    tiersHtml += '<div class="tier-card' + (isActive ? ' active' : '') + '" style="border-color:' + td.color + '"><strong style="color:' + td.color + '">' + td.name + '</strong><div class="stat-value" style="font-size:18px;color:' + td.color + '">' + td.bonus + '</div><div style="color:var(--muted);font-size:12px">' + td.range + '</div></div>';
+  }
+  tiersHtml += '</div>';
 
-  page.innerHTML = `
-    <div class="section-title">Коэффициент эффективности (КЭ)</div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Текущий КЭ</div>
-        <div class="stat-value gold">${typeof score === 'number' ? score.toFixed(2) : score}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Уровень</div>
-        <div class="stat-value" style="font-size:24px">${esc(String(tier))}</div>
-      </div>
-    </div>
-    ${breakdownItems.length > 0 ? `
-    <div class="content-card">
-      <h3>Детализация</h3>
-      <div class="chart-wrap" style="max-width:350px"><canvas id="chart-ke"></canvas></div>
-    </div>` : ''}
-  `;
+  var tips = [];
+  if ((breakdown.views || 0) < 40) tips.push('\ud83d\udcc8 \u0423\u0432\u0435\u043b\u0438\u0447\u044c\u0442\u0435 \u043f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b \u2014 \u0442\u0440\u0435\u043d\u0434\u043e\u0432\u044b\u0435 \u0442\u0435\u043c\u044b \u0438 SEO');
+  if ((breakdown.engagement || 0) < 40) tips.push('\ud83d\udcac \u041f\u043e\u0432\u044b\u0441\u044c\u0442\u0435 \u0432\u043e\u0432\u043b\u0435\u0447\u0451\u043d\u043d\u043e\u0441\u0442\u044c \u2014 CTA \u0432 \u0432\u0438\u0434\u0435\u043e');
+  if ((breakdown.uniformity || 0) < 20) tips.push('\ud83d\udcc5 \u041f\u0443\u0431\u043b\u0438\u043a\u0443\u0439\u0442\u0435 \u0440\u0430\u0432\u043d\u043e\u043c\u0435\u0440\u043d\u043e');
+  var tipsHtml = '';
+  if (tips.length > 0) {
+    tipsHtml = '<div class="note-box"><strong>\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0430\u0446\u0438\u0438:</strong><br>';
+    for (var tp = 0; tp < tips.length; tp++) tipsHtml += tips[tp] + '<br>';
+    tipsHtml += '</div>';
+  }
+
+  page.innerHTML =
+    '<div class="section-title">\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u044d\u0444\u0444\u0435\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u0438 (\u041a\u042d)</div>' +
+    '<div class="alert alert-info">\ud83d\udcd6 \u041a\u042d \u043f\u0435\u0440\u0435\u0441\u0447\u0438\u0442\u044b\u0432\u0430\u0435\u0442\u0441\u044f \u0435\u0436\u0435\u0433\u043e\u0434\u043d\u043e 31 \u0434\u0435\u043a\u0430\u0431\u0440\u044f. \u0424\u043e\u0440\u043c\u0443\u043b\u0430 \u0443\u0447\u0438\u0442\u044b\u0432\u0430\u0435\u0442 \u043f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b, \u0432\u043e\u0432\u043b\u0435\u0447\u0451\u043d\u043d\u043e\u0441\u0442\u044c \u0438 \u0440\u0430\u0432\u043d\u043e\u043c\u0435\u0440\u043d\u043e\u0441\u0442\u044c.</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0422\u0435\u043a\u0443\u0449\u0438\u0439 \u041a\u042d</div><div class="stat-value gold">' + (typeof score === 'number' ? score.toFixed(2) : score) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0422\u0438\u0440</div><div class="stat-value" style="font-size:22px">' + esc(String(tier)) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0420\u0430\u043d\u0433</div><div class="stat-value blue">#' + esc(String(rank)) + '</div><div class="stat-sub">\u0438\u0437 5 000</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0414\u043e \u043f\u0435\u0440\u0435\u0441\u0447\u0451\u0442\u0430</div><div class="stat-value">' + daysUntilNewYear() + '</div><div class="stat-sub">\u0434\u043d\u0435\u0439</div></div>' +
+    '</div>' +
+    '<div class="grid-2">' +
+      '<div class="content-card"><h3>\u0414\u0435\u0442\u0430\u043b\u0438\u0437\u0430\u0446\u0438\u044f</h3>' +
+        (breakdownItems.length > 0 ? '<div class="chart-wrap" style="max-width:280px"><canvas id="chart-ke"></canvas></div>' : '<p style="color:var(--muted)">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</p>') +
+      '</div>' +
+      '<div class="content-card"><h3>\u0424\u043e\u0440\u043c\u0443\u043b\u0430 \u041a\u042d</h3>' +
+        '<div class="formula-box">' +
+          '<div class="formula-step"><span style="color:var(--gold)">\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b</span> \u00d7 0.4</div>' +
+          '<div class="formula-step"><span style="color:var(--green)">\u0426\u0435\u043b\u0435\u0432\u043e\u0439 Engagement</span> \u00d7 0.4</div>' +
+          '<div class="formula-step"><span style="color:var(--blue)">\u0420\u0430\u0432\u043d\u043e\u043c\u0435\u0440\u043d\u043e\u0441\u0442\u044c</span> \u00d7 0.2</div>' +
+        '</div>' +
+        tipsHtml +
+      '</div>' +
+    '</div>' +
+    '<div class="content-card"><h3>\u0421\u0438\u0441\u0442\u0435\u043c\u0430 \u0442\u0438\u0440\u043e\u0432</h3>' + tiersHtml + '</div>';
 
   if (breakdownItems.length > 0) {
     if (charts['ke']) charts['ke'].destroy();
-    const colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff'];
+    var colors = ['#d4a843','#3fb950','#58a6ff','#f85149','#d29922','#bc8cff'];
     charts['ke'] = new Chart(document.getElementById('chart-ke'), {
       type: 'doughnut',
-      data: {
-        labels: breakdownItems.map(([k]) => k),
-        datasets: [{ data: breakdownItems.map(([,v]) => v),
-          backgroundColor: breakdownItems.map((_,i) => colors[i % colors.length]),
-          borderWidth: 0 }]
-      },
-      options: {
-        responsive: true,
-        plugins:{
-          legend:{ position:'bottom', labels:{ color:'#8b949e', font:{ family:'Manrope' }, padding:12 } }
-        }
-      }
+      data: { labels: breakdownItems.map(function(x){return x[0];}), datasets: [{ data: breakdownItems.map(function(x){return x[1];}), backgroundColor: breakdownItems.map(function(_,i){return colors[i%colors.length];}), borderWidth: 0 }] },
+      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8b949e', font:{ family:'Manrope' }, padding:12 } } } }
     });
   }
 }
+
+function daysUntilNewYear() {
+  var now = new Date();
+  var end = new Date(now.getFullYear(), 11, 31);
+  if (now > end) end = new Date(now.getFullYear() + 1, 11, 31);
+  return Math.ceil((end - now) / 86400000);
+}
+
 
 // ---------- OFFERS ----------
 async function loadOffers() {
@@ -1126,34 +1299,41 @@ async function loadOffers() {
   const data = await api('/offers');
   const offers = data?.offers || data || [];
 
-  let rows = '';
+  var activeCount = 0, pausedCount = 0, totalPayout = 0;
+  var rows = '';
   if (Array.isArray(offers) && offers.length > 0) {
-    rows = offers.map(o => `
-      <tr>
-        <td><strong>${esc(o.name || o.title || '—')}</strong></td>
-        <td>${esc(o.platform || '—')}</td>
-        <td><span class="badge badge-${o.status==='active'?'green':o.status==='paused'?'orange':'muted'}">${esc(o.status || '—')}</span></td>
-        <td>${o.payout ? '$' + fmtNum(o.payout) : '—'}</td>
-        <td>${esc(o.rotation || '—')}</td>
-      </tr>
-    `).join('');
+    for (var i = 0; i < offers.length; i++) {
+      var o = offers[i];
+      if (o.status === 'active') activeCount++;
+      else if (o.status === 'paused') pausedCount++;
+      totalPayout += (o.payout || 0);
+      rows += '<tr>' +
+        '<td><strong>' + esc(o.name || o.title || '\u2014') + '</strong>' + (o.description ? '<div style="font-size:12px;color:var(--muted)">' + esc(o.description.substring(0,60)) + '</div>' : '') + '</td>' +
+        '<td>' + esc(o.platform || '\u2014') + '</td>' +
+        '<td><span class="badge badge-' + (o.status==='active'?'green':o.status==='paused'?'orange':'muted') + '">' + esc(o.status || '\u2014') + '</span></td>' +
+        '<td>' + (o.payout ? '$' + fmtNum(o.payout) : '\u2014') + '</td>' +
+        '<td>' + esc(o.rotation || '\u2014') + '</td></tr>';
+    }
   } else {
-    rows = '<tr><td colspan="5" class="empty-state-text" style="text-align:center;color:var(--muted)">Нет активных офферов</td></tr>';
+    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u043e\u0444\u0444\u0435\u0440\u043e\u0432</td></tr>';
   }
 
-  page.innerHTML = `
-    <div class="section-title">SaaS офферы</div>
-    <div class="content-card">
-      <h3>Ваши офферы</h3>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>Оффер</th><th>Платформа</th><th>Статус</th><th>Выплата</th><th>Ротация</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
+  page.innerHTML =
+    '<div class="section-title">SaaS \u043e\u0444\u0444\u0435\u0440\u044b</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e</div><div class="stat-value blue">' + (Array.isArray(offers) ? offers.length : 0) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445</div><div class="stat-value green">' + activeCount + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041d\u0430 \u043f\u0430\u0443\u0437\u0435</div><div class="stat-value" style="color:var(--orange)">' + pausedCount + '</div></div>' +
+    '</div>' +
+    '<div class="content-card"><h3>\u041a\u0430\u0442\u0430\u043b\u043e\u0433 \u043e\u0444\u0444\u0435\u0440\u043e\u0432</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>\u041e\u0444\u0444\u0435\u0440</th><th>\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u0412\u044b\u043f\u043b\u0430\u0442\u0430</th><th>\u0420\u043e\u0442\u0430\u0446\u0438\u044f</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table></div>' +
+    '</div>' +
+    '<div class="note-box">\ud83d\udca1 \u041e\u0444\u0444\u0435\u0440\u044b \u0440\u043e\u0442\u0438\u0440\u0443\u044e\u0442\u0441\u044f \u0447\u0435\u0440\u0435\u0437 Round Robin. \u0412\u0430\u0448\u0438 \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0435 \u0441\u0441\u044b\u043b\u043a\u0438 \u0443\u0447\u0430\u0441\u0442\u0432\u0443\u044e\u0442 \u0432 \u0440\u043e\u0442\u0430\u0446\u0438\u0438 \u043f\u0440\u043e\u043f\u043e\u0440\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u043e \u0432\u0430\u0448\u0438\u043c \u0430\u043a\u0446\u0438\u044f\u043c.</div>';
 }
+
 
 // ---------- HR: MAKERS ----------
 async function loadHRMakers() {
@@ -1161,59 +1341,91 @@ async function loadHRMakers() {
   const data = await api('/hr/overview');
   const makers = data?.makers || data || [];
 
-  let rows = '';
-  if (Array.isArray(makers) && makers.length > 0) {
-    rows = makers.map(m => `
-      <tr>
-        <td>${esc(m.display_name || m.username || '—')}</td>
-        <td><span class="badge badge-${m.status==='active'?'green':'muted'}">${getStatusLabel(m.status)}</span></td>
-        <td>${fmtNum(m.videos_count || m.videos || 0)}</td>
-        <td>${m.ke_score != null ? Number(m.ke_score).toFixed(2) : '—'}</td>
-        <td>${fmtNum(m.shares || 0)}</td>
-      </tr>
-    `).join('');
-  } else {
-    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Нет мейкеров</td></tr>';
+  var total = Array.isArray(makers) ? makers.length : 0;
+  var active = 0, frozen = 0, totalVideos = 0;
+  if (Array.isArray(makers)) {
+    for (var i = 0; i < makers.length; i++) {
+      if (makers[i].status === 'active') active++;
+      if (makers[i].shares_frozen) frozen++;
+      totalVideos += (makers[i].videos_count || makers[i].videos || 0);
+    }
   }
 
-  const total = Array.isArray(makers) ? makers.length : 0;
-  const active = Array.isArray(makers) ? makers.filter(m => m.status === 'active').length : 0;
+  var rows = '';
+  if (Array.isArray(makers) && makers.length > 0) {
+    var sorted = makers.slice().sort(function(a,b) { return (b.ke_score||0) - (a.ke_score||0); });
+    for (var j = 0; j < sorted.length; j++) {
+      var m = sorted[j];
+      rows += '<tr>' +
+        '<td>' + (j+1) + '</td>' +
+        '<td>' + esc(m.display_name || m.username || '\u2014') + '</td>' +
+        '<td><span class="badge badge-' + (m.status==='active'?'green':m.shares_frozen?'red':'muted') + '">' + getStatusLabel(m.status) + (m.shares_frozen ? ' \ud83d\udd12' : '') + '</span></td>' +
+        '<td>' + fmtNum(m.videos_count || m.videos || 0) + '</td>' +
+        '<td class="gold">' + (m.ke_score != null ? Number(m.ke_score).toFixed(2) : '\u2014') + '</td>' +
+        '<td>' + fmtNum(m.shares || 0) + '</td>' +
+      '</tr>';
+    }
+  } else {
+    rows = '<tr><td colspan="6" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u043c\u0435\u0439\u043a\u0435\u0440\u043e\u0432</td></tr>';
+  }
 
-  page.innerHTML = `
-    <div class="section-title">Мои мейкеры</div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Всего</div>
-        <div class="stat-value">${total}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Активных</div>
-        <div class="stat-value green">${active}</div>
-      </div>
-    </div>
-    <div class="content-card">
-      <h3>Список мейкеров</h3>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>Имя</th><th>Статус</th><th>Видео</th><th>КЭ</th><th>Акции</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
+  page.innerHTML =
+    '<div class="section-title">\u041c\u043e\u0438 \u043c\u0435\u0439\u043a\u0435\u0440\u044b</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e</div><div class="stat-value blue">' + total + '</div><div class="stat-sub">\u0438\u0437 100 \u043c\u0430\u043a\u0441</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445</div><div class="stat-value green">' + active + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0417\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u043e</div><div class="stat-value" style="color:var(--red)">' + frozen + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0438\u0434\u0435\u043e \u0432\u0441\u0435\u0433\u043e</div><div class="stat-value">' + fmtNum(totalVideos) + '</div></div>' +
+    '</div>' +
+    (frozen > 0 ? '<div class="alert alert-warn">\u26a0\ufe0f ' + frozen + ' \u043c\u0435\u0439\u043a\u0435\u0440(\u043e\u0432) \u0441 \u0437\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u043d\u044b\u043c\u0438 \u0430\u043a\u0446\u0438\u044f\u043c\u0438. \u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u0438\u0445 \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u044c.</div>' : '') +
+    '<div class="content-card"><h3>\u0420\u0435\u0439\u0442\u0438\u043d\u0433 \u043c\u0435\u0439\u043a\u0435\u0440\u043e\u0432 (\u043f\u043e \u041a\u042d)</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>#</th><th>\u0418\u043c\u044f</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u0412\u0438\u0434\u0435\u043e</th><th>\u041a\u042d</th><th>\u0410\u043a\u0446\u0438\u0438</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table></div>' +
+    '</div>';
 }
+
 
 // ---------- HR: REVIEW ----------
 async function loadHRReview() {
   const page = document.getElementById('page-hr-review');
-  page.innerHTML = `
-    <div class="section-title">Проверка контента</div>
-    <div class="empty-state">
-      <div class="empty-state-icon">✅</div>
-      <div class="empty-state-text">Нет контента на проверку</div>
-    </div>
-  `;
+  var pending = [];
+  try {
+    var reviewData = await api('/hr/reviews');
+    pending = reviewData?.reviews || reviewData || [];
+  } catch(e) {}
+
+  var rows = '';
+  if (Array.isArray(pending) && pending.length > 0) {
+    for (var i = 0; i < pending.length; i++) {
+      var rv = pending[i];
+      rows += '<tr>' +
+        '<td>' + esc(rv.maker_name || '\u2014') + '</td>' +
+        '<td>' + esc(rv.platform || '\u2014') + '</td>' +
+        '<td><a href="' + esc(rv.url || '#') + '" target="_blank" style="color:var(--blue)">' + esc((rv.url || '').substring(0,40)) + '</a></td>' +
+        '<td>' + fmtDate(rv.submitted_at || rv.created_at) + '</td>' +
+        '<td><span class="badge badge-orange">\u041e\u0436\u0438\u0434\u0430\u0435\u0442</span></td></tr>';
+    }
+  } else {
+    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u043a\u043e\u043d\u0442\u0435\u043d\u0442\u0430 \u043d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0443</td></tr>';
+  }
+
+  page.innerHTML =
+    '<div class="section-title">\u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u043a\u043e\u043d\u0442\u0435\u043d\u0442\u0430</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435</div><div class="stat-value' + (pending.length > 0 ? '" style="color:var(--orange)"' : ' green"') + '>' + (Array.isArray(pending) ? pending.length : 0) + '</div></div>' +
+    '</div>' +
+    (pending.length === 0 ? '<div class="alert alert-success">\u2705 \u0412\u0441\u0451 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e! \u041d\u043e\u0432\u044b\u0439 \u043a\u043e\u043d\u0442\u0435\u043d\u0442 \u043f\u043e\u044f\u0432\u0438\u0442\u0441\u044f \u043a\u043e\u0433\u0434\u0430 \u043c\u0435\u0439\u043a\u0435\u0440\u044b \u0437\u0430\u0433\u0440\u0443\u0437\u044f\u0442 \u0432\u0438\u0434\u0435\u043e.</div>' : '') +
+    '<div class="content-card"><h3>\u041e\u0447\u0435\u0440\u0435\u0434\u044c \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>\u041c\u0435\u0439\u043a\u0435\u0440</th><th>\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430</th><th>\u0421\u0441\u044b\u043b\u043a\u0430</th><th>\u0414\u0430\u0442\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table></div>' +
+    '</div>' +
+    '<div class="note-box">\ud83d\udca1 \u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u043a\u043e\u043d\u0442\u0435\u043d\u0442\u0430 \u0442\u0430\u043a\u0436\u0435 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u0447\u0435\u0440\u0435\u0437 Telegram-\u0431\u043e\u0442. \u0411\u043e\u0442 \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u044f\u0435\u0442 \u0443\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u044f \u043e \u043d\u043e\u0432\u043e\u043c \u043a\u043e\u043d\u0442\u0435\u043d\u0442\u0435 \u0434\u043b\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438.</div>';
 }
+
 
 // ---------- PORTFOLIO ----------
 async function loadPortfolio() {
@@ -1221,55 +1433,58 @@ async function loadPortfolio() {
   const sharesData = await api('/shares');
   const s = sharesData?.shares || sharesData || {};
   const balance = s.balance ?? s.total ?? 0;
+  var mults = [127, 254, 508, 1018, 2036];
+  var prices = [5000, 10000, 20000, 40000, 80000];
+  var total5y = 0;
+  for (var y = 0; y < 5; y++) total5y += balance * mults[y] * 12;
 
-  const multipliers = [127, 254, 508, 1018, 2036];
+  var roiTable = '<table class="data-table"><thead><tr><th>\u0413\u043e\u0434</th><th>$/\u0430\u043a\u0446/\u043c\u0435\u0441</th><th>\u0412\u0430\u0448 \u0434\u043e\u0445\u043e\u0434/\u043c\u0435\u0441</th><th>\u0412\u0430\u0448 \u0434\u043e\u0445\u043e\u0434/\u0433\u043e\u0434</th><th>\u0426\u0435\u043d\u0430 \u0430\u043a\u0446\u0438\u0438</th></tr></thead><tbody>';
+  for (var y = 0; y < 5; y++) {
+    roiTable += '<tr><td>\u0413\u043e\u0434 ' + (y+1) + '</td><td>$' + fmtNum(mults[y]) + '</td><td class="gold">$' + fmtNum(balance * mults[y]) + '</td><td>$' + fmtNum(balance * mults[y] * 12) + '</td><td>$' + fmtNum(prices[y]) + '</td></tr>';
+  }
+  roiTable += '<tr style="font-weight:700;border-top:2px solid var(--gold)"><td>\u0418\u0442\u043e\u0433\u043e</td><td colspan="2"></td><td class="gold">$' + fmtNum(total5y) + '</td><td></td></tr></tbody></table>';
 
-  page.innerHTML = `
-    <div class="section-title">Инвестиционный портфель</div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Ваши акции</div>
-        <div class="stat-value gold">${fmtNum(balance)}</div>
-      </div>
-      ${multipliers.map((m, i) => `
-        <div class="stat-card">
-          <div class="stat-label">Год ${i + 1} — доход/мес</div>
-          <div class="stat-value green">$${fmtNum(balance * m)}</div>
-          <div class="stat-sub">$${fmtNum(m)} за акцию</div>
-        </div>
-      `).join('')}
-    </div>
-    <div class="content-card">
-      <h3>Рост дохода</h3>
-      <div class="chart-wrap" style="max-width:700px"><canvas id="chart-portfolio"></canvas></div>
-    </div>
-  `;
+  page.innerHTML =
+    '<div class="section-title">\u0418\u043d\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u043e\u043d\u043d\u044b\u0439 \u043f\u043e\u0440\u0442\u0444\u0435\u043b\u044c</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0410\u043a\u0446\u0438\u0438</div><div class="stat-value gold">' + fmtNum(balance) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0414\u043e\u0445\u043e\u0434 \u0441\u0435\u0433\u043e\u0434\u043d\u044f</div><div class="stat-value green">$' + fmtNum(balance * 127) + '/\u043c\u0435\u0441</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0414\u043e\u0445\u043e\u0434 \u0413\u043e\u0434 5</div><div class="stat-value green">$' + fmtNum(balance * 2036) + '/\u043c\u0435\u0441</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0417\u0430 5 \u043b\u0435\u0442</div><div class="stat-value gold">$' + fmtNum(total5y) + '</div></div>' +
+    '</div>' +
+    '<div class="grid-2">' +
+      '<div class="content-card"><h3>\u0420\u043e\u0441\u0442 \u0434\u043e\u0445\u043e\u0434\u0430</h3><div class="chart-wrap"><canvas id="chart-portfolio"></canvas></div></div>' +
+      '<div class="content-card"><h3>\u041a\u0430\u043f\u0438\u0442\u0430\u043b\u0438\u0437\u0430\u0446\u0438\u044f \u0430\u043a\u0446\u0438\u0439</h3>' +
+        '<div class="note-box">\u0426\u0435\u043d\u0430 \u0430\u043a\u0446\u0438\u0438 \u0443\u0434\u0432\u0430\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u043a\u0430\u0436\u0434\u044b\u0439 \u0433\u043e\u0434: $5K \u2192 $10K \u2192 $20K \u2192 $40K \u2192 $80K. \u041a\u0430\u043f\u0438\u0442\u0430\u043b\u0438\u0437\u0430\u0446\u0438\u044f \u043f\u0440\u043e\u0435\u043a\u0442\u0430 \u043a 2030: $8B.</div>' +
+        '<div class="chart-wrap" style="margin-top:16px"><canvas id="chart-portfolio-price"></canvas></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="content-card"><h3>\u0414\u0435\u0442\u0430\u043b\u044c\u043d\u044b\u0439 \u043f\u0440\u043e\u0433\u043d\u043e\u0437</h3><div style="overflow-x:auto">' + roiTable + '</div></div>';
 
-  renderForecastChart(balance);
-  // re-use forecast chart logic but with different canvas
   if (charts['portfolio']) charts['portfolio'].destroy();
   charts['portfolio'] = new Chart(document.getElementById('chart-portfolio'), {
     type: 'line',
     data: {
-      labels: ['Год 1','Год 2','Год 3','Год 4','Год 5'],
-      datasets: [{
-        label: 'Доход / мес ($)',
-        data: multipliers.map(m => balance * m),
+      labels: ['\u0413\u043e\u04341','\u0413\u043e\u04342','\u0413\u043e\u04343','\u0413\u043e\u04344','\u0413\u043e\u04345'],
+      datasets: [{ label: '$/\u043c\u0435\u0441', data: mults.map(function(m){return balance*m;}),
         borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,0.1)',
-        borderWidth: 2, tension: 0.3, fill: true,
-        pointBackgroundColor: '#3fb950', pointRadius: 5
-      }]
+        borderWidth: 2, tension: 0.3, fill: true, pointBackgroundColor: '#3fb950', pointRadius: 5 }]
     },
-    options: {
-      responsive: true,
-      plugins:{ legend:{ labels:{ color:'#8b949e', font:{ family:'Manrope' } } } },
-      scales: {
-        x:{ ticks:{ color:'#8b949e' }, grid:{ color:'rgba(48,54,61,0.5)' } },
-        y:{ ticks:{ color:'#8b949e', callback: v=>'$'+v.toLocaleString() }, grid:{ color:'rgba(48,54,61,0.5)' } }
-      }
-    }
+    options: { responsive:true, plugins:{legend:{labels:{color:'#8b949e',font:{family:'Manrope'}}}}, scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(48,54,61,0.5)'}}} }
+  });
+
+  if (charts['portfolio-price']) charts['portfolio-price'].destroy();
+  charts['portfolio-price'] = new Chart(document.getElementById('chart-portfolio-price'), {
+    type: 'bar',
+    data: {
+      labels: ['\u0413\u043e\u04341','\u0413\u043e\u04342','\u0413\u043e\u04343','\u0413\u043e\u04344','\u0413\u043e\u04345'],
+      datasets: [{ label: '\u0426\u0435\u043d\u0430 \u0430\u043a\u0446\u0438\u0438 ($)', data: prices,
+        backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d29922','#bc8cff'], borderRadius: 4 }]
+    },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#8b949e'},grid:{display:false}},y:{ticks:{color:'#8b949e',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(48,54,61,0.5)'}}} }
   });
 }
+
 
 // ---------- CALCULATOR ----------
 function loadCalculator() {
@@ -1341,35 +1556,44 @@ function loadCalculator() {
 async function loadPublications() {
   const page = document.getElementById('page-publications');
   const data = await api('/blogger/content');
-  const content = data?.content || data || [];
+  const items = data?.content || data || [];
 
-  let rows = '';
-  if (Array.isArray(content) && content.length > 0) {
-    rows = content.map(c => `
-      <tr>
-        <td>${esc(c.title || '—')}</td>
-        <td><span class="badge badge-${c.status==='published'?'green':c.status==='pending'?'orange':'muted'}">${esc(c.status || '—')}</span></td>
-        <td>${fmtDate(c.submitted_at || c.created_at)}</td>
-        <td>${esc(c.platform || '—')}</td>
-      </tr>
-    `).join('');
+  var published = 0, pending = 0, rejected = 0, totalReach = 0;
+  var rows = '';
+  if (Array.isArray(items) && items.length > 0) {
+    for (var i = 0; i < items.length; i++) {
+      var c = items[i];
+      if (c.status === 'published') published++;
+      else if (c.status === 'pending') pending++;
+      else if (c.status === 'rejected') rejected++;
+      totalReach += (c.reach || c.views || 0);
+      rows += '<tr>' +
+        '<td>' + esc(c.title || '\u2014') + '</td>' +
+        '<td><span class="badge badge-' + (c.status==='published'?'green':c.status==='pending'?'orange':'red') + '">' + esc(c.status || '\u2014') + '</span></td>' +
+        '<td>' + fmtDate(c.submitted_at || c.created_at) + '</td>' +
+        '<td>' + esc(c.platform || '\u2014') + '</td>' +
+        '<td>' + fmtViews(c.reach || c.views || 0) + '</td></tr>';
+    }
   } else {
-    rows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Нет публикаций</td></tr>';
+    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u043f\u0443\u0431\u043b\u0438\u043a\u0430\u0446\u0438\u0439</td></tr>';
   }
 
-  page.innerHTML = `
-    <div class="section-title">Публикации</div>
-    <div class="content-card">
-      <h3>Ваш контент</h3>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>Название</th><th>Статус</th><th>Дата</th><th>Платформа</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
+  page.innerHTML =
+    '<div class="section-title">\u041f\u0443\u0431\u043b\u0438\u043a\u0430\u0446\u0438\u0438</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e</div><div class="stat-value blue">' + (Array.isArray(items) ? items.length : 0) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043d\u043e</div><div class="stat-value green">' + published + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435</div><div class="stat-value" style="color:var(--orange)">' + pending + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041e\u0445\u0432\u0430\u0442</div><div class="stat-value">' + fmtViews(totalReach) + '</div></div>' +
+    '</div>' +
+    '<div class="content-card"><h3>\u0412\u0430\u0448 \u043a\u043e\u043d\u0442\u0435\u043d\u0442</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u0414\u0430\u0442\u0430</th><th>\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430</th><th>\u041e\u0445\u0432\u0430\u0442</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table></div>' +
+    '</div>';
 }
+
 
 // ---------- TASKS ----------
 async function loadTasks() {
@@ -1377,81 +1601,116 @@ async function loadTasks() {
   const data = await api('/team/tasks');
   const tasks = data?.tasks || data || [];
 
-  let rows = '';
+  var total = Array.isArray(tasks) ? tasks.length : 0;
+  var done = 0, inProgress = 0, highPriority = 0;
+  var rows = '';
   if (Array.isArray(tasks) && tasks.length > 0) {
-    rows = tasks.map(t => {
-      const priorityColor = t.priority === 'high' ? 'red' : t.priority === 'medium' ? 'orange' : 'muted';
-      return `
-        <tr>
-          <td>${esc(t.title || '—')}</td>
-          <td><span class="badge badge-${t.status==='done'?'green':t.status==='in_progress'?'blue':'muted'}">${esc(t.status || '—')}</span></td>
-          <td><span class="badge badge-${priorityColor}">${esc(t.priority || '—')}</span></td>
-          <td>${esc(t.assignee || '—')}</td>
-          <td>${fmtDate(t.due_date || t.deadline)}</td>
-        </tr>
-      `;
-    }).join('');
+    var sorted = tasks.slice().sort(function(a,b) {
+      var prio = {high:0,medium:1,low:2};
+      return (prio[a.priority]||2) - (prio[b.priority]||2);
+    });
+    for (var i = 0; i < sorted.length; i++) {
+      var t = sorted[i];
+      if (t.status === 'done') done++;
+      if (t.status === 'in_progress') inProgress++;
+      if (t.priority === 'high') highPriority++;
+      var prioColor = t.priority === 'high' ? 'red' : t.priority === 'medium' ? 'orange' : 'muted';
+      var statusColor = t.status === 'done' ? 'green' : t.status === 'in_progress' ? 'blue' : 'muted';
+      rows += '<tr>' +
+        '<td>' + esc(t.title || '\u2014') + '</td>' +
+        '<td><span class="badge badge-' + statusColor + '">' + esc(t.status || '\u2014') + '</span></td>' +
+        '<td><span class="badge badge-' + prioColor + '">' + esc(t.priority || '\u2014') + '</span></td>' +
+        '<td>' + esc(t.assignee || '\u2014') + '</td>' +
+        '<td>' + fmtDate(t.due_date || t.deadline) + '</td></tr>';
+    }
   } else {
-    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Нет задач</td></tr>';
+    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u0437\u0430\u0434\u0430\u0447</td></tr>';
   }
 
-  page.innerHTML = `
-    <div class="section-title">Задачи команды</div>
-    <div class="content-card">
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>Задача</th><th>Статус</th><th>Приоритет</th><th>Исполнитель</th><th>Срок</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
+  var completionPct = total > 0 ? Math.round(done / total * 100) : 0;
+
+  page.innerHTML =
+    '<div class="section-title">\u0417\u0430\u0434\u0430\u0447\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u044b</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e</div><div class="stat-value">' + total + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0412 \u0440\u0430\u0431\u043e\u0442\u0435</div><div class="stat-value blue">' + inProgress + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u043e</div><div class="stat-value green">' + done + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u044b\u0441\u043e\u043a\u0438\u0439 \u043f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442</div><div class="stat-value" style="color:var(--red)">' + highPriority + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041f\u0440\u043e\u0433\u0440\u0435\u0441\u0441</div><div class="stat-value gold">' + completionPct + '%</div>' +
+        '<div style="background:var(--border);height:6px;border-radius:3px;margin-top:8px"><div style="width:' + completionPct + '%;background:var(--green);height:100%;border-radius:3px"></div></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="content-card">' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>\u0417\u0430\u0434\u0430\u0447\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u041f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442</th><th>\u0418\u0441\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c</th><th>\u0421\u0440\u043e\u043a</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table></div>' +
+    '</div>';
 }
+
 
 // ---------- ADMIN: OVERVIEW ----------
 async function loadAdminOverview() {
   const page = document.getElementById('page-admin-overview');
   const data = await api('/admin/overview');
   const o = data || {};
+  var totalUsers = o.total_users ?? o.users_count ?? 0;
+  var activeUsers = o.active_users ?? 0;
+  var frozenUsers = o.frozen_users ?? 0;
+  var waitlistCount = o.waitlist_count ?? o.waitlist ?? 0;
+  var totalShares = o.total_shares ?? 0;
+  var offersCount = o.offers_count ?? o.total_offers ?? 0;
+  var totalVideos = o.total_videos ?? 0;
+  var bugsCount = o.bugs_count ?? o.issues ?? 0;
+  var byRole = o.users_by_role || o.roles || {};
 
-  page.innerHTML = `
-    <div class="section-title">Обзор системы</div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Всего пользователей</div>
-        <div class="stat-value">${fmtNum(o.total_users ?? o.users_count ?? 0)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Активных</div>
-        <div class="stat-value green">${fmtNum(o.active_users ?? 0)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Замороженных</div>
-        <div class="stat-value" style="color:var(--red)">${fmtNum(o.frozen_users ?? 0)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Waitlist</div>
-        <div class="stat-value" style="color:var(--orange)">${fmtNum(o.waitlist_count ?? o.waitlist ?? 0)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Всего акций</div>
-        <div class="stat-value gold">${fmtNum(o.total_shares ?? 0)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Офферов</div>
-        <div class="stat-value blue">${fmtNum(o.offers_count ?? o.total_offers ?? 0)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Видео</div>
-        <div class="stat-value">${fmtNum(o.total_videos ?? 0)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Баги / проблемы</div>
-        <div class="stat-value" style="color:var(--red)">${fmtNum(o.bugs_count ?? o.issues ?? 0)}</div>
-      </div>
-    </div>
-  `;
+  var alerts = '';
+  if (frozenUsers > 0) alerts += '<div class="alert alert-warn">\u26a0\ufe0f ' + frozenUsers + ' \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0435\u0439 \u0441 \u0437\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u043d\u044b\u043c\u0438 \u0430\u043a\u0446\u0438\u044f\u043c\u0438</div>';
+  if (waitlistCount > 5) alerts += '<div class="alert alert-info">\ud83d\udcdd ' + waitlistCount + ' \u0437\u0430\u044f\u0432\u043e\u043a \u0432 waitlist \u043e\u0436\u0438\u0434\u0430\u044e\u0442 \u043e\u0434\u043e\u0431\u0440\u0435\u043d\u0438\u044f</div>';
+  if (bugsCount > 0) alerts += '<div class="alert alert-danger">\ud83d\udc1b ' + bugsCount + ' \u0431\u0430\u0433-\u0440\u0435\u043f\u043e\u0440\u0442\u043e\u0432 \u0442\u0440\u0435\u0431\u0443\u044e\u0442 \u0432\u043d\u0438\u043c\u0430\u043d\u0438\u044f</div>';
+
+  var roleKeys = Object.keys(byRole);
+  var roleCards = '';
+  if (roleKeys.length > 0) {
+    roleCards = '<div class="content-card"><h3>\u041f\u043e \u0440\u043e\u043b\u044f\u043c</h3><div class="grid-2"><div>';
+    for (var r = 0; r < roleKeys.length; r++) {
+      var pct = totalUsers > 0 ? Math.round(byRole[roleKeys[r]] / totalUsers * 100) : 0;
+      roleCards += '<div class="bar-row"><span style="min-width:100px">' + getRoleLabel(roleKeys[r]) + '</span>' +
+        '<div style="flex:1;background:var(--border);border-radius:4px;height:22px;overflow:hidden">' +
+        '<div style="width:' + pct + '%;background:var(--gold);height:100%;border-radius:4px;min-width:2px"></div></div>' +
+        '<span style="min-width:50px;text-align:right">' + byRole[roleKeys[r]] + '</span></div>';
+    }
+    roleCards += '</div><div><div class="chart-wrap" style="max-width:280px"><canvas id="chart-admin-roles"></canvas></div></div></div></div>';
+  }
+
+  page.innerHTML =
+    '<div class="section-title">\u041e\u0431\u0437\u043e\u0440 \u0441\u0438\u0441\u0442\u0435\u043c\u044b</div>' +
+    alerts +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0438</div><div class="stat-value">' + fmtNum(totalUsers) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445</div><div class="stat-value green">' + fmtNum(activeUsers) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0417\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u043e</div><div class="stat-value" style="color:var(--red)">' + fmtNum(frozenUsers) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">Waitlist</div><div class="stat-value" style="color:var(--orange)">' + fmtNum(waitlistCount) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0410\u043a\u0446\u0438\u0438</div><div class="stat-value gold">' + fmtNum(totalShares) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041e\u0444\u0444\u0435\u0440\u044b</div><div class="stat-value blue">' + fmtNum(offersCount) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0438\u0434\u0435\u043e</div><div class="stat-value">' + fmtNum(totalVideos) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0411\u0430\u0433\u0438</div><div class="stat-value" style="color:var(--red)">' + fmtNum(bugsCount) + '</div></div>' +
+    '</div>' +
+    roleCards;
+
+  if (roleKeys.length > 0) {
+    if (charts['admin-roles']) charts['admin-roles'].destroy();
+    var colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff','#8b949e'];
+    var roleValues = [];
+    for (var rv = 0; rv < roleKeys.length; rv++) roleValues.push(byRole[roleKeys[rv]]);
+    charts['admin-roles'] = new Chart(document.getElementById('chart-admin-roles'), {
+      type: 'doughnut',
+      data: { labels: roleKeys.map(function(k){return getRoleLabel(k);}), datasets: [{ data: roleValues, backgroundColor: roleKeys.map(function(_,i){return colors[i%colors.length];}), borderWidth: 0 }] },
+      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8b949e', font:{ family:'Manrope' }, padding:10 } } } }
+    });
+  }
 }
+
 
 // ---------- ADMIN: USERS ----------
 async function loadAdminUsers() {
@@ -1459,33 +1718,52 @@ async function loadAdminUsers() {
   const data = await api('/admin/overview');
   const o = data || {};
   const byRole = o.users_by_role || o.roles || {};
+  var users = o.recent_users || o.users || [];
 
-  const roleEntries = Object.entries(byRole);
+  var roleKeys = Object.keys(byRole);
+  var roleGrid = '';
+  if (roleKeys.length > 0) {
+    roleGrid = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px">';
+    for (var r = 0; r < roleKeys.length; r++) {
+      roleGrid += '<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center">' +
+        '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">' + getRoleLabel(roleKeys[r]) + '</div>' +
+        '<div style="font-family:\u0027Bebas Neue\u0027,sans-serif;font-size:26px;color:var(--gold)">' + fmtNum(byRole[roleKeys[r]]) + '</div></div>';
+    }
+    roleGrid += '</div>';
+  }
 
-  page.innerHTML = `
-    <div class="section-title">Все пользователи</div>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Всего</div>
-        <div class="stat-value">${fmtNum(o.total_users ?? o.users_count ?? 0)}</div>
-      </div>
-    </div>
-    <div class="content-card">
-      <h3>По ролям</h3>
-      ${roleEntries.length > 0 ? `
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px">
-        ${roleEntries.map(([role, count]) => `
-          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center">
-            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${esc(getRoleLabel(role))}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold)">${fmtNum(count)}</div>
-          </div>
-        `).join('')}
-      </div>` : '<p style="color:var(--muted);font-size:13px">Нет данных по ролям</p>'}
-    </div>
-  `;
+  var userRows = '';
+  if (Array.isArray(users) && users.length > 0) {
+    for (var i = 0; i < users.length; i++) {
+      var u = users[i];
+      userRows += '<tr>' +
+        '<td>' + esc(u.display_name || u.username || '\u2014') + '</td>' +
+        '<td>' + getRoleLabel(u.role || '\u2014') + '</td>' +
+        '<td><span class="badge badge-' + (u.status==='active'?'green':u.shares_frozen?'red':'muted') + '">' + getStatusLabel(u.status) + '</span></td>' +
+        '<td>' + fmtNum(u.shares || 0) + '</td>' +
+        '<td>' + fmtDate(u.created_at || u.joined_at) + '</td></tr>';
+    }
+  } else {
+    userRows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445 (\u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 \u0431\u043e\u0442 \u0434\u043b\u044f \u0434\u0435\u0442\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044f)</td></tr>';
+  }
+
+  page.innerHTML =
+    '<div class="section-title">\u0412\u0441\u0435 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0438</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e</div><div class="stat-value">' + fmtNum(o.total_users ?? 0) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445</div><div class="stat-value green">' + fmtNum(o.active_users ?? 0) + '</div></div>' +
+    '</div>' +
+    roleGrid +
+    '<div class="content-card"><h3>\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0438</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>\u0418\u043c\u044f</th><th>\u0420\u043e\u043b\u044c</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u0410\u043a\u0446\u0438\u0438</th><th>\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f</th></tr></thead>' +
+        '<tbody>' + userRows + '</tbody>' +
+      '</table></div>' +
+    '</div>' +
+    '<div class="note-box">\ud83d\udca1 \u041f\u043e\u043b\u043d\u043e\u0435 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f\u043c\u0438 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e \u0447\u0435\u0440\u0435\u0437 Telegram-\u0431\u043e\u0442 (\u043a\u043e\u043c\u0430\u043d\u0434\u0430 /admin).</div>';
 }
 
-// ===== UTILITY FUNCTIONS =====
+
 function esc(s) {
   if (s == null) return '';
   const d = document.createElement('div');
