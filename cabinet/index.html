@@ -648,11 +648,11 @@ function logout() {
 // ===== LOAD CABINET =====
 async function loadCabinet() {
   const me = await api('/auth/me');
-  if (!me || !me.user) {
+  if (!me || !me.id) {
     logout();
     return;
   }
-  currentUser = me.user;
+  currentUser = me;
 
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('cabinet').style.display = 'block';
