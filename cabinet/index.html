@@ -332,13 +332,46 @@ h3 { font-size:18px; }
 
     <!-- Step 1: Choose method -->
     <div id="auth-step-choose">
-      <div id="tg-widget-wrap" style="display:flex;justify-content:center;margin-bottom:8px"></div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Войти с помощью:</p>
+
+      <button class="tg-btn" onclick="startTelegramAuth()" id="tg-auth-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;margin-right:8px"><path d="M11.944 0A12 12 0 1 0 24 12.056A12.013 12.013 0 0 0 11.944 0Zm5.592 8.3-1.868 8.8c-.14.636-.508.79-1.03.492l-2.848-2.1-1.374 1.322c-.152.152-.28.28-.574.28l.204-2.9 5.272-4.762c.23-.204-.05-.318-.356-.114l-6.516 4.104-2.808-.876c-.61-.192-.622-.61.128-.904l10.972-4.23c.508-.184.952.124.788.898Z"/></svg>
+        Telegram
+      </button>
+      <p style="color:var(--muted);font-size:11px;margin:-4px 0 12px;text-align:center">доступ к сайту и телеграм-боту</p>
 
       <div class="auth-divider">или</div>
 
+      <div id="google-btn-wrap" style="display:flex;justify-content:center;margin:12px 0"></div>
+
+      <button class="auth-btn" style="background:transparent;border:1px solid var(--border);color:var(--text);margin-top:8px" onclick="showAuthStep('email')">
+        <span style="margin-right:8px">✉</span> Почта
+      </button>
+      <p style="color:var(--muted);font-size:11px;margin-top:4px;text-align:center">доступ только к сайту</p>
+
+      <div id="auth-error-choose" class="auth-error"></div>
+    </div>
+
+    <!-- Step: Telegram deeplink waiting -->
+    <div id="auth-step-tg" style="display:none">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
+        Телеграм-авторизация
+      </p>
+      <p style="color:var(--text);font-size:14px;margin-bottom:16px">
+        Пожалуйста, завершите авторизацию в Telegram
+      </p>
+      <div id="tg-qr-wrap" style="display:flex;justify-content:center;margin:16px 0"></div>
+      <p id="tg-timer" style="color:var(--gold);font-size:14px;text-align:center;margin:12px 0"></p>
+      <a id="tg-open-btn" href="#" target="_blank" class="tg-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px">Открыть Telegram</a>
+      <div class="auth-back" onclick="cancelTelegramAuth();showAuthStep('choose')">&larr; Другой способ входа</div>
+    </div>
+
+    <!-- Step: Email input -->
+    <div id="auth-step-email" style="display:none">
       <input type="email" id="email-input" class="auth-input" placeholder="Email" autocomplete="email">
       <button class="auth-btn" onclick="sendOTP()">Получить код</button>
-      <div id="auth-error-choose" class="auth-error"></div>
+      <div id="auth-error-email" class="auth-error"></div>
+      <div class="auth-back" onclick="showAuthStep('choose')">&larr; Другой способ входа</div>
     </div>
 
     <!-- Step 2: OTP code -->
@@ -436,9 +469,10 @@ async function api(path, opts = {}) {
 
 // ===== AUTH FUNCTIONS =====
 function showAuthStep(step) {
-  document.getElementById('auth-step-choose').style.display = step === 'choose' ? '' : 'none';
-  document.getElementById('auth-step-otp').style.display = step === 'otp' ? '' : 'none';
-  document.getElementById('auth-step-loading').style.display = step === 'loading' ? '' : 'none';
+  ['choose','tg','email','otp','loading'].forEach(s => {
+    const el = document.getElementById('auth-step-' + s);
+    if (el) el.style.display = s === step ? '' : 'none';
+  });
   clearAuthErrors();
 }
 
@@ -446,30 +480,70 @@ function clearAuthErrors() {
   document.querySelectorAll('.auth-error').forEach(el => el.textContent = '');
 }
 
-function initTelegramLogin() {
-  /* Create Telegram Login Widget dynamically */
-  const wrap = document.getElementById('tg-widget-wrap');
-  const existing = document.getElementById('tg-widget-script');
-  if (existing) existing.remove();
-  wrap.innerHTML = '';
+// ── Telegram deeplink auth ──
+let _tgPollInterval = null;
 
-  const script = document.createElement('script');
-  script.id = 'tg-widget-script';
-  script.src = 'https://telegram.org/js/telegram-widget.js?22';
-  script.setAttribute('data-telegram-login', 'shikardosteam_bot');
-  script.setAttribute('data-size', 'large');
-  script.setAttribute('data-radius', '8');
-  script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-  script.setAttribute('data-request-access', 'write');
-  script.async = true;
-  wrap.appendChild(script);
+async function startTelegramAuth() {
+  showAuthStep('tg');
+  const data = await api('/auth/request-link', { method: 'POST' });
+  if (!data || !data.auth_token) {
+    showAuthStep('choose');
+    return;
+  }
+  const { auth_token, deeplink, expires_in } = data;
+
+  // QR-код через API
+  const qrWrap = document.getElementById('tg-qr-wrap');
+  qrWrap.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' +
+    encodeURIComponent(deeplink) + '" alt="QR" style="border-radius:8px;background:#fff;padding:8px">';
+
+  // Кнопка "Открыть Telegram"
+  document.getElementById('tg-open-btn').href = deeplink;
+
+  // Таймер
+  let remaining = expires_in;
+  const timerEl = document.getElementById('tg-timer');
+  const tick = () => {
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    timerEl.textContent = 'Осталось времени: ' + m + ':' + String(s).padStart(2, '0');
+    remaining--;
+    if (remaining < 0) { cancelTelegramAuth(); showAuthStep('choose'); }
+  };
+  tick();
+  const timerInterval = setInterval(tick, 1000);
+
+  // Polling каждые 2 сек
+  const pollId = setInterval(async () => {
+    const res = await api('/auth/check/' + auth_token);
+    if (!res) return;
+    if (res.status === 'confirmed' && res.token) {
+      cancelTelegramAuth();
+      token = res.token;
+      await loadCabinet();
+    } else if (res.status === 'expired') {
+      cancelTelegramAuth();
+      showAuthStep('choose');
+    }
+  }, 2000);
+
+  _tgPollInterval = { poll: pollId, timer: timerInterval };
 }
 
-window.onTelegramAuth = async function(user) {
+function cancelTelegramAuth() {
+  if (_tgPollInterval) {
+    if (_tgPollInterval.poll) clearInterval(_tgPollInterval.poll);
+    if (_tgPollInterval.timer) clearInterval(_tgPollInterval.timer);
+    _tgPollInterval = null;
+  }
+}
+
+// ── Google OAuth ──
+window.handleGoogleAuth = async function(response) {
   showAuthStep('loading');
-  const data = await api('/auth/telegram-login', {
+  const data = await api('/auth/google', {
     method: 'POST',
-    body: JSON.stringify(user)
+    body: JSON.stringify({ credential: response.credential })
   });
   if (data && data.token) {
     token = data.token;
@@ -477,18 +551,18 @@ window.onTelegramAuth = async function(user) {
   } else {
     showAuthStep('choose');
     document.getElementById('auth-error-choose').textContent =
-      (data && data.error) || 'Ошибка авторизации через Telegram';
+      (data && data.detail) || 'Аккаунт с этим email не найден. Зарегистрируйтесь через бота.';
   }
 };
 
 async function sendOTP() {
   const email = document.getElementById('email-input').value.trim();
   if (!email || !email.includes('@')) {
-    document.getElementById('auth-error-choose').textContent = 'Введите корректный email';
+    document.getElementById('auth-error-email').textContent = 'Введите корректный email';
     return;
   }
   clearAuthErrors();
-  const btn = document.querySelector('#auth-step-choose .auth-btn');
+  const btn = document.querySelector('#auth-step-email .auth-btn');
   btn.disabled = true;
   btn.textContent = 'Отправка...';
 
@@ -505,8 +579,8 @@ async function sendOTP() {
     showAuthStep('otp');
     setTimeout(() => document.getElementById('otp-input').focus(), 100);
   } else {
-    document.getElementById('auth-error-choose').textContent =
-      (data && data.error) || 'Не удалось отправить код';
+    document.getElementById('auth-error-email').textContent =
+      (data && data.detail) || 'Не удалось отправить код';
   }
 }
 
@@ -1503,7 +1577,24 @@ function fmtDate(d) {
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   showAuthStep('choose');
-  initTelegramLogin();
+  // Google Sign-In button (нужен Client ID из Google Cloud Console)
+  // TODO: заменить YOUR_GOOGLE_CLIENT_ID на реальный
+  const gScript = document.createElement('script');
+  gScript.src = 'https://accounts.google.com/gsi/client';
+  gScript.async = true;
+  gScript.onload = () => {
+    if (window.google && window.GOOGLE_CLIENT_ID) {
+      google.accounts.id.initialize({
+        client_id: window.GOOGLE_CLIENT_ID,
+        callback: handleGoogleAuth,
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('google-btn-wrap'),
+        { theme: 'filled_black', size: 'large', width: 340, text: 'signin_with', locale: 'ru' }
+      );
+    }
+  };
+  document.head.appendChild(gScript);
 });
 </script>
 </body>
