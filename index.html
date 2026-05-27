@@ -917,6 +917,10 @@ body[data-theme="light"] .mobile-menu-overlay .mobile-nav-link.active { color:va
       <div class="stat-box"><div class="stat-num">100 000</div><div class="stat-label">акций за 5 лет</div></div>
       <div class="stat-box"><div class="stat-num">$152M+</div><div class="stat-label">доход команды/год</div></div>
       <div class="stat-box"><div class="stat-num">×5000</div><div class="stat-label">охват vs одиночка</div></div>
+    
+    <div id="live-pulse" style="display:none;margin:12px auto 16px;padding:8px 20px;background:rgba(212,168,67,0.06);border:1px solid rgba(212,168,67,0.15);border-radius:20px;font-size:12px;color:var(--gray);text-align:center;max-width:600px;">
+      <span style="color:#3fb950;font-size:8px;vertical-align:middle;">&#9679;</span> Прямо сейчас: <strong style="color:var(--gold)"><span id="lp-makers">0</span></strong> участников · <strong style="color:var(--gold)"><span id="lp-videos">0</span></strong> видео · <strong style="color:var(--gold)"><span id="lp-shares">0</span></strong> акций
+    </div>
     </div>
     <div style="display:flex;gap:12px;position:relative;flex-wrap:wrap;justify-content:center;">
       <a href="#" onclick="showPage('makers')" class="btn btn-gold">Я мейкер →</a>
@@ -7979,6 +7983,21 @@ function rmGoToVacancy(vacId) {
   window.addEventListener('scroll', updateActiveSubLink, { passive: true });
   // Первый запуск
   setTimeout(updateActiveSubLink, 200);
+})();
+
+// ===== LIVE PULSE — real-time stats from API =====
+(function(){
+  var API='https://worker-production-26d0.up.railway.app/api/v1';
+  fetch(API+'/public/stats').then(function(r){return r.json()}).then(function(d){
+    var el=document.getElementById('live-pulse');
+    if(!el)return;
+    var m=d.total_makers||0;var t=d.total_team||0;
+    var total=m+t;
+    document.getElementById('lp-makers').textContent=total.toLocaleString('ru-RU');
+    document.getElementById('lp-videos').textContent=(d.total_videos||0).toLocaleString('ru-RU');
+    document.getElementById('lp-shares').textContent=(d.total_shares_distributed||0).toLocaleString('ru-RU');
+    el.style.display='block';
+  }).catch(function(){});
 })();
 </script>
 </body>
