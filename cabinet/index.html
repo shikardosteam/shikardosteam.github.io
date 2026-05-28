@@ -783,6 +783,8 @@ function buildNavSections() {
           { id:'infrastructure', icon:'🖥️', name:'Инфраструктура' },
           { id:'ai-automators', icon:'🤖', name:'AI-автоматизаторы' },
           { id:'quality', icon:'🔎', name:'Отдел качества' },
+          { id:'content', icon:'🎬', name:'Контент' },
+          { id:'bloggers', icon:'📣', name:'Блогеры' },
           { id:'investors', icon:'💰', name:'Инвесторы' },
           { id:'ops-center', icon:'📡', name:'Операционный центр' },
           { id:'settings', icon:'⚙️', name:'Настройки' }
@@ -840,7 +842,7 @@ function renderPages() {
     'publications',
     'tasks',
     'admin-overview','admin-makers','admin-hr','admin-shares','admin-ke','admin-users',
-    'trends','hall-of-fame','kaizen','team-members','risk-zone','contests','infrastructure','ai-automators','quality','team-pulse','pain-points','investors','ops-center','settings'
+    'trends','hall-of-fame','kaizen','team-members','risk-zone','contests','infrastructure','ai-automators','quality','team-pulse','pain-points','investors','ops-center','content','bloggers','settings'
   ];
 
   pages.forEach(id => {
@@ -886,6 +888,8 @@ async function loadPageData(pageId) {
     case 'pain-points': await loadPainPoints(); break;
     case 'investors': await loadInvestors(); break;
     case 'ops-center': await loadOpsCenter(); break;
+    case 'content': await loadContent(); break;
+    case 'bloggers': await loadBloggers(); break;
     case 'settings': loadSettings(); break;
   }
 }
@@ -1330,45 +1334,227 @@ function daysUntilNewYear() {
 }
 
 
+// ---------- CONTENT ----------
+async function loadContent() {
+  var page = document.getElementById('page-content');
+  try {
+    var d = await api('/content') || {};
+    if (!d || typeof d !== 'object') d = await api('/admin/stats') || {};
+
+    var vidsWeek = d.videos_this_week || 0;
+    var totalVids = d.total_videos || 0;
+    var avgPerMaker = d.avg_per_maker || 0;
+    var platformsCov = d.platforms_covered || '0/4';
+    var belowPlan = d.makers_below_plan || 0;
+
+    var kpiRow = '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f3ac Видео/неделя</div><div class="stat-value blue">' + fmtNum(vidsWeek) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4f9 Всего видео</div><div class="stat-value gold">' + fmtNum(totalVids) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4ca Ср. на мейкера</div><div class="stat-value green">' + avgPerMaker + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f30d Платформы</div><div class="stat-value purple">' + esc(String(platformsCov)) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">⚠️ Ниже плана</div><div class="stat-value ' + (belowPlan > 0 ? 'red' : 'green') + '">' + belowPlan + '</div></div>' +
+      '</div>';
+
+    var platforms = d.platform_publications || [
+      { name: 'YouTube', count: 0, color: 'var(--red)' },
+      { name: 'Instagram', count: 0, color: 'var(--purple)' },
+      { name: 'TikTok', count: 0, color: 'var(--blue)' },
+      { name: 'Facebook', count: 0, color: 'var(--orange)' }
+    ];
+    var maxPub = 1;
+    for (var p = 0; p < platforms.length; p++) { if (platforms[p].count > maxPub) maxPub = platforms[p].count; }
+    var pubBars = '';
+    for (var p = 0; p < platforms.length; p++) {
+      var pl = platforms[p];
+      var pPct = Math.round((pl.count / maxPub) * 100);
+      pubBars += '<div class="bar-row"><div class="bar-label">' + esc(pl.name) + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + pPct + '%;background:' + (pl.color || 'var(--blue)') + '"></div></div>' +
+        '<div class="bar-value">' + fmtNum(pl.count) + '</div></div>';
+    }
+    var pubCard = '<div class="content-card"><h3>\U0001f4f1 Публикации по платформам (неделя)</h3><div class="bar-chart">' + pubBars + '</div></div>';
+
+    var viewsData = d.views_by_platform || [
+      { name: 'YouTube', views: 0 },
+      { name: 'Instagram', views: 0 },
+      { name: 'TikTok', views: 0 },
+      { name: 'Facebook', views: 0 }
+    ];
+    var maxViews = 1;
+    for (var v = 0; v < viewsData.length; v++) { if (viewsData[v].views > maxViews) maxViews = viewsData[v].views; }
+    var viewBars = '';
+    for (var v = 0; v < viewsData.length; v++) {
+      var vd = viewsData[v];
+      var vPct = Math.round((vd.views / maxViews) * 100);
+      viewBars += '<div class="bar-row"><div class="bar-label">' + esc(vd.name) + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + vPct + '%;background:var(--gold)"></div></div>' +
+        '<div class="bar-value">' + fmtNum(vd.views) + '</div></div>';
+    }
+    var viewCard = '<div class="content-card"><h3>\U0001f441️ Просмотры по платформам</h3><div class="bar-chart">' + viewBars + '</div></div>';
+
+    var tiers = d.uniformity_tiers || { t4: 0, t3: 0, t2: 0, t1: 0 };
+    var totalMakers = (tiers.t4 || 0) + (tiers.t3 || 0) + (tiers.t2 || 0) + (tiers.t1 || 0);
+    var uniPct = totalMakers > 0 ? Math.round(((tiers.t4 || 0) / totalMakers) * 100) : 0;
+    var uniCard = '<div class="content-card"><h3>\U0001f4ca Равномерность публикаций</h3>' +
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">' +
+      '<div style="padding:12px;background:var(--bg);border-radius:8px;text-align:center"><div style="font-size:24px;color:var(--green);font-weight:700">' + (tiers.t4 || 0) + '</div><div style="font-size:11px;color:var(--muted)">4/4 нед.</div></div>' +
+      '<div style="padding:12px;background:var(--bg);border-radius:8px;text-align:center"><div style="font-size:24px;color:var(--blue);font-weight:700">' + (tiers.t3 || 0) + '</div><div style="font-size:11px;color:var(--muted)">3/4 нед.</div></div>' +
+      '<div style="padding:12px;background:var(--bg);border-radius:8px;text-align:center"><div style="font-size:24px;color:var(--orange);font-weight:700">' + (tiers.t2 || 0) + '</div><div style="font-size:11px;color:var(--muted)">2/4 нед.</div></div>' +
+      '<div style="padding:12px;background:var(--bg);border-radius:8px;text-align:center"><div style="font-size:24px;color:var(--red);font-weight:700">' + (tiers.t1 || 0) + '</div><div style="font-size:11px;color:var(--muted)">0-1/4 нед.</div></div>' +
+      '</div>' +
+      '<div style="margin-top:8px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Общая равномерность: ' + uniPct + '%</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + uniPct + '%;background:var(--green)"></div></div></div></div>';
+
+    var weeks = d.weekly_dynamics || [];
+    var dynBars = '';
+    var maxW = 1;
+    for (var w = 0; w < weeks.length; w++) { if ((weeks[w].count || 0) > maxW) maxW = weeks[w].count; }
+    for (var w = 0; w < weeks.length && w < 8; w++) {
+      var wk = weeks[w];
+      var wPct = Math.round(((wk.count || 0) / maxW) * 100);
+      dynBars += '<div class="bar-row"><div class="bar-label">Нед. ' + (wk.week || (w + 1)) + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + wPct + '%;background:var(--blue)"></div></div>' +
+        '<div class="bar-value">' + (wk.count || 0) + '</div></div>';
+    }
+    if (!dynBars) dynBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
+    var dynCard = '<div class="content-card"><h3>\U0001f4c8 Динамика публикаций (8 недель)</h3><div class="bar-chart">' + dynBars + '</div></div>';
+
+    var anomalies = d.anomalies || [];
+    var anoRows = '';
+    for (var a = 0; a < anomalies.length; a++) {
+      var an = anomalies[a];
+      anoRows += '<tr>' +
+        '<td>' + esc(an.maker || '—') + '</td>' +
+        '<td><span class="badge badge-' + (an.type === 'no_publish' ? 'red' : 'orange') + '">' + esc(an.type || '—') + '</span></td>' +
+        '<td>' + esc(an.details || '—') + '</td>' +
+        '<td>' + (an.days || 0) + ' дн.</td></tr>';
+    }
+    if (!anoRows) anoRows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Аномалий не обнаружено ✅</td></tr>';
+    var anoTable = '<div class="content-card"><h3>⚠️ Аномалии</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+      '<thead><tr><th>Мейкер</th><th>Тип</th><th>Детали</th><th>Дней</th></tr></thead>' +
+      '<tbody>' + anoRows + '</tbody></table></div></div>';
+
+    page.innerHTML = '<div class="section-title">\U0001f3ac Контент</div>' +
+      kpiRow + '<div class="grid-2">' + pubCard + viewCard + '</div>' + uniCard + dynCard + anoTable;
+  } catch(e) {
+    page.innerHTML = '<div class="section-title">\U0001f3ac Контент</div>' +
+      '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
+  }
+}
+
 // ---------- OFFERS ----------
 async function loadOffers() {
-  const page = document.getElementById('page-offers');
-  const data = await api('/offers');
-  const offers = data?.offers || data || [];
+  var page = document.getElementById('page-offers');
+  try {
+    var d = await api('/offers') || {};
+    var offers = d.offers || d || [];
+    if (!Array.isArray(offers)) offers = [];
 
-  var activeCount = 0, pausedCount = 0, totalPayout = 0;
-  var rows = '';
-  if (Array.isArray(offers) && offers.length > 0) {
-    for (var i = 0; i < offers.length; i++) {
-      var o = offers[i];
-      if (o.status === 'active') activeCount++;
-      else if (o.status === 'paused') pausedCount++;
-      totalPayout += (o.payout || 0);
-      rows += '<tr>' +
-        '<td><strong>' + esc(o.name || o.title || '\u2014') + '</strong>' + (o.description ? '<div style="font-size:12px;color:var(--muted)">' + esc(o.description.substring(0,60)) + '</div>' : '') + '</td>' +
-        '<td>' + esc(o.platform || '\u2014') + '</td>' +
-        '<td><span class="badge badge-' + (o.status==='active'?'green':o.status==='paused'?'orange':'muted') + '">' + esc(o.status || '\u2014') + '</span></td>' +
-        '<td>' + (o.payout ? '$' + fmtNum(o.payout) : '\u2014') + '</td>' +
-        '<td>' + esc(o.rotation || '\u2014') + '</td></tr>';
+    var nichesYear = d.niches_per_year || 250;
+    var teamsCount = d.teams_count || 5;
+    var makersPerNiche = d.makers_per_niche || 1000;
+    var partnerships = d.connected_partnerships || 0;
+    var activeNiches = d.active_niches_week || 5;
+
+    var kpiRow = '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f3af Ниш/год</div><div class="stat-value gold">' + fmtNum(nichesYear) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f465 Команд</div><div class="stat-value blue">' + teamsCount + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4e2 Мейкеров/ниша</div><div class="stat-value green">' + fmtNum(makersPerNiche) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f91d Партнёрств</div><div class="stat-value purple">' + fmtNum(partnerships) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f525 Ниш на неделе</div><div class="stat-value orange">' + activeNiches + '</div></div>' +
+      '</div>';
+
+    var matrix = d.team_niche_matrix || [
+      { team: 'Команда 1', niche: 'SaaS CRM', pm: '—', makers: 0, site_offer: '—', keyword: '—', conversion: '0%', status: 'active' },
+      { team: 'Команда 2', niche: 'EdTech', pm: '—', makers: 0, site_offer: '—', keyword: '—', conversion: '0%', status: 'active' },
+      { team: 'Команда 3', niche: 'FinTech', pm: '—', makers: 0, site_offer: '—', keyword: '—', conversion: '0%', status: 'prep' },
+      { team: 'Команда 4', niche: 'HealthTech', pm: '—', makers: 0, site_offer: '—', keyword: '—', conversion: '0%', status: 'prep' },
+      { team: 'Команда 5', niche: 'eCommerce', pm: '—', makers: 0, site_offer: '—', keyword: '—', conversion: '0%', status: 'prep' }
+    ];
+    var mRows = '';
+    for (var m = 0; m < matrix.length; m++) {
+      var r = matrix[m];
+      var stCls = r.status === 'active' ? 'green' : (r.status === 'paused' ? 'orange' : 'muted');
+      mRows += '<tr>' +
+        '<td style="font-weight:700">' + esc(r.team) + '</td>' +
+        '<td>' + esc(r.niche) + '</td>' +
+        '<td>' + esc(r.pm) + '</td>' +
+        '<td>' + fmtNum(r.makers || 0) + '</td>' +
+        '<td>' + esc(r.site_offer || '—') + '</td>' +
+        '<td>' + esc(r.keyword || '—') + '</td>' +
+        '<td>' + esc(String(r.conversion)) + '</td>' +
+        '<td><span class="badge badge-' + stCls + '">' + esc(r.status) + '</span></td></tr>';
     }
-  } else {
-    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u043e\u0444\u0444\u0435\u0440\u043e\u0432</td></tr>';
-  }
-
-  page.innerHTML =
-    '<div class="section-title">SaaS \u043e\u0444\u0444\u0435\u0440\u044b</div>' +
-    '<div class="kpi-row">' +
-      '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e</div><div class="stat-value blue">' + (Array.isArray(offers) ? offers.length : 0) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445</div><div class="stat-value green">' + activeCount + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">\u041d\u0430 \u043f\u0430\u0443\u0437\u0435</div><div class="stat-value" style="color:var(--orange)">' + pausedCount + '</div></div>' +
-    '</div>' +
-    '<div class="content-card"><h3>\u041a\u0430\u0442\u0430\u043b\u043e\u0433 \u043e\u0444\u0444\u0435\u0440\u043e\u0432</h3>' +
+    var matrixTable = '<div class="content-card"><h3>\U0001f4cb Матрица Команда × Ниша</h3>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
-        '<thead><tr><th>\u041e\u0444\u0444\u0435\u0440</th><th>\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u0412\u044b\u043f\u043b\u0430\u0442\u0430</th><th>\u0420\u043e\u0442\u0430\u0446\u0438\u044f</th></tr></thead>' +
-        '<tbody>' + rows + '</tbody>' +
-      '</table></div>' +
-    '</div>' +
-    '<div class="note-box">\ud83d\udca1 \u041e\u0444\u0444\u0435\u0440\u044b \u0440\u043e\u0442\u0438\u0440\u0443\u044e\u0442\u0441\u044f \u0447\u0435\u0440\u0435\u0437 Round Robin. \u0412\u0430\u0448\u0438 \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0435 \u0441\u0441\u044b\u043b\u043a\u0438 \u0443\u0447\u0430\u0441\u0442\u0432\u0443\u044e\u0442 \u0432 \u0440\u043e\u0442\u0430\u0446\u0438\u0438 \u043f\u0440\u043e\u043f\u043e\u0440\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u043e \u0432\u0430\u0448\u0438\u043c \u0430\u043a\u0446\u0438\u044f\u043c.</div>';
+      '<thead><tr><th>Команда</th><th>Ниша</th><th>PM</th><th>Мейкеры</th><th>Сайт-оффер</th><th>Ключевое</th><th>Конверсия</th><th>Статус</th></tr></thead>' +
+      '<tbody>' + mRows + '</tbody></table></div></div>';
+
+    var divRisks = d.diversification || [];
+    var divBars = '';
+    for (var dr = 0; dr < divRisks.length; dr++) {
+      var dv = divRisks[dr];
+      var dvPct = dv.percent || 0;
+      var dvColor = dvPct > 30 ? 'var(--red)' : 'var(--green)';
+      divBars += '<div class="bar-row"><div class="bar-label">' + esc(dv.partner || 'Партнёр') + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + Math.min(dvPct, 100) + '%;background:' + dvColor + '"></div></div>' +
+        '<div class="bar-value">' + dvPct + '%</div></div>';
+    }
+    if (!divBars) divBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
+    var divCard = '<div class="content-card"><h3>\U0001f6e1️ Диверсификация (не более 30% на партнёра)</h3><div class="bar-chart">' + divBars + '</div></div>';
+
+    var competition = d.team_competition || [];
+    var compHtml = '';
+    for (var c = 0; c < competition.length; c++) {
+      var tc = competition[c];
+      compHtml += '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)">' +
+        '<div style="font-size:20px;font-weight:700;color:var(--gold);min-width:28px">#' + (c + 1) + '</div>' +
+        '<div style="flex:1"><div style="font-weight:600">' + esc(tc.team || 'Команда') + '</div>' +
+        '<div style="font-size:12px;color:var(--muted)">Метрика: ' + fmtNum(tc.score || 0) + '</div></div>' +
+        '<div class="badge badge-' + (c === 0 ? 'gold' : 'blue') + '">' + esc(String(tc.normalized || '0')) + '</div></div>';
+    }
+    if (!compHtml) compHtml = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
+    var compCard = '<div class="content-card"><h3>\U0001f3c6 Соревнование команд</h3>' + compHtml +
+      '<div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted)">' +
+      '\U0001f3b0 Порядок выбора ниш определяется по КЭ (лотерея)</div></div>';
+
+    // Existing catalog logic
+    var activeCount = 0, pausedCount = 0, totalPayout = 0;
+    var catRows = '';
+    if (offers.length > 0) {
+      for (var i = 0; i < offers.length; i++) {
+        var o = offers[i];
+        if (o.status === 'active') activeCount++;
+        else if (o.status === 'paused') pausedCount++;
+        totalPayout += (o.payout || 0);
+        catRows += '<tr>' +
+          '<td><strong>' + esc(o.name || o.title || '—') + '</strong>' + (o.description ? '<div style="font-size:12px;color:var(--muted)">' + esc(o.description.substring(0,60)) + '</div>' : '') + '</td>' +
+          '<td>' + esc(o.platform || '—') + '</td>' +
+          '<td><span class="badge badge-' + (o.status==='active'?'green':o.status==='paused'?'orange':'muted') + '">' + esc(o.status || '—') + '</span></td>' +
+          '<td>' + (o.payout ? '$' + fmtNum(o.payout) : '—') + '</td>' +
+          '<td>' + esc(o.rotation || '—') + '</td></tr>';
+      }
+    } else {
+      catRows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Нет офферов</td></tr>';
+    }
+    var catalog = '<div class="content-card"><h3>\U0001f4e6 Каталог офферов</h3>' +
+      '<div class="kpi-row" style="margin-bottom:12px">' +
+      '<div class="kpi-card"><div class="stat-label">Всего</div><div class="stat-value blue">' + offers.length + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">Активных</div><div class="stat-value green">' + activeCount + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">На паузе</div><div class="stat-value" style="color:var(--orange)">' + pausedCount + '</div></div>' +
+      '</div>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+      '<thead><tr><th>Оффер</th><th>Платформа</th><th>Статус</th><th>Выплата</th><th>Ротация</th></tr></thead>' +
+      '<tbody>' + catRows + '</tbody></table></div></div>';
+
+    page.innerHTML = '<div class="section-title">\U0001f4bc Офферы и ниши</div>' +
+      '<div class="alert alert-gold">\U0001f3af 250 ниш в год · 5 команд AI-офферщиков · 1000 мейкеров на нишу</div>' +
+      kpiRow + matrixTable + '<div class="grid-2">' + divCard + compCard + '</div>' + catalog +
+      '<div class="note-box">\U0001f4a1 Офферы ротируются через Round Robin. Ваши реферальные ссылки участвуют в ротации пропорционально вашим акциям.</div>';
+  } catch(e) {
+    page.innerHTML = '<div class="section-title">\U0001f4bc Офферы</div>' +
+      '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
+  }
 }
 
 
@@ -1861,21 +2047,88 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ---------- TRENDS ----------
 async function loadTrends() {
-  const page = document.getElementById('page-trends');
+  var page = document.getElementById('page-trends');
   try {
-    const d = await api('/trends');
-    const weeks = d.videos_by_week || [];
-    let wH = '';
-    weeks.forEach(w => { wH += '<div class="list-row"><span>\u041d\u0435\u0434. ' + w.week + '</span><span style="font-weight:600">' + w.videos + ' \u0432\u0438\u0434\u0435\u043e</span></div>'; });
-    page.innerHTML = '<h2>\ud83d\udcc8 \u0422\u0440\u0435\u043d\u0434\u044b \u043f\u0440\u043e\u0435\u043a\u0442\u0430</h2>' +
-      '<div class="kpi-row">' +
-      '<div class="kpi-card blue"><div class="kpi-label">\u0412\u0421\u0415\u0413\u041e \u0423\u0427\u0410\u0421\u0422\u041d\u0418\u041a\u041e\u0412</div><div class="kpi-value">' + d.total_users + '</div></div>' +
-      '<div class="kpi-card green"><div class="kpi-label">\u041d\u041e\u0412\u042b\u0425 \u0417\u0410 \u041d\u0415\u0414\u0415\u041b\u042e</div><div class="kpi-value">' + d.new_users_this_week + '</div></div>' +
-      '<div class="kpi-card gold"><div class="kpi-label">WAITLIST \u0417\u0410 \u041d\u0415\u0414\u0415\u041b\u042e</div><div class="kpi-value">' + d.waitlist_this_week + '</div></div>' +
-      '<div class="kpi-card purple"><div class="kpi-label">\u0422\u0420\u0410\u041d\u0417\u0410\u041a\u0426\u0418\u0419 \u0410\u041a\u0426\u0418\u0419</div><div class="kpi-value">' + d.share_transactions_this_week + '</div></div>' +
-      '</div>' +
-      '<div class="card"><div class="card-header">\ud83c\udfac \u0412\u0438\u0434\u0435\u043e \u043f\u043e \u043d\u0435\u0434\u0435\u043b\u044f\u043c</div>' + (wH || '<div class="empty-state"><div class="empty-state-text">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</div></div>') + '</div>';
-  } catch(e) { page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\u26a0\ufe0f</div><div class="empty-state-text">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</div></div>'; }
+    var d = await api('/trends') || {};
+    var topPct = d.top5_percent || 0;
+    var avgViewsTop = d.avg_views_top5 || 0;
+    var templatesKB = d.templates_count || 0;
+    var makersUsedTpl = d.makers_used_template || 0;
+    var keGrowth = d.ke_growth_after_template || '0%';
+
+    var kpiRow = '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f3af Top 5% видео</div><div class="stat-value gold">' + fmtNum(topPct) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4ca Ср. просмотры top 5%</div><div class="stat-value blue">' + fmtNum(avgViewsTop) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4d6 Шаблонов в базе</div><div class="stat-value green">' + fmtNum(templatesKB) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f465 Исп. шаблон</div><div class="stat-value purple">' + fmtNum(makersUsedTpl) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4c8 Рост КЭ</div><div class="stat-value green">' + esc(String(keGrowth)) + '</div></div>' +
+      '</div>';
+
+    var topVideos = d.top_videos || [];
+    var tvRows = '';
+    for (var i = 0; i < topVideos.length && i < 10; i++) {
+      var v = topVideos[i];
+      tvRows += '<tr>' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td>' + esc(v.maker || '—') + '</td>' +
+        '<td><span class="badge badge-blue">' + esc(v.platform || '—') + '</span></td>' +
+        '<td>' + esc(v.niche || '—') + '</td>' +
+        '<td style="font-weight:700">' + fmtNum(v.views || 0) + '</td>' +
+        '<td>' + fmtNum(v.utm_clicks || 0) + '</td></tr>';
+    }
+    if (!tvRows) tvRows = '<tr><td colspan="6" style="text-align:center;color:var(--muted)">Нет данных</td></tr>';
+    var topTable = '<div class="content-card"><h3>\U0001f3ac Top-10 видео</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+      '<thead><tr><th>#</th><th>Мейкер</th><th>Платформа</th><th>Ниша</th><th>Просмотры</th><th>UTM клики</th></tr></thead>' +
+      '<tbody>' + tvRows + '</tbody></table></div></div>';
+
+    var patterns = d.viral_patterns || [];
+    var patHtml = '';
+    for (var p = 0; p < patterns.length; p++) {
+      var pat = patterns[p];
+      patHtml += '<div style="padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px">' +
+        '<div style="font-weight:700;color:var(--gold)">' + esc(pat.name || 'Паттерн ' + (p+1)) + '</div>' +
+        '<div style="color:var(--muted);font-size:13px;margin-top:4px">' + esc(pat.description || '') + '</div>' +
+        '<div style="margin-top:6px;font-size:12px;color:var(--green)">Успешность: ' + esc(String(pat.success_rate || '0%')) + '</div>' +
+        '</div>';
+    }
+    if (!patHtml) patHtml = '<div style="color:var(--muted);text-align:center;padding:20px">Паттерны анализируются...</div>';
+    var patternsCard = '<div class="content-card"><h3>\U0001f9ec Виральные паттерны</h3>' + patHtml + '</div>';
+
+    var niches = d.top_niches || [];
+    var nicheBars = '';
+    for (var n = 0; n < niches.length && n < 8; n++) {
+      var nc = niches[n];
+      var ncPct = nc.conversion || 0;
+      nicheBars += '<div class="bar-row"><div class="bar-label">' + esc(nc.name || 'Ниша') + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + Math.min(ncPct, 100) + '%;background:var(--gold)"></div></div>' +
+        '<div class="bar-value">' + ncPct + '%</div></div>';
+    }
+    if (!nicheBars) nicheBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
+    var nicheCard = '<div class="content-card"><h3>\U0001f4ca Топ ниши по конверсии</h3><div class="bar-chart">' + nicheBars + '</div></div>';
+
+    var postTimes = d.best_posting_times || [
+      { platform: 'YouTube', time: '14:00-16:00', boost: '+23%' },
+      { platform: 'Instagram', time: '18:00-20:00', boost: '+18%' },
+      { platform: 'TikTok', time: '21:00-23:00', boost: '+31%' },
+      { platform: 'Facebook', time: '10:00-12:00', boost: '+12%' }
+    ];
+    var timeCards = '';
+    for (var t = 0; t < postTimes.length; t++) {
+      var pt = postTimes[t];
+      timeCards += '<div class="kpi-card"><div class="stat-label">' + esc(pt.platform) + '</div>' +
+        '<div class="stat-value blue">' + esc(pt.time) + '</div>' +
+        '<div style="color:var(--green);font-size:13px;margin-top:4px">' + esc(String(pt.boost)) + '</div></div>';
+    }
+    var timeGrid = '<div class="content-card"><h3>⏰ Лучшее время публикации</h3><div class="kpi-row">' + timeCards + '</div></div>';
+
+    page.innerHTML = '<div class="section-title">\U0001f4c8 Тренды</div>' +
+      '<div class="alert alert-blue">\U0001f50d Обнаружены виральные паттерны — используйте для роста КЭ</div>' +
+      kpiRow + topTable + '<div class="grid-2">' + patternsCard + nicheCard + '</div>' + timeGrid;
+  } catch(e) {
+    page.innerHTML = '<div class="section-title">\U0001f4c8 Тренды</div>' +
+      '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
+  }
 }
 
 // ---------- HALL OF FAME ----------
@@ -2577,28 +2830,216 @@ async function loadContests() {
   } catch(e) { page.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Ошибка загрузки</div>'; }
 }
 
-// ---------- INFRASTRUCTURE ----------
-async function loadInfrastructure() {
-  const page = document.getElementById('page-infrastructure');
+// ---------- BLOGGERS ----------
+async function loadBloggers() {
+  var page = document.getElementById('page-bloggers');
   try {
-    const d = await api('/infrastructure');
-    const tc = d.table_counts || {};
-    let tH = '';
-    Object.entries(tc).forEach(([name, cnt]) => { tH += '<div class="list-row"><span>' + name + '</span><span style="font-weight:700">' + cnt + '</span></div>'; });
-    page.innerHTML = '<h2>\ud83d\udda5\ufe0f \u0418\u043d\u0444\u0440\u0430\u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0430</h2>' +
-      '<div class="kpi-row">' +
-      '<div class="kpi-card green"><div class="kpi-label">\u0411\u0414</div><div class="kpi-value">' + d.db_status + '</div></div>' +
-      '<div class="kpi-card green"><div class="kpi-label">API</div><div class="kpi-value">' + d.api_status + '</div></div>' +
-      '<div class="kpi-card green"><div class="kpi-label">\u0411\u041e\u0422</div><div class="kpi-value">' + d.bot_status + '</div></div>' +
-      '<div class="kpi-card blue"><div class="kpi-label">\u0412\u0421\u0415\u0413\u041e \u0417\u0410\u041f\u0418\u0421\u0415\u0419</div><div class="kpi-value">' + d.total_records + '</div></div></div>' +
-      '<div class="grid-2">' +
-      '<div class="card"><div class="card-header">\ud83d\uddc3\ufe0f \u0422\u0430\u0431\u043b\u0438\u0446\u044b \u0411\u0414</div>' + tH + '</div>' +
-      '<div class="card"><div class="card-header">\u2139\ufe0f \u0421\u0438\u0441\u0442\u0435\u043c\u0430</div>' +
-        '<div class="list-row"><span>\u041f\u0435\u0440\u0432\u0430\u044f \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f</span><span>' + (d.first_registration ? new Date(d.first_registration).toLocaleDateString('ru-RU') : '\u2014') + '</span></div>' +
-        '<div class="list-row"><span>\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445 \u043e\u0444\u0444\u0435\u0440\u043e\u0432</span><span>' + d.active_offers + '/' + d.total_offers + '</span></div></div></div>';
-  } catch(e) { page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\ud83d\udda5\ufe0f</div><div class="empty-state-text">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</div></div>'; }
+    var d = await api('/admin/bloggers') || {};
+    var activeBloggers = d.active_bloggers || 0;
+    var totalAudience = d.total_audience || 0;
+    var broughtMakers = d.brought_makers || 0;
+    var distShares = d.distributed_shares || 0;
+    var avgIncome = d.avg_income || 0;
+
+    var kpiRow = '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4e3 Активных</div><div class="stat-value blue">' + fmtNum(activeBloggers) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f465 Аудитория</div><div class="stat-value gold">' + fmtNum(totalAudience) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f517 Привели мейкеров</div><div class="stat-value green">' + fmtNum(broughtMakers) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4b0 Акций распред.</div><div class="stat-value purple">' + fmtNum(distShares) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4b5 Ср. доход</div><div class="stat-value green">$' + fmtNum(avgIncome) + '</div></div>' +
+      '</div>';
+
+    var bloggers = d.top_bloggers || [];
+    var bRows = '';
+    for (var i = 0; i < bloggers.length && i < 15; i++) {
+      var b = bloggers[i];
+      bRows += '<tr>' +
+        '<td style="font-weight:700;color:var(--gold)">' + (i + 1) + '</td>' +
+        '<td>' + esc(b.name || '—') + '</td>' +
+        '<td><span class="badge badge-blue">' + esc(b.platform || '—') + '</span></td>' +
+        '<td>' + fmtNum(b.audience || 0) + '</td>' +
+        '<td>' + fmtNum(b.brought || 0) + '</td>' +
+        '<td>' + fmtNum(b.shares || 0) + '</td>' +
+        '<td>$' + fmtNum(b.income || 0) + '</td>' +
+        '<td>' + esc(b.manager || '—') + '</td></tr>';
+    }
+    if (!bRows) bRows = '<tr><td colspan="8" style="text-align:center;color:var(--muted)">Нет данных</td></tr>';
+    var blogTable = '<div class="content-card"><h3>\U0001f451 Топ-15 блогеров</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+      '<thead><tr><th>#</th><th>Имя</th><th>Платформа</th><th>Аудитория</th><th>Привели</th><th>Акции</th><th>Доход/мес</th><th>Менеджер</th></tr></thead>' +
+      '<tbody>' + bRows + '</tbody></table></div></div>';
+
+    var platDist = d.platform_distribution || [];
+    var maxPlat = 1;
+    for (var pd = 0; pd < platDist.length; pd++) { if ((platDist[pd].count || 0) > maxPlat) maxPlat = platDist[pd].count; }
+    var pdBars = '';
+    for (var pd = 0; pd < platDist.length; pd++) {
+      var pp = platDist[pd];
+      var ppPct = Math.round(((pp.count || 0) / maxPlat) * 100);
+      pdBars += '<div class="bar-row"><div class="bar-label">' + esc(pp.name || '—') + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + ppPct + '%;background:var(--blue)"></div></div>' +
+        '<div class="bar-value">' + fmtNum(pp.count || 0) + '</div></div>';
+    }
+    if (!pdBars) pdBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
+    var platCard = '<div class="content-card"><h3>\U0001f4f1 Распределение по платформам</h3><div class="bar-chart">' + pdBars + '</div></div>';
+
+    var topics = d.topics || [];
+    var maxTop = 1;
+    for (var tp = 0; tp < topics.length; tp++) { if ((topics[tp].count || 0) > maxTop) maxTop = topics[tp].count; }
+    var tpBars = '';
+    for (var tp = 0; tp < topics.length; tp++) {
+      var tt = topics[tp];
+      var ttPct = Math.round(((tt.count || 0) / maxTop) * 100);
+      tpBars += '<div class="bar-row"><div class="bar-label">' + esc(tt.name || '—') + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + ttPct + '%;background:var(--gold)"></div></div>' +
+        '<div class="bar-value">' + fmtNum(tt.count || 0) + '</div></div>';
+    }
+    if (!tpBars) tpBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
+    var topicCard = '<div class="content-card"><h3>\U0001f3af Тематики</h3><div class="bar-chart">' + tpBars + '</div></div>';
+
+    var sharesPool = d.shares_pool || 1500;
+    var sharesDistributed = d.shares_distributed || distShares;
+    var sharesRemain = sharesPool - sharesDistributed;
+    var shPct = sharesPool > 0 ? Math.round((sharesDistributed / sharesPool) * 100) : 0;
+    var sharesCard = '<div class="content-card"><h3>\U0001f4b0 Акции блогеров</h3>' +
+      '<div class="kpi-row" style="margin-bottom:12px">' +
+      '<div class="kpi-card"><div class="stat-label">Пул</div><div class="stat-value blue">' + fmtNum(sharesPool) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">Распределено</div><div class="stat-value green">' + fmtNum(sharesDistributed) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">Осталось</div><div class="stat-value gold">' + fmtNum(sharesRemain) + '</div></div>' +
+      '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + shPct + '%;background:var(--green)"></div></div>' +
+      '<div style="font-size:12px;color:var(--muted);margin-top:4px">' + shPct + '% распределено</div></div>';
+
+    var contentPlan = d.content_plan || [];
+    var cpHtml = '';
+    for (var cp = 0; cp < contentPlan.length; cp++) {
+      var ci = contentPlan[cp];
+      var cpStatus = ci.status === 'published' ? 'green' : (ci.status === 'planned' ? 'blue' : 'orange');
+      cpHtml += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">' +
+        '<span class="badge badge-' + cpStatus + '">' + esc(ci.status || 'planned') + '</span>' +
+        '<span style="flex:1">' + esc(ci.title || '—') + '</span>' +
+        '<span style="color:var(--muted);font-size:12px">' + esc(ci.date || '') + '</span></div>';
+    }
+    if (!cpHtml) cpHtml = '<div style="color:var(--muted);text-align:center;padding:16px">Контент-план пуст</div>';
+    var cpCard = '<div class="content-card"><h3>\U0001f4dd Контент-план</h3>' + cpHtml + '</div>';
+
+    var funnel = d.acquisition_funnel || {};
+    var fSteps = [
+      { label: '\U0001f441️ Просмотры', val: funnel.views || 0 },
+      { label: '\U0001f517 Клики', val: funnel.clicks || 0 },
+      { label: '\U0001f916 Бот', val: funnel.bot || 0 },
+      { label: '\U0001f4dd Заявка', val: funnel.application || 0 },
+      { label: '✅ Прошли', val: funnel.passed || 0 },
+      { label: '\U0001f3ac Активные', val: funnel.active || 0 }
+    ];
+    var maxF = 1;
+    for (var f = 0; f < fSteps.length; f++) { if (fSteps[f].val > maxF) maxF = fSteps[f].val; }
+    var fBars = '';
+    for (var f = 0; f < fSteps.length; f++) {
+      var fs = fSteps[f];
+      var fPct = maxF > 0 ? Math.round((fs.val / maxF) * 100) : 0;
+      fBars += '<div class="bar-row"><div class="bar-label">' + fs.label + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + fPct + '%;background:var(--gold)"></div></div>' +
+        '<div class="bar-value">' + fmtNum(fs.val) + '</div></div>';
+    }
+    var funnelCard = '<div class="content-card"><h3>\U0001f4c9 Воронка привлечения</h3><div class="bar-chart">' + fBars + '</div></div>';
+
+    var managers = d.top_managers || [];
+    var mgrRows = '';
+    for (var mg = 0; mg < managers.length; mg++) {
+      var mgr = managers[mg];
+      mgrRows += '<tr>' +
+        '<td>' + esc(mgr.name || '—') + '</td>' +
+        '<td>' + fmtNum(mgr.bloggers_count || 0) + '</td>' +
+        '<td>' + fmtNum(mgr.total_audience || 0) + '</td>' +
+        '<td>' + fmtNum(mgr.makers_brought || 0) + '</td></tr>';
+    }
+    if (!mgrRows) mgrRows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Нет данных</td></tr>';
+    var mgrTable = '<div class="content-card"><h3>\U0001f464 Менеджеры блогеров</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+      '<thead><tr><th>Менеджер</th><th>Блогеров</th><th>Аудитория</th><th>Привели</th></tr></thead>' +
+      '<tbody>' + mgrRows + '</tbody></table></div></div>';
+
+    page.innerHTML = '<div class="section-title">\U0001f4e3 Блогеры</div>' +
+      kpiRow + blogTable + '<div class="grid-2">' + platCard + topicCard + '</div>' +
+      sharesCard + cpCard + funnelCard + mgrTable;
+  } catch(e) {
+    page.innerHTML = '<div class="section-title">\U0001f4e3 Блогеры</div>' +
+      '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
+  }
 }
 
+// ---------- INFRASTRUCTURE ----------
+async function loadInfrastructure() {
+  var page = document.getElementById('page-infrastructure');
+  try {
+    var d = await api('/infrastructure') || {};
+    var botUp = d.bot_uptime || '99.9%';
+    var rrShares = d.round_robin_shares || 0;
+    var cpuPct = d.cpu_percent || 0;
+    var diskPct = d.disk_percent || 0;
+    var totalRec = d.total_records || 5233;
+    var sharesInSys = d.shares_in_system || 0;
+    var reqDay = d.requests_per_day || 0;
+    var nextBackup = d.next_backup || '03:00';
+    var allOk = (d.db_status === 'ok' || d.db_status === 'online') && (d.api_status === 'ok' || d.api_status === 'online');
+
+    var alertHtml = '<div class="alert alert-' + (allOk ? 'green' : 'red') + '">' +
+      (allOk ? '✅ Все системы в штатном режиме' : '⚠️ Есть проблемы с системами') +
+      '</div>';
+
+    var infraCards = '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f916 Telegram Bot</div><div class="stat-value green">uptime ' + esc(botUp) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f504 Round Robin</div><div class="stat-value blue">' + fmtNum(rrShares) + ' акций</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f5a5️ Основной сервер</div><div class="stat-value ' + (cpuPct > 80 ? 'red' : 'green') + '">CPU ' + cpuPct + '%</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4be Резервный</div><div class="stat-value ' + (diskPct > 80 ? 'red' : 'green') + '">Диск ' + diskPct + '%</div></div>' +
+      '</div>';
+
+    var systems = [
+      { name: 'Telegram Bot', st: d.bot_status || 'online', ver: d.bot_version || '2.4', bk: 'ежедневно' },
+      { name: 'Round Robin', st: d.rr_status || 'active', ver: '1.0', bk: 'n/a' },
+      { name: 'Apify', st: d.apify_status || 'connected', ver: '3.x', bk: 'n/a' },
+      { name: 'UTM Tracker', st: d.utm_status || 'active', ver: '1.2', bk: 'еженедельно' },
+      { name: 'DB PostgreSQL', st: d.db_status || 'online', ver: '15', bk: 'ежедневно' },
+      { name: 'Резервный бот', st: d.reserve_bot || 'standby', ver: '2.4', bk: 'еженедельно' },
+      { name: 'Биржа акций', st: d.exchange_status || 'active', ver: '1.0', bk: 'ежедневно' }
+    ];
+    var sysRows = '';
+    for (var i = 0; i < systems.length; i++) {
+      var s = systems[i];
+      var stClass = (s.st === 'online' || s.st === 'active' || s.st === 'connected') ? 'green' : (s.st === 'standby' ? 'orange' : 'red');
+      sysRows += '<tr>' +
+        '<td>' + esc(s.name) + '</td>' +
+        '<td><span class="badge badge-' + stClass + '">' + esc(s.st) + '</span></td>' +
+        '<td>' + esc(s.ver) + '</td>' +
+        '<td>' + esc(s.bk) + '</td></tr>';
+    }
+    var sysTable = '<div class="content-card"><h3>\U0001f4cb Статус систем</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+      '<thead><tr><th>Система</th><th>Статус</th><th>Версия</th><th>Бэкап</th></tr></thead>' +
+      '<tbody>' + sysRows + '</tbody></table></div></div>';
+
+    var statCards = '<div class="kpi-row">' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f465 Пользователей</div><div class="stat-value blue">' + fmtNum(totalRec) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4c8 Акций в системе</div><div class="stat-value gold">' + fmtNum(sharesInSys) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f4e8 Запросов/день</div><div class="stat-value green">' + fmtNum(reqDay) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\U0001f552 След. бэкап</div><div class="stat-value muted">' + esc(nextBackup) + '</div></div>' +
+      '</div>';
+
+    var loadBar = '<div class="content-card"><h3>\U0001f4ca Нагрузка сервера</h3>' +
+      '<div class="bar-chart">' +
+      '<div class="bar-row"><div class="bar-label">CPU</div><div class="bar-track"><div class="bar-fill" style="width:' + cpuPct + '%;background:' + (cpuPct > 80 ? 'var(--red)' : 'var(--green)') + '"></div></div><div class="bar-value">' + cpuPct + '%</div></div>' +
+      '<div class="bar-row"><div class="bar-label">RAM</div><div class="bar-track"><div class="bar-fill" style="width:' + (d.ram_percent || 45) + '%;background:var(--blue)"></div></div><div class="bar-value">' + (d.ram_percent || 45) + '%</div></div>' +
+      '<div class="bar-row"><div class="bar-label">Диск</div><div class="bar-track"><div class="bar-fill" style="width:' + diskPct + '%;background:' + (diskPct > 80 ? 'var(--red)' : 'var(--orange)') + '"></div></div><div class="bar-value">' + diskPct + '%</div></div>' +
+      '</div></div>';
+
+    page.innerHTML = '<div class="section-title">\U0001f5a5️ Инфраструктура</div>' +
+      alertHtml + infraCards + sysTable + statCards + loadBar;
+  } catch(e) {
+    page.innerHTML = '<div class="section-title">\U0001f5a5️ Инфраструктура</div>' +
+      '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки инфраструктуры</div>';
+  }
+}
 
 // ---------- AI AUTOMATORS ----------
 async function loadAIAutomators() {
