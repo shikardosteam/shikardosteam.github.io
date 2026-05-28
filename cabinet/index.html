@@ -1871,23 +1871,106 @@ async function loadHallOfFame() {
   const page = document.getElementById('page-hall-of-fame');
   try {
     const d = await api('/hall-of-fame');
-    let sH = '';
-    (d.top_shares || []).forEach(u => {
-      const medal = u.rank <= 3 ? ['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'][u.rank-1] : '#' + u.rank;
-      const me = u.is_me ? ' style="color:var(--gold);font-weight:700"' : '';
-      sH += '<div class="list-row"' + me + '><span>' + medal + ' ' + u.full_name + '</span><span>' + u.shares_count + ' \u0430\u043a\u0446.</span></div>';
+
+    // Top shares leaderboard
+    var topShares = d.top_shares || [];
+    var sH = '';
+    topShares.forEach(function(u) {
+      var medal = u.rank <= 3 ? ['🥇','🥈','🥉'][u.rank-1] : '#' + u.rank;
+      var me = u.is_me ? ' style="color:var(--gold);font-weight:700"' : '';
+      sH += '<div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--border)"' + me + '>' +
+        '<span style="font-size:12px">' + medal + ' ' + esc(u.full_name || '—') + '</span>' +
+        '<span style="font-size:12px;font-weight:700">' + (u.shares_count || 0) + ' акц.</span></div>';
     });
-    let vH = '';
-    (d.top_videos_this_week || []).forEach((u, i) => {
-      vH += '<div class="list-row"><span>' + (i+1) + '. ' + u.full_name + '</span><span>' + u.videos_this_week + ' \u0432\u0438\u0434\u0435\u043e</span></div>';
+    if (!sH) sH = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет данных</div>';
+
+    // Top videos this week
+    var topVideos = d.top_videos_this_week || [];
+    var vH = '';
+    topVideos.forEach(function(u, i) {
+      vH += '<div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--border)">' +
+        '<span style="font-size:12px">' + (i+1) + '. ' + esc(u.full_name || '—') + '</span>' +
+        '<span style="font-size:12px;font-weight:700">' + (u.videos_this_week || 0) + ' видео</span></div>';
     });
-    const myR = d.my_rank ? '\u0412\u0430\u0448\u0435 \u043c\u0435\u0441\u0442\u043e: #' + d.my_rank : '';
-    page.innerHTML = '<h2>\ud83c\udfc6 \u0417\u0430\u043b \u0441\u043b\u0430\u0432\u044b</h2>' +
-      (myR ? '<div class="alert info"><span class="alert-icon">\u2b50</span>' + myR + '</div>' : '') +
+    if (!vH) vH = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет данных</div>';
+
+    var myR = d.my_rank ? '⭐ Ваше место: #' + d.my_rank : '';
+
+    // 4 status cards (static content from project rules)
+    var statusCards = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">' +
+      buildStatusCard('25', 'Visionary', 'var(--gold)', 'Управляющая команда у истоков. C-level, директора, ключевые PM и AI.') +
+      buildStatusCard('25', 'Early Investor', 'var(--green)', 'Первые 25 инвесторов. Зашли когда акция стоила $2 500-$5 000.') +
+      buildStatusCard('25', 'Founding Creator', 'var(--blue)', 'Первые 25 мейкеров. Зашли в первой волне, помогали отладить систему.') +
+      buildStatusCard('25', 'Brand Ambassador', 'var(--orange)', 'Первые 25 блогеров-партнёров. Привели первых мейкеров и инвесторов.') +
+    '</div>';
+
+    // Roadmap (static project milestones)
+    var roadmapHtml = '<div style="display:flex;flex-direction:column;gap:1px">' +
+      buildMilestone('15 МАЯ 2026', '🚀 Запуск проекта', 'Сайт, бот, дашборд, база знаний — всё собрано с нуля. Старт найма команды.', 'var(--gold)', true) +
+      buildMilestone('ГОД 1 · Q1', '📱 Бот MVP + найм ядра команды', 'Telegram-бот. Найм COO + BA + первые C-Level. Открытие инвест-раунда.', 'var(--gold)', false) +
+      buildMilestone('ГОД 1 · Q2', '👥 Набор HR-менеджеров + первые мейкеры', '50 HR формируют группы мейкеров. AI-офферщики готовят ниши.', 'var(--gold)', false) +
+      buildMilestone('ГОД 1 · Q3', '🤖 AI-офферы + масштабирование', 'Первые ниши живут. Мейкеры публикуют видео на 4 платформах.', 'var(--gold)', false) +
+      buildMilestone('ГОД 1 · Q4', '🎯 5 000 мейкеров + первый пересчёт КЭ', '31 декабря — первый годовой пересчёт КЭ: 15 000 акций по 5 тирам.', 'var(--gold)', false) +
+    '</div>' +
+    '<div style="margin-top:12px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--muted);line-height:1.6">' +
+      '💡 <strong>Год 2-5:</strong> Мейкеры нанимают подрядчиков. Капитализация $328M → $1.12B → $3.14B → $8B. Цена акции $10K → $80K.</div>';
+
+    // Assemble
+    page.innerHTML =
+      '<div class="section-title">🏆 Зал славы</div>' +
+      '<div class="alert" style="margin-bottom:16px;background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.3);border-radius:6px;padding:12px 16px">' +
+        '<strong style="color:var(--gold)">💎 Зал Славы</strong> · те, кто оставил след в истории Shikardos Team · Founding 100, рекордсмены, лучшие за квартал/год</div>' +
+      (myR ? '<div class="alert alert-info" style="margin-bottom:16px">' + myR + '</div>' : '') +
+
+      // 5 KPI
+      '<div class="kpi-row">' +
+        '<div class="kpi-card" style="border-top:3px solid var(--gold)"><div class="stat-label">Founding 100</div><div class="stat-value gold">100</div><div class="stat-sub">+10 акций каждому</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--green)"><div class="stat-label">Рекордсмены 2026</div><div class="stat-value" style="color:var(--green)">' + fmtNum(d.records_count || 0) + '</div><div class="stat-sub">виралы 2M+</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--blue)"><div class="stat-label">Кайдзен-герои</div><div class="stat-value" style="color:var(--blue)">' + fmtNum(d.kaizen_heroes || 0) + '</div><div class="stat-sub">топ-авторы идей</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--purple)"><div class="stat-label">Победители конкурсов</div><div class="stat-value" style="color:var(--purple)">' + fmtNum(d.contest_winners || 0) + '</div><div class="stat-sub">за весь Q1 2026</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--orange)"><div class="stat-label">Visionary (команда)</div><div class="stat-value" style="color:var(--orange)">' + fmtNum(d.visionary_count || 0) + '</div><div class="stat-sub">у истоков</div></div>' +
+      '</div>' +
+
+      // 4 Status cards
+      '<div class="content-card">' +
+        '<h3>🎖️ 4 статуса первых 100 участников <span style="font-size:12px;color:var(--muted);font-weight:400">по 25 человек</span></h3>' +
+        statusCards +
+        '<div style="margin-top:14px;padding:12px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:11px;color:var(--text)">' +
+          '💎 <strong>Бонус Founding 100:</strong> +10 бонусных акций каждому за 5 лет = 1 000 акций общего пула.</div>' +
+      '</div>' +
+
+      // Row: Top by shares + Top by videos
       '<div class="grid-2">' +
-      '<div class="card"><div class="card-header">\ud83d\udcb0 \u0422\u041e\u041f \u043f\u043e \u0430\u043a\u0446\u0438\u044f\u043c</div>' + (sH || '<div class="empty-state"><div class="empty-state-text">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</div></div>') + '</div>' +
-      '<div class="card"><div class="card-header">\ud83c\udfac \u0422\u041e\u041f \u043f\u043e \u0432\u0438\u0434\u0435\u043e</div>' + (vH || '<div class="empty-state"><div class="empty-state-text">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</div></div>') + '</div></div>';
-  } catch(e) { page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\ud83c\udfc6</div><div class="empty-state-text">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</div></div>'; }
+        '<div class="content-card"><h3>💰 ТОП по акциям</h3>' + sH + '</div>' +
+        '<div class="content-card"><h3>🎬 ТОП по видео за неделю</h3>' + vH + '</div>' +
+      '</div>' +
+
+      // Roadmap
+      '<div class="content-card">' +
+        '<h3>📜 Дорожная карта Shikardos Team</h3>' +
+        roadmapHtml +
+      '</div>';
+
+  } catch(e) {
+    console.error('Hall of fame error:', e);
+    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">🏆</div>Ошибка загрузки зала славы</div>';
+  }
+}
+
+function buildStatusCard(count, label, color, desc) {
+  return '<div style="background:linear-gradient(135deg, ' + color + '18, ' + color + '05);border:2px solid ' + color + ';padding:18px;text-align:center;border-radius:8px">' +
+    '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:36px;color:' + color + ';line-height:1;margin-bottom:6px">' + count + '</div>' +
+    '<div style="font-size:11px;color:' + color + ';font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">' + label + '</div>' +
+    '<div style="font-size:10px;color:var(--muted);line-height:1.6">' + desc + '</div></div>';
+}
+
+function buildMilestone(date, title, desc, color, isDone) {
+  return '<div style="background:' + (isDone ? 'rgba(212,168,67,0.08)' : 'var(--bg)') + ';padding:14px;display:flex;gap:14px;align-items:center;border-left:3px solid ' + color + ';border-bottom:1px solid var(--border)">' +
+    '<div style="min-width:90px;font-family:\'Bebas Neue\',sans-serif;font-size:13px;color:' + color + '">' + date + '</div>' +
+    '<div style="flex:1"><div style="font-size:12px;color:var(--text);font-weight:700">' + title + '</div>' +
+    '<div style="font-size:10px;color:var(--muted)">' + desc + '</div></div>' +
+    (isDone ? '<span class="badge badge-green">✅ DONE</span>' : '') +
+  '</div>';
 }
 
 // ---------- KAIZEN ----------
@@ -1933,52 +2016,213 @@ async function loadTeamMembers() {
 async function loadRiskZone() {
   const page = document.getElementById('page-risk-zone');
   try {
-    const [d, anom] = await Promise.all([api('/risk-zone'), api('/risk-zone/anomalies?status=new&limit=30').catch(()=>({items:[],total:0}))]);
-    const bSt = {'new':'\ud83d\udfe2 \u041d\u043e\u0432\u044b\u0439','in_progress':'\u23f3 \u0412 \u0440\u0430\u0431\u043e\u0442\u0435','resolved':'\u2705 \u0420\u0435\u0448\u0451\u043d','dismissed':'\u2716\ufe0f \u041e\u0442\u043a\u043b\u043e\u043d\u0451\u043d'};
-    const sevColors = {yellow:'#EF9F27',orange:'#D85A30',red:'#E24B4A'};
-    const sevLabels = {yellow:'\u0416\u0451\u043b\u0442\u044b\u0439',orange:'\u041e\u0440\u0430\u043d\u0436\u0435\u0432\u044b\u0439',red:'\u041a\u0440\u0430\u0441\u043d\u044b\u0439'};
-    const typeLabels = {views_spike:'\ud83d\udcc8 \u0421\u043f\u0430\u0439\u043a \u043f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u043e\u0432',low_engagement:'\ud83d\udcc9 \u041d\u0438\u0437\u043a\u0438\u0439 ER',mass_upload:'\u26a1 \u041c\u0430\u0441\u0441-\u0437\u0430\u043b\u0438\u0432\u043a\u0430',inactive_14d:'\ud83d\udca4 \u041d\u0435\u0430\u043a\u0442\u0438\u0432\u0435\u043d',views_drop:'\ud83d\udcc9 \u041f\u0430\u0434\u0435\u043d\u0438\u0435 \u043f\u0440\u043e\u0441\u043c.',foreign_link:'\ud83d\udd17 \u0427\u0443\u0436\u0430\u044f \u0441\u0441\u044b\u043b\u043a\u0430'};
-    let bH = '';
-    (d.bugs || []).forEach(b => {
-      bH += '<div class="list-row"><div><span style="font-size:12px">' + (b.text||'').substring(0,80) + '</span>' + (b.escalated ? ' \ud83d\udea8' : '') + '</div><span style="font-size:11px">' + (bSt[b.status] || b.status) + '</span></div>';
+    const [d, anom, anomStats] = await Promise.all([
+      api('/risk-zone'),
+      api('/risk-zone/anomalies?status=new&limit=30').catch(()=>({items:[],total:0})),
+      api('/risk-zone/anomalies/stats').catch(()=>({by_type:{},by_severity:{}}))
+    ]);
+
+    const bugsNew = d.bugs_new || 0;
+    const bugsInProgress = d.bugs_in_progress || 0;
+    const frozenCount = d.frozen_count || 0;
+    const penaltyUsers = d.penalty_users || 0;
+    const anomNew = d.anomalies_new || 0;
+    const bugsTotal = d.bugs_total || 0;
+    const waitlistCount = d.waitlist_count || 0;
+
+    // Alert
+    var alertHtml = '<div class="alert alert-danger" style="margin-bottom:16px">' +
+      '<strong>⚠️ Зона риска</strong> · автоматический мониторинг через Apify · ' +
+      'триггер замены: &lt;6 видео/нед 3 недели подряд · ' +
+      'очередь ожидания: ' + fmtNum(waitlistCount) + ' человек</div>';
+
+    // 5 KPI
+    var kpiHtml = '<div class="kpi-row">' +
+      '<div class="kpi-card" style="border-top:3px solid var(--red)"><div class="stat-label">Кандидатов на замену</div><div class="stat-value" style="color:var(--red)">' + fmtNum(penaltyUsers) + '</div><div class="stat-sub" style="color:var(--red)">↓ &lt;6 видео 3 нед подряд</div></div>' +
+      '<div class="kpi-card" style="border-top:3px solid var(--orange)"><div class="stat-label">Предупреждения</div><div class="stat-value" style="color:var(--orange)">' + fmtNum(bugsNew + bugsInProgress) + '</div><div class="stat-sub" style="color:var(--orange)">↓ 6-9 видео/нед</div></div>' +
+      '<div class="kpi-card" style="border-top:3px solid var(--blue)"><div class="stat-label">Очередь ожидания</div><div class="stat-value" style="color:var(--blue)">' + fmtNum(waitlistCount) + '</div><div class="stat-sub" style="color:var(--blue)">↑ готовы к замене</div></div>' +
+      '<div class="kpi-card" style="border-top:3px solid var(--purple)"><div class="stat-label">AI-флаги накруток</div><div class="stat-value" style="color:var(--purple)">' + fmtNum(anomNew) + '</div><div class="stat-sub">↓ на проверке QA</div></div>' +
+      '<div class="kpi-card" style="border-top:3px solid var(--green)"><div class="stat-label">Замен за месяц</div><div class="stat-value" style="color:var(--green)">' + fmtNum(frozenCount) + '</div><div class="stat-sub">→ ' + (frozenCount > 0 ? ((frozenCount/50).toFixed(1)) : '0') + '% от команды</div></div>' +
+    '</div>';
+
+    // Degradation funnel + Top-10 critical
+    var frozen = d.frozen || [];
+    var bugs = d.bugs || [];
+
+    // Top-10 critical list (from frozen users)
+    var criticalHtml = '';
+    var critList = frozen.slice(0, 10);
+    if (critList.length > 0) {
+      for (var i = 0; i < critList.length; i++) {
+        var u = critList[i];
+        var badgeClass = (u.penalty_shares || 0) >= 3 ? 'badge-red' : 'badge-orange';
+        criticalHtml += '<div style="background:var(--bg);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
+          '<div><div style="font-size:12px;color:var(--text)">' + esc(u.full_name || u.username || '—') + '</div>' +
+          '<div style="font-size:10px;color:var(--muted)">' + fmtNum(u.penalty_shares || 0) + ' штраф · ' + fmtNum(u.shares_count || 0) + ' акц.</div></div>' +
+          '<span class="badge ' + badgeClass + '">❄️ -' + (u.penalty_shares || 0) + '</span></div>';
+      }
+    } else {
+      criticalHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет критичных мейкеров</div>';
+    }
+
+    // AI anomalies list
+    var anomItems = anom.items || [];
+    var anomHtml = '';
+    var sevColors = {yellow:'#EF9F27',orange:'#D85A30',red:'#E24B4A'};
+    var sevLabels = {yellow:'Жёлтый',orange:'Оранжевый',red:'Красный'};
+    var typeLabels = {views_spike:'📈 Спайк просмотров',low_engagement:'📉 Низкий ER',mass_upload:'⚡ Масс-заливка',inactive_14d:'💤 Неактивен',views_drop:'📉 Падение просм.',foreign_link:'🔗 Чужая ссылка'};
+
+    for (var a = 0; a < Math.min(anomItems.length, 5); a++) {
+      var an = anomItems[a];
+      var sC = sevColors[an.severity] || '#888';
+      var badgeTxt = an.severity === 'red' ? 'Блок' : 'На проверке';
+      var badgeCls = an.severity === 'red' ? 'badge-red' : 'badge-orange';
+      anomHtml += '<div style="background:var(--bg);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
+        '<div><div style="font-size:12px;color:var(--text)">' + esc(an.maker_name || '—') + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">' + (typeLabels[an.anomaly_type] || an.anomaly_type) + ' · ' + esc((an.description||'').substring(0,80)) + '</div></div>' +
+        '<div style="display:flex;gap:4px;align-items:center">' +
+        '<span class="badge ' + badgeCls + '">' + badgeTxt + '</span>' +
+        '<button onclick="resolveAnomaly(' + an.id + ')" style="font-size:10px;padding:2px 6px;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text)">✅</button>' +
+        '</div></div>';
+    }
+    if (anomItems.length > 5) {
+      anomHtml += '<div style="padding:8px 12px;font-size:11px;color:var(--muted);text-align:center">… ещё ' + (anom.total - 5) + ' кейсов</div>';
+    }
+    if (!anomHtml) anomHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет аномалий</div>';
+
+    // AI flags by type bars
+    var byType = anomStats.by_type || {};
+    var typeKeys = Object.keys(byType);
+    var maxType = 1;
+    for (var tk = 0; tk < typeKeys.length; tk++) { if (byType[typeKeys[tk]] > maxType) maxType = byType[typeKeys[tk]]; }
+    var typeBarsHtml = '';
+    var typeBarColors = ['var(--red)','var(--orange)','var(--purple)','var(--muted)','var(--blue)','var(--green)'];
+    for (var tb = 0; tb < typeKeys.length; tb++) {
+      var pct = Math.round(byType[typeKeys[tb]] / maxType * 100);
+      var lbl = typeLabels[typeKeys[tb]] || typeKeys[tb];
+      typeBarsHtml += '<div class="bar-row"><span style="min-width:140px;font-size:12px">' + lbl + '</span>' +
+        '<div style="flex:1;background:var(--border);border-radius:4px;height:18px;overflow:hidden">' +
+        '<div style="width:' + pct + '%;background:' + typeBarColors[tb % typeBarColors.length] + ';height:100%;border-radius:4px;min-width:2px"></div></div>' +
+        '<span style="min-width:30px;text-align:right;font-size:12px">' + byType[typeKeys[tb]] + '</span></div>';
+    }
+
+    // Penalty procedure (static — same for all, from project rules)
+    var penaltyHtml = '<div style="display:flex;flex-direction:column;gap:1px">' +
+      '<div style="background:var(--bg);padding:12px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border)">' +
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--red);min-width:28px;line-height:1">01</div>' +
+        '<div><div style="font-size:12px;color:var(--text);font-weight:700">Нет ссылок за неделю → заморозка</div>' +
+        '<div style="font-size:10px;color:var(--muted)">Авто · бот убирает ссылку из ротации, все акции заморожены, доход = 0</div></div></div>' +
+      '<div style="background:var(--bg);padding:12px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border)">' +
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--orange);min-width:28px;line-height:1">02</div>' +
+        '<div><div style="font-size:12px;color:var(--text);font-weight:700">Уведомления с альтернативами</div>' +
+        '<div style="font-size:10px;color:var(--muted)">Бот · работай сам / найми подрядчика / продай акции</div></div></div>' +
+      '<div style="background:var(--bg);padding:12px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border)">' +
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--gold);min-width:28px;line-height:1">03</div>' +
+        '<div><div style="font-size:12px;color:var(--text);font-weight:700">Каждый месяц простоя = -1 акция</div>' +
+        '<div style="font-size:10px;color:var(--muted)">Списывается с баланса безвозвратно</div></div></div>' +
+      '<div style="background:var(--bg);padding:12px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border)">' +
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--blue);min-width:28px;line-height:1">04</div>' +
+        '<div><div style="font-size:12px;color:var(--text);font-weight:700">0 акций = выход из системы</div>' +
+        '<div style="font-size:10px;color:var(--muted)">Место передаётся новому мейкеру из очереди</div></div></div>' +
+      '<div style="background:var(--bg);padding:12px;display:flex;gap:12px;align-items:flex-start">' +
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--green);min-width:28px;line-height:1">05</div>' +
+        '<div><div style="font-size:12px;color:var(--text);font-weight:700">Возврат в любой момент</div>' +
+        '<div style="font-size:10px;color:var(--muted)">Скинул ссылки → разморозка, доход восстанавливается (минус списанные)</div></div></div>' +
+    '</div>' +
+    '<div style="margin-top:12px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text)">' +
+      '⚠️ <strong>Исключение:</strong> документально подтверждённая мед. экстренная ситуация. <strong>Механика одинакова для всех</strong> — мейкеры, менеджеры, команда.</div>';
+
+    // Bugs list
+    var bugsHtml = '';
+    var bSt = {'new':'🟢 Новый','in_progress':'⏳ В работе','resolved':'✅ Решён','dismissed':'✖️ Отклонён'};
+    (bugs || []).forEach(function(b) {
+      bugsHtml += '<div style="background:var(--bg);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
+        '<div style="flex:1"><span style="font-size:12px;color:var(--text)">' + esc((b.text||'').substring(0,80)) + '</span>' + (b.escalated ? ' 🚨' : '') + '</div>' +
+        '<span style="font-size:11px;white-space:nowrap">' + (bSt[b.status] || b.status) + '</span></div>';
     });
-    let fH = '';
-    (d.frozen || []).forEach(u => {
-      fH += '<div class="list-row"><span>\u2744\ufe0f ' + u.full_name + '</span><span style="font-size:11px;color:var(--red)">-' + u.penalty_shares + ' \u0448\u0442\u0440\u0430\u0444 \u2022 ' + u.shares_count + ' \u0430\u043a\u0446.</span></div>';
-    });
-    let aH = '';
-    (anom.items || []).forEach(a => {
-      const sC = sevColors[a.severity] || '#888';
-      aH += '<div class="list-row" style="border-left:3px solid '+sC+';padding-left:8px;margin-bottom:4px">' +
-        '<div style="flex:1"><strong>' + a.maker_name + '</strong>' +
-        ' <span style="font-size:10px;padding:1px 6px;border-radius:4px;background:'+sC+'22;color:'+sC+'">' + (sevLabels[a.severity]||a.severity) + '</span>' +
-        '<br><span style="font-size:12px;color:var(--muted)">' + (typeLabels[a.anomaly_type]||a.anomaly_type) + ' \u2022 ' + (a.description||'').substring(0,100) + '</span>' +
-        '</div>' +
-        '<button onclick="resolveAnomaly('+a.id+')" style="font-size:11px;padding:2px 8px;cursor:pointer;background:var(--card-bg);border:1px solid var(--border);border-radius:4px;color:var(--text)">\u2705</button>' +
-        '</div>';
-    });
-    page.innerHTML = '<h2>\u26a0\ufe0f \u0417\u043e\u043d\u0430 \u0440\u0438\u0441\u043a\u0430</h2>' +
-      '<div class="kpi-row">' +
-      '<div class="kpi-card" style="border-top-color:var(--red)"><div class="kpi-label">\u0411\u0410\u0413\u041e\u0412</div><div class="kpi-value" style="color:var(--red)">' + (d.bugs_new + d.bugs_in_progress) + '</div></div>' +
-      '<div class="kpi-card" style="border-top-color:#EF9F27"><div class="kpi-label">\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u0419</div><div class="kpi-value" style="color:#EF9F27">' + (d.anomalies_new || 0) + '</div></div>' +
-      '<div class="kpi-card" style="border-top-color:var(--blue)"><div class="kpi-label">\u0417\u0410\u041c\u041e\u0420\u041e\u0416\u0415\u041d\u041e</div><div class="kpi-value" style="color:var(--blue)">' + d.frozen_count + '</div></div>' +
-      '<div class="kpi-card orange"><div class="kpi-label">\u0428\u0422\u0420\u0410\u0424\u041d\u0418\u041a\u0418</div><div class="kpi-value">' + d.penalty_users + '</div></div></div>' +
-      (aH ? '<div class="card"><div class="card-header">\ud83d\udd0d \u0410\u043d\u043e\u043c\u0430\u043b\u0438\u0438 (' + anom.total + ')</div>' + aH + '</div>' : '') +
+    if (!bugsHtml) bugsHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет багов</div>';
+
+    // Assemble full page
+    page.innerHTML =
+      '<div class="section-title">⚠️ Зона риска</div>' +
+      alertHtml +
+      kpiHtml +
+
+      // Row 1: Degradation funnel + Top-10 critical
       '<div class="grid-2">' +
-      '<div class="card"><div class="card-header">\ud83d\udc1b \u0411\u0430\u0433\u0438 (' + d.bugs_total + ')</div>' + (bH || '<div class="empty-state"><div class="empty-state-text">\u041d\u0435\u0442 \u0431\u0430\u0433\u043e\u0432</div></div>') + '</div>' +
-      '<div class="card"><div class="card-header">\u2744\ufe0f \u0417\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u043d\u044b\u0435 (' + d.frozen_count + ')</div>' + (fH || '<div class="empty-state"><div class="empty-state-text">\u041d\u0435\u0442 \u0437\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u043d\u044b\u0445</div></div>') + '</div></div>';
-  } catch(e) { page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\u26a0\ufe0f</div><div class="empty-state-text">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</div></div>'; }
+        '<div class="content-card">' +
+          '<h3>📉 Воронка деградации мейкеров</h3>' +
+          '<div style="display:flex;flex-direction:column;gap:10px">' +
+            buildFunnelBar('🟢 Норма (12+ вид/нед)', 'var(--green)', d.stats_normal || 0, d.stats_total || 1) +
+            buildFunnelBar('🟡 Внимание (9-11)', '#f0c040', d.stats_attention || 0, d.stats_total || 1) +
+            buildFunnelBar('🟠 Предупреждение (6-8)', 'var(--orange)', d.stats_warning || 0, d.stats_total || 1) +
+            buildFunnelBar('🔴 Критично (1-5)', 'var(--red)', d.stats_critical || 0, d.stats_total || 1) +
+            buildFunnelBar('⚫ Тишина (0)', 'var(--muted)', d.stats_silence || 0, d.stats_total || 1) +
+          '</div>' +
+          '<div style="margin-top:14px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text)">' +
+            '💡 <strong>Автотриггер:</strong> Apify парсит все 4 платформы еженедельно. Если мейкер &lt;6 видео/нед 3 недели подряд — автоматически статус "Замена".</div>' +
+        '</div>' +
+        '<div class="content-card">' +
+          '<h3>🔴 Топ-10 критичных · срочная замена</h3>' +
+          criticalHtml +
+          '<div style="margin-top:10px;padding:10px;background:rgba(248,81,73,0.1);border-left:3px solid var(--red);font-size:11px;color:var(--red)">' +
+            '⚠️ ' + fmtNum(penaltyUsers) + ' кандидатов → HR-Директор → процедура замены. Очередь: ' + fmtNum(waitlistCount) + ' человек.</div>' +
+        '</div>' +
+      '</div>' +
+
+      // Row 2: Bugs + AI anomalies
+      '<div class="grid-2">' +
+        '<div class="content-card">' +
+          '<h3>🐛 Баги <span style="font-size:12px;color:var(--muted);font-weight:400">(' + bugsTotal + ')</span></h3>' +
+          bugsHtml +
+        '</div>' +
+        '<div class="content-card">' +
+          '<h3>🤖 AI-флаги накруток <span style="font-size:12px;color:var(--muted);font-weight:400">Apify + ML · ' + fmtNum(anom.total || 0) + ' кейсов</span></h3>' +
+          anomHtml +
+          (typeBarsHtml ? '<div style="margin-top:12px">' + typeBarsHtml + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+
+      // Row 3: Frozen list + Penalty procedure
+      '<div class="grid-2">' +
+        '<div class="content-card">' +
+          '<h3>❄️ Замороженные <span style="font-size:12px;color:var(--muted);font-weight:400">(' + frozenCount + ')</span></h3>' +
+          (function(){
+            var fHtml = '';
+            (frozen || []).forEach(function(u) {
+              fHtml += '<div style="background:var(--bg);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
+                '<span style="font-size:12px">❄️ ' + esc(u.full_name || '—') + '</span>' +
+                '<span style="font-size:11px;color:var(--red)">-' + (u.penalty_shares||0) + ' штраф · ' + (u.shares_count||0) + ' акц.</span></div>';
+            });
+            return fHtml || '<div style="padding:20px;text-align:center;color:var(--muted)">Нет замороженных</div>';
+          })() +
+        '</div>' +
+        '<div class="content-card">' +
+          '<h3>📋 Процедура списания <span style="font-size:12px;color:var(--muted);font-weight:400">-1 акция/мес</span></h3>' +
+          penaltyHtml +
+        '</div>' +
+      '</div>';
+
+  } catch(e) {
+    console.error('Risk zone error:', e);
+    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">⚠️</div>Ошибка загрузки зоны риска</div>';
+  }
+}
+
+function buildFunnelBar(label, color, value, total) {
+  var pct = total > 0 ? Math.round(value / total * 100) : 0;
+  return '<div class="bar-row"><span style="min-width:180px;font-size:12px">' + label + '</span>' +
+    '<div style="flex:1;background:var(--border);border-radius:4px;height:20px;overflow:hidden">' +
+    '<div style="width:' + pct + '%;background:' + color + ';height:100%;border-radius:4px;min-width:' + (value > 0 ? '2' : '0') + 'px"></div></div>' +
+    '<span style="min-width:50px;text-align:right;font-size:12px">' + fmtNum(value) + '</span></div>';
 }
 
 async function resolveAnomaly(flagId) {
-  if(!confirm('\u0417\u0430\u043a\u0440\u044b\u0442\u044c \u0444\u043b\u0430\u0433 #' + flagId + '?')) return;
+  if(!confirm('Закрыть флаг #' + flagId + '?')) return;
   try {
-    await api('/risk-zone/anomalies/' + flagId + '/resolve', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'resolved',comment:'Closed from cabinet'})
-    });
+    await api('/risk-zone/anomalies/' + flagId + '/resolve', 'POST', {action:'resolved',comment:'Closed from cabinet'});
     await loadRiskZone();
-  } catch(e) { alert('\u041e\u0448\u0438\u0431\u043a\u0430: ' + e.message); }
+  } catch(e) { alert('Ошибка: ' + e.message); }
 }
 
 // ---------- CONTESTS ----------
@@ -2078,24 +2322,166 @@ async function loadTeamPulse() {
   try {
     const d = await api('/team-pulse');
     const rc = d.role_counts || {};
-    let rH = '';
-    const roleNames = {maker:'\u041c\u0435\u0439\u043a\u0435\u0440\u044b',hr:'HR',investor:'\u0418\u043d\u0432\u0435\u0441\u0442\u043e\u0440\u044b',blogger:'\u0411\u043b\u043e\u0433\u0435\u0440\u044b',team:'\u041a\u043e\u043c\u0430\u043d\u0434\u0430'};
-    Object.entries(rc).forEach(([role, cnt]) => {
-      rH += '<div class="list-row"><span>' + (roleNames[role]||role) + '</span><span style="font-weight:700">' + cnt + '</span></div>';
+    const regsW = d.regs_week || 0;
+    const videosW = d.videos_week || 0;
+    const activeMakers = d.active_makers || 0;
+    const totalMakers = d.total_makers || 0;
+    const actPct = d.maker_activity_pct || 0;
+    const videosM = d.videos_month || 0;
+    const kaizenM = d.kaizen_month || 0;
+    const tasksDone = d.tasks_done_month || 0;
+    const frozenCnt = d.frozen || 0;
+
+    // Pulse metrics from API (or defaults)
+    var pulseOverall = d.pulse_overall || 0;
+    var pulseSurveyPct = d.pulse_survey_pct || 0;
+    var pulseEnps = d.pulse_enps || 0;
+    var pulseStress = d.pulse_stress_pct || 0;
+    var pulseBurnout = d.pulse_burnout_count || 0;
+
+    // 5 individual metrics
+    var metrics = d.pulse_metrics || [
+      {name:'❤️ Общее состояние', score:0, color:'var(--green)', question:'Как ты себя чувствуешь в целом?'},
+      {name:'🔥 Мотивация', score:0, color:'var(--gold)', question:'Насколько ты вовлечён и хочешь работать?'},
+      {name:'🤝 Отношения в команде', score:0, color:'var(--blue)', question:'Комфортно ли общаться с коллегами?'},
+      {name:'🎯 Ясность задач', score:0, color:'var(--orange)', question:'Понятно ли что от тебя ожидают?'},
+      {name:'⚖️ Нагрузка', score:0, color:'#f0c040', question:'Комфортен ли объём задач?'}
+    ];
+
+    // Department pulse
+    var deptPulse = d.department_pulse || [];
+    var deptBarsHtml = '';
+    var deptBarColors = ['var(--gold)','var(--green)','var(--blue)','var(--purple)','var(--orange)','#f0c040','var(--muted)'];
+    for (var dp = 0; dp < deptPulse.length; dp++) {
+      var dept = deptPulse[dp];
+      var pct = Math.round((dept.score || 0) * 10);
+      deptBarsHtml += '<div class="bar-row"><span style="min-width:150px;font-size:12px">' + esc(dept.name || '—') + '</span>' +
+        '<div style="flex:1;background:var(--border);border-radius:4px;height:18px;overflow:hidden">' +
+        '<div style="width:' + pct + '%;background:' + deptBarColors[dp % deptBarColors.length] + ';height:100%;border-radius:4px;min-width:' + (pct > 0 ? '2' : '0') + 'px"></div></div>' +
+        '<span style="min-width:40px;text-align:right;font-size:12px">' + (dept.score || 0).toFixed(1) + '</span></div>';
+    }
+    if (!deptBarsHtml) deptBarsHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет данных по отделам</div>';
+
+    // Burnout risk list
+    var burnout = d.burnout_risk || [];
+    var burnoutHtml = '';
+    for (var br = 0; br < burnout.length; br++) {
+      var b = burnout[br];
+      var bCls = b.level === 'critical' ? 'badge-red' : 'badge-orange';
+      var bLbl = b.level === 'critical' ? 'Критично' : 'Внимание';
+      burnoutHtml += '<div style="background:var(--bg);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
+        '<div><div style="font-size:12px;color:var(--text)">' + esc(b.name || '—') + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">' + esc(b.department || '') + ' · ' + esc(b.reason || '') + '</div></div>' +
+        '<span class="badge ' + bCls + '">' + bLbl + '</span></div>';
+    }
+    if (!burnoutHtml) burnoutHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет рисков выгорания</div>';
+
+    // eNPS breakdown
+    var enpsPromoters = d.enps_promoters || 0;
+    var enpsNeutral = d.enps_neutral || 0;
+    var enpsCritics = d.enps_critics || 0;
+
+    // Anonymous quotes
+    var quotes = d.anonymous_quotes || [];
+    var quotesHtml = '';
+    var quoteColors = ['var(--green)','var(--green)','var(--orange)','var(--orange)','var(--red)'];
+    for (var q = 0; q < quotes.length; q++) {
+      var qt = quotes[q];
+      var qColor = quoteColors[q % quoteColors.length];
+      quotesHtml += '<div style="background:var(--bg);padding:12px;border-left:3px solid ' + qColor + ';margin-bottom:8px;border-radius:0 6px 6px 0">' +
+        '<div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:6px">"' + esc(qt.text || '') + '"</div>' +
+        '<div style="font-size:10px;color:var(--muted)">' + esc(qt.role || '') + ' · ' + esc(qt.metric || '') + '</div></div>';
+    }
+    if (!quotesHtml) quotesHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет отзывов</div>';
+
+    // Role distribution
+    var roleNames = {maker:'Мейкеры',hr:'HR',investor:'Инвесторы',blogger:'Блогеры',team:'Команда',admin:'Админ'};
+    var rH = '';
+    Object.entries(rc).forEach(function(e) {
+      rH += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span>' + (roleNames[e[0]]||e[0]) + '</span><span style="font-weight:700">' + e[1] + '</span></div>';
     });
-    page.innerHTML = '<h2>\ud83d\udcc8 \u041f\u0443\u043b\u044c\u0441 \u043a\u043e\u043c\u0430\u043d\u0434\u044b</h2>' +
+
+    // Metrics progress bars
+    var metricsHtml = '';
+    for (var m = 0; m < metrics.length; m++) {
+      var mt = metrics[m];
+      var sc = mt.score || 0;
+      var scPct = Math.round(sc * 10);
+      var scColor = sc >= 8 ? 'var(--green)' : sc >= 7 ? 'var(--gold)' : 'var(--orange)';
+      metricsHtml += '<div style="margin-bottom:14px">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px">' +
+        '<span style="color:var(--text)">' + mt.name + '</span>' +
+        '<span style="color:' + scColor + ';font-weight:700">' + sc.toFixed(1) + ' / 10</span></div>' +
+        '<div style="background:var(--border);height:8px;border-radius:4px;overflow:hidden">' +
+        '<div style="width:' + scPct + '%;background:' + (mt.color || scColor) + ';height:100%;border-radius:4px"></div></div>' +
+        '<div style="font-size:10px;color:var(--muted);margin-top:3px">' + (mt.question || '') + '</div></div>';
+    }
+
+    // Assemble
+    page.innerHTML =
+      '<div class="section-title">❤️ Пульс команды</div>' +
+      '<div class="alert alert-info" style="margin-bottom:16px">' +
+        '<strong>❤️ Пульс команды</strong> · еженедельный анонимный опрос через Telegram-бот · 5 метрик: мотивация, нагрузка, ясность задач, отношения, общее состояние</div>' +
+
+      // 5 KPI
       '<div class="kpi-row">' +
-      '<div class="kpi-card green"><div class="kpi-label">\u0420\u0415\u0413\u0418\u0421\u0422\u0420. / \u041d\u0415\u0414.</div><div class="kpi-value">' + d.regs_week + '</div></div>' +
-      '<div class="kpi-card blue"><div class="kpi-label">\u0412\u0418\u0414\u0415\u041e / \u041d\u0415\u0414.</div><div class="kpi-value">' + d.videos_week + '</div></div>' +
-      '<div class="kpi-card gold"><div class="kpi-label">\u0410\u041a\u0422\u0418\u0412\u041d. \u041c\u0415\u0419\u041a.</div><div class="kpi-value">' + d.active_makers + '/' + d.total_makers + '</div></div>' +
-      '<div class="kpi-card"><div class="kpi-label">\u0410\u041a\u0422\u0418\u0412\u041d\u041e\u0421\u0422\u042c</div><div class="kpi-value">' + d.maker_activity_pct + '%</div></div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--green)"><div class="stat-label">Общий пульс</div><div class="stat-value" style="color:var(--green)">' + (pulseOverall ? pulseOverall.toFixed(1) : '0') + ' / 10</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--gold)"><div class="stat-label">Участие в опросе</div><div class="stat-value gold">' + pulseSurveyPct + '%</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--blue)"><div class="stat-label">eNPS</div><div class="stat-value" style="color:var(--blue)">+' + pulseEnps + '</div><div class="stat-sub">&gt;50 = хорошо</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--orange)"><div class="stat-label">Под стрессом</div><div class="stat-value" style="color:var(--orange)">' + pulseStress + '%</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--purple)"><div class="stat-label">Выгорание (риск)</div><div class="stat-value" style="color:var(--purple)">' + pulseBurnout + '</div><div class="stat-sub">требуют внимания</div></div>' +
+      '</div>' +
+
+      // Operational KPIs row
       '<div class="kpi-row">' +
-      '<div class="kpi-card"><div class="kpi-label">\u0412\u0418\u0414\u0415\u041e / \u041c\u0415\u0421.</div><div class="kpi-value">' + d.videos_month + '</div></div>' +
-      '<div class="kpi-card"><div class="kpi-label">\u041a\u0410\u0419\u0414\u0417\u0415\u041d / \u041c\u0415\u0421.</div><div class="kpi-value">' + d.kaizen_month + '</div></div>' +
-      '<div class="kpi-card green"><div class="kpi-label">\u0417\u0410\u0414\u0410\u0427\u0418 \u0413\u041e\u0422\u041e\u0412\u041e</div><div class="kpi-value">' + d.tasks_done_month + '</div></div>' +
-      '<div class="kpi-card" style="border-top-color:var(--red)"><div class="kpi-label">\u0417\u0410\u041c\u041e\u0420\u041e\u0416\u0415\u041d\u041e</div><div class="kpi-value" style="color:var(--red)">' + d.frozen + '</div></div></div>' +
-      '<div class="card"><div class="card-header">\ud83d\udc65 \u0420\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u0438\u0435 \u0440\u043e\u043b\u0435\u0439</div>' + rH + '</div>';
-  } catch(e) { page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\ud83d\udcc8</div><div class="empty-state-text">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</div></div>'; }
+        '<div class="kpi-card"><div class="stat-label">Регистр. / нед.</div><div class="stat-value green">' + regsW + '</div></div>' +
+        '<div class="kpi-card"><div class="stat-label">Видео / нед.</div><div class="stat-value blue">' + videosW + '</div></div>' +
+        '<div class="kpi-card"><div class="stat-label">Активн. мейк.</div><div class="stat-value gold">' + activeMakers + '/' + totalMakers + '</div></div>' +
+        '<div class="kpi-card"><div class="stat-label">Активность</div><div class="stat-value">' + actPct + '%</div></div>' +
+        '<div class="kpi-card"><div class="stat-label">Кайдзен / мес.</div><div class="stat-value">' + kaizenM + '</div></div>' +
+        '<div class="kpi-card"><div class="stat-label">Задачи готово</div><div class="stat-value green">' + tasksDone + '</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--red)"><div class="stat-label">Заморожено</div><div class="stat-value" style="color:var(--red)">' + frozenCnt + '</div></div>' +
+      '</div>' +
+
+      // Row 1: 5 pulse metrics + Role distribution
+      '<div class="grid-2">' +
+        '<div class="content-card"><h3>📊 5 метрик пульса</h3>' + metricsHtml + '</div>' +
+        '<div class="content-card"><h3>👥 Распределение ролей</h3>' + rH + '</div>' +
+      '</div>' +
+
+      // Row 2: Department pulse + Burnout risk
+      '<div class="grid-2">' +
+        '<div class="content-card"><h3>🏢 Пульс по отделам</h3>' + deptBarsHtml + '</div>' +
+        '<div class="content-card"><h3>🔥 Риск выгорания <span style="font-size:12px;color:var(--muted);font-weight:400">' + burnout.length + ' человек</span></h3>' + burnoutHtml + '</div>' +
+      '</div>' +
+
+      // Row 3: eNPS + Anonymous quotes
+      '<div class="grid-2">' +
+        '<div class="content-card">' +
+          '<h3>📣 eNPS · «Порекомендуешь нашу команду друзьям?»</h3>' +
+          '<div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">' +
+            '<div style="text-align:center">' +
+              '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:48px;color:var(--green);line-height:1">+' + pulseEnps + '</div>' +
+              '<div style="font-size:10px;color:var(--muted)">eNPS</div></div>' +
+            '<div style="flex:1;display:flex;flex-direction:column;gap:8px">' +
+              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--green)">😍 Промоутеры (9-10)</span><span style="color:var(--green)">' + enpsPromoters + '%</span></div>' +
+                '<div style="background:var(--border);height:6px;border-radius:3px;overflow:hidden"><div style="width:' + enpsPromoters + '%;background:var(--green);height:100%;border-radius:3px"></div></div></div>' +
+              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--muted)">😐 Нейтральные (7-8)</span><span style="color:var(--muted)">' + enpsNeutral + '%</span></div>' +
+                '<div style="background:var(--border);height:6px;border-radius:3px;overflow:hidden"><div style="width:' + enpsNeutral + '%;background:var(--muted);height:100%;border-radius:3px"></div></div></div>' +
+              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--red)">😠 Критики (0-6)</span><span style="color:var(--red)">' + enpsCritics + '%</span></div>' +
+                '<div style="background:var(--border);height:6px;border-radius:3px;overflow:hidden"><div style="width:' + enpsCritics + '%;background:var(--red);height:100%;border-radius:3px"></div></div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--muted)">' +
+            'eNPS = % промоутеров − % критиков. Норма для tech-компании: +30 и выше.</div>' +
+        '</div>' +
+        '<div class="content-card"><h3>💬 Анонимные отзывы команды</h3>' + quotesHtml + '</div>' +
+      '</div>';
+
+  } catch(e) {
+    console.error('Team pulse error:', e);
+    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">❤️</div>Ошибка загрузки пульса команды</div>';
+  }
 }
 
 // ---------- PAIN POINTS ----------
@@ -2103,27 +2489,139 @@ async function loadPainPoints() {
   const page = document.getElementById('page-pain-points');
   try {
     const d = await api('/pain-points');
-    const typeIcons = {kaizen:'\ud83d\udca1',violation:'\ud83d\udea8',bug:'\ud83d\udc1b'};
-    const typeNames = {kaizen:'\u041a\u0430\u0439\u0434\u0437\u0435\u043d',violation:'\u0416\u0430\u043b\u043e\u0431\u0430',bug:'\u0411\u0430\u0433'};
-    const catNames = {process:'\u041f\u0440\u043e\u0446\u0435\u0441\u0441\u044b',content:'\u041a\u043e\u043d\u0442\u0435\u043d\u0442',tech:'\u0422\u0435\u0445\u043d\u043e\u043b\u043e\u0433\u0438\u0438',other:'\u041f\u0440\u043e\u0447\u0435\u0435'};
-    let cH = '';
-    Object.entries(d.kaizen_by_category||{}).forEach(([cat,cnt]) => {
-      cH += '<div class="list-row"><span>' + (catNames[cat]||cat) + '</span><span style="font-weight:700">' + cnt + '</span></div>';
-    });
-    let fH = '';
-    (d.feed || []).forEach(f => {
-      fH += '<div class="list-row" style="border-left:3px solid ' + (f.type==='violation'?'var(--red)':f.type==='bug'?'#EF9F27':'var(--blue)') + ';padding-left:8px"><div style="flex:1"><strong>' + (typeIcons[f.type]||'') + ' ' + (typeNames[f.type]||f.type) + '</strong> — ' + f.author + '<br><span style="font-size:12px;color:var(--muted)">' + (f.text||'') + '</span></div><span style="font-size:10px;color:var(--muted)">' + (f.created_at ? new Date(f.created_at).toLocaleDateString('ru-RU') : '') + '</span></div>';
-    });
-    page.innerHTML = '<h2>\ud83d\udd0d \u0411\u043e\u043b\u0438 \u0438 \u043f\u043e\u0442\u0440\u0435\u0431\u043d\u043e\u0441\u0442\u0438</h2>' +
+    const totalOpen = d.total_open || 0;
+    const typeIcons = {kaizen:'💡',violation:'🚨',bug:'🐛'};
+    const typeNames = {kaizen:'Кайдзен',violation:'Жалоба',bug:'Баг'};
+    const catNames = {process:'Процессы',content:'Контент',tech:'Технологии',other:'Прочее'};
+
+    // Counts from API
+    var kaizenByStatus = d.kaizen_by_status || {};
+    var violationByStatus = d.violation_by_status || {};
+    var bugByStatus = d.bug_by_status || {};
+    var kaizenByCat = d.kaizen_by_category || {};
+    var feed = d.feed || [];
+
+    // Separate feed into categories
+    var critical = feed.filter(function(f){return f.priority === 'critical' || f.type === 'violation';});
+    var important = feed.filter(function(f){return f.priority === 'important' || (f.priority !== 'critical' && f.type !== 'violation' && f.status !== 'resolved');});
+    var resolved = feed.filter(function(f){return f.status === 'resolved' || f.status === 'dismissed';});
+
+    // KPIs
+    var resolvedCount = (kaizenByStatus.implemented || 0) + (violationByStatus.resolved || 0) + (bugByStatus.resolved || 0);
+    var totalAll = totalOpen + resolvedCount;
+    var resolvedPct = totalAll > 0 ? Math.round(resolvedCount / totalAll * 100) : 0;
+
+    // Critical pain cards
+    var criticalHtml = '';
+    for (var c = 0; c < critical.length; c++) {
+      var item = critical[c];
+      var typeTag = typeNames[item.type] || item.type || '—';
+      criticalHtml += '<div style="background:var(--bg);padding:14px;border-left:3px solid var(--red);margin-bottom:1px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
+          '<div style="font-size:12px;color:var(--text);font-weight:700">' + esc((item.text || '').substring(0, 100)) + '</div>' +
+          '<span class="badge badge-red">' + typeTag + '</span></div>' +
+        '<div style="font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:8px">' + esc(item.author || '—') + ' · ' + (item.created_at ? new Date(item.created_at).toLocaleDateString('ru-RU') : '—') + '</div>' +
+      '</div>';
+    }
+    if (!criticalHtml) criticalHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет критичных болей</div>';
+
+    // Impact/Urgency matrix
+    var matrixHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px;height:260px">' +
+      '<div style="background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);padding:12px;display:flex;flex-direction:column;border-radius:6px">' +
+        '<div style="font-size:9px;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">🔴 Сделать сейчас</div>' +
+        '<div style="font-size:11px;color:var(--text);line-height:1.7">' + buildMatrixList(critical.slice(0,4)) + '</div></div>' +
+      '<div style="background:rgba(212,168,67,0.06);border:1px solid rgba(212,168,67,0.2);padding:12px;display:flex;flex-direction:column;border-radius:6px">' +
+        '<div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">🟡 Запланировать</div>' +
+        '<div style="font-size:11px;color:var(--text);line-height:1.7">' + buildMatrixList(important.slice(0,4)) + '</div></div>' +
+      '<div style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.2);padding:12px;display:flex;flex-direction:column;border-radius:6px">' +
+        '<div style="font-size:9px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">🔵 Делегировать</div>' +
+        '<div style="font-size:11px;color:var(--text);line-height:1.7">' + buildMatrixList(important.slice(4,8)) + '</div></div>' +
+      '<div style="background:var(--bg);border:1px solid var(--border);padding:12px;display:flex;flex-direction:column;border-radius:6px">' +
+        '<div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">⚫ Вернуться позже</div>' +
+        '<div style="font-size:11px;color:var(--text);line-height:1.7">' + buildMatrixList(important.slice(8,12)) + '</div></div>' +
+    '</div>';
+
+    // Important pains list
+    var importantHtml = '';
+    for (var ip = 0; ip < important.length; ip++) {
+      var it = important[ip];
+      var tIcon = typeIcons[it.type] || '📌';
+      var catLbl = catNames[it.category] || it.category || '—';
+      importantHtml += '<div style="background:var(--bg);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
+        '<div style="flex:1"><div style="font-size:12px;color:var(--text)">' + tIcon + ' ' + esc((it.text || '').substring(0, 80)) + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">' + esc(it.author || '') + '</div></div>' +
+        '<span class="badge badge-orange">' + catLbl + '</span></div>';
+    }
+    if (!importantHtml) importantHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет важных болей</div>';
+
+    // Resolved pains list
+    var resolvedHtml = '';
+    for (var r = 0; r < resolved.length; r++) {
+      var rv = resolved[r];
+      resolvedHtml += '<div style="background:var(--bg);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
+        '<div style="flex:1"><div style="font-size:12px;color:var(--text);text-decoration:line-through;opacity:0.6">' + esc((rv.text || '').substring(0, 80)) + '</div>' +
+        '<div style="font-size:10px;color:var(--green)">✅ ' + esc(rv.author || '') + '</div></div>' +
+        '<span class="badge badge-green">Решено</span></div>';
+    }
+    if (!resolvedHtml) resolvedHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет решённых болей</div>';
+
+    // Kaizen by category bars
+    var catKeys = Object.keys(kaizenByCat);
+    var maxCat = 1;
+    for (var ck = 0; ck < catKeys.length; ck++) { if (kaizenByCat[catKeys[ck]] > maxCat) maxCat = kaizenByCat[catKeys[ck]]; }
+    var catBarsHtml = '';
+    var catColors = ['var(--blue)','var(--gold)','var(--green)','var(--muted)'];
+    for (var cb = 0; cb < catKeys.length; cb++) {
+      var pct = Math.round(kaizenByCat[catKeys[cb]] / maxCat * 100);
+      catBarsHtml += '<div class="bar-row"><span style="min-width:100px;font-size:12px">' + (catNames[catKeys[cb]]||catKeys[cb]) + '</span>' +
+        '<div style="flex:1;background:var(--border);border-radius:4px;height:18px;overflow:hidden">' +
+        '<div style="width:' + pct + '%;background:' + catColors[cb % catColors.length] + ';height:100%;border-radius:4px;min-width:2px"></div></div>' +
+        '<span style="min-width:30px;text-align:right;font-size:12px">' + kaizenByCat[catKeys[cb]] + '</span></div>';
+    }
+
+    // Assemble
+    page.innerHTML =
+      '<div class="section-title">🧠 Боли и потребности</div>' +
+      '<div class="alert alert-info" style="margin-bottom:16px">' +
+        '<strong>🧠 Боли и потребности</strong> · агрегируем сигналы из Пульса, Кайдзена, Зоны риска и Support · приоритизируем по влиянию</div>' +
+
+      // 5 KPI
       '<div class="kpi-row">' +
-      '<div class="kpi-card" style="border-top-color:var(--red)"><div class="kpi-label">\u041e\u0422\u041a\u0420\u042b\u0422\u041e</div><div class="kpi-value" style="color:var(--red)">' + d.total_open + '</div></div>' +
-      '<div class="kpi-card blue"><div class="kpi-label">\u041a\u0410\u0419\u0414\u0417\u0415\u041d</div><div class="kpi-value">' + ((d.kaizen_by_status||{}).new||0) + '</div></div>' +
-      '<div class="kpi-card" style="border-top-color:#EF9F27"><div class="kpi-label">\u0416\u0410\u041b\u041e\u0411\u042b</div><div class="kpi-value">' + ((d.violation_by_status||{}).new||0) + '</div></div>' +
-      '<div class="kpi-card"><div class="kpi-label">\u0411\u0410\u0413\u0418</div><div class="kpi-value">' + ((d.bug_by_status||{}).new||0) + '</div></div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--red)"><div class="stat-label">Критичных</div><div class="stat-value" style="color:var(--red)">' + critical.length + '</div><div class="stat-sub">требуют решения сейчас</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--orange)"><div class="stat-label">Важных</div><div class="stat-value" style="color:var(--orange)">' + important.length + '</div><div class="stat-sub">в очереди</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--blue)"><div class="stat-label">Решено</div><div class="stat-value" style="color:var(--blue)">' + resolvedCount + '</div><div class="stat-sub">закрыто</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--green)"><div class="stat-label">% решённых</div><div class="stat-value" style="color:var(--green)">' + resolvedPct + '%</div><div class="stat-sub">от всех за квартал</div></div>' +
+        '<div class="kpi-card" style="border-top:3px solid var(--purple)"><div class="stat-label">Источников</div><div class="stat-value" style="color:var(--purple)">4</div><div class="stat-sub">Пульс · Кайдзен · Риск · Support</div></div>' +
+      '</div>' +
+
+      // Row 1: Critical pains + Matrix
       '<div class="grid-2">' +
-      '<div class="card"><div class="card-header">\ud83d\udcca \u041a\u0430\u0439\u0434\u0437\u0435\u043d \u043f\u043e \u043a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f\u043c</div>' + (cH || '<div class="empty-state"><div class="empty-state-text">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</div></div>') + '</div>' +
-      '<div class="card"><div class="card-header">\ud83d\udcc5 \u041b\u0435\u043d\u0442\u0430 \u043e\u0431\u0440\u0430\u0442\u043d\u043e\u0439 \u0441\u0432\u044f\u0437\u0438</div>' + (fH || '<div class="empty-state"><div class="empty-state-text">\u041d\u0435\u0442 \u043e\u0442\u043a\u0440\u044b\u0442\u044b\u0445</div></div>') + '</div></div>';
-  } catch(e) { page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\ud83d\udd0d</div><div class="empty-state-text">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</div></div>'; }
+        '<div class="content-card"><h3>🔴 Критичные боли</h3>' + criticalHtml + '</div>' +
+        '<div class="content-card"><h3>📊 Матрица болей · влияние vs срочность</h3>' + matrixHtml + '</div>' +
+      '</div>' +
+
+      // Row 2: Important pains + Resolved
+      '<div class="grid-2">' +
+        '<div class="content-card"><h3>🟠 Важные боли <span style="font-size:12px;color:var(--muted);font-weight:400">' + important.length + ' шт</span></h3>' + importantHtml + '</div>' +
+        '<div class="content-card"><h3>✅ Решено <span style="font-size:12px;color:var(--muted);font-weight:400">' + resolved.length + ' закрытых</span></h3>' + resolvedHtml + '</div>' +
+      '</div>' +
+
+      // Kaizen by category
+      (catBarsHtml ? '<div class="content-card"><h3>📊 Кайдзен по категориям</h3>' + catBarsHtml + '</div>' : '');
+
+  } catch(e) {
+    console.error('Pain points error:', e);
+    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">🧠</div>Ошибка загрузки болей</div>';
+  }
+}
+
+function buildMatrixList(items) {
+  if (!items || items.length === 0) return '<span style="color:var(--muted)">—</span>';
+  var html = '';
+  for (var i = 0; i < items.length; i++) {
+    html += '• ' + esc((items[i].text || '').substring(0, 40)) + '<br>';
+  }
+  return html;
 }
 
 // ---------- SETTINGS ----------
