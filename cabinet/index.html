@@ -2711,12 +2711,12 @@ async function loadAdminMakers() {
         <table class="data-table">
           <thead><tr><th>#</th><th>Мейкер</th><th>Видео</th><th>Просм.</th></tr></thead>
           <tbody>
-            ${topMakers.slice(0,10).map((m,i) => \`<tr>
-              <td style="color:\${i<3?'var(--gold)':'var(--muted)'};">\${i+1}</td>
-              <td style="color:var(--text);">\${esc(m.display_name||m.username||'—')}</td>
-              <td>\${m.videos_count||0}</td>
-              <td style="color:var(--green);">\${fmtNum(m.total_views||0)}</td>
-            </tr>\`).join('') || '<tr><td colspan="4" style="color:var(--muted);text-align:center;">Нет данных</td></tr>'}
+            ${topMakers.slice(0,10).map((m,i) => `<tr>
+              <td style="color:${i<3?'var(--gold)':'var(--muted)'};">${i+1}</td>
+              <td style="color:var(--text);">${esc(m.display_name||m.username||'—')}</td>
+              <td>${m.videos_count||0}</td>
+              <td style="color:var(--green);">${fmtNum(m.total_views||0)}</td>
+            </tr>`).join('') || '<tr><td colspan="4" style="color:var(--muted);text-align:center;">Нет данных</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -2767,15 +2767,15 @@ function buildProductivityBars(d) {
   const critical = d.productivity_critical || 0;
   const silent = d.productivity_silent || 0;
   const total = stars+stable+lagging+critical+silent || 1;
-  return \`<div style="display:flex;flex-direction:column;gap:8px;">
-    \${[
+  return `<div style="display:flex;flex-direction:column;gap:8px;">
+    ${[
       {label:'🔥 Звёзды (15+)',val:stars,color:'var(--gold)'},
       {label:'💪 Стабильные (12-14)',val:stable,color:'var(--green)'},
       {label:'⚠️ Отстают (9-11)',val:lagging,color:'var(--orange)'},
       {label:'🆘 Критично (<9)',val:critical,color:'var(--red)'},
       {label:'⏸️ Тишина (0)',val:silent,color:'var(--muted)'}
-    ].map(r => \`<div class="bar-row"><div class="bar-label" style="min-width:140px;font-size:11px;">\${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:\${(r.val/total*100).toFixed(1)}%;background:\${r.color};"></div></div><div style="min-width:50px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">\${fmtNum(r.val)}</div></div>\`).join('')}
-  </div>\`;
+    ].map(r => `<div class="bar-row"><div class="bar-label" style="min-width:140px;font-size:11px;">${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:${(r.val/total*100).toFixed(1)}%;background:${r.color};"></div></div><div style="min-width:50px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">${fmtNum(r.val)}</div></div>`).join('')}
+  </div>`;
 }
 
 function buildPlatformBars(d) {
@@ -2784,14 +2784,14 @@ function buildPlatformBars(d) {
   const ig = d.platform_instagram || 0;
   const fb = d.platform_facebook || 0;
   const mx = Math.max(yt,tt,ig,fb) || 1;
-  return \`<div style="display:flex;flex-direction:column;gap:8px;">
-    \${[
+  return `<div style="display:flex;flex-direction:column;gap:8px;">
+    ${[
       {label:'▶️ YouTube',val:yt,color:'var(--red)'},
       {label:'🎵 TikTok',val:tt,color:'var(--purple)'},
       {label:'📸 Instagram',val:ig,color:'var(--orange)'},
       {label:'📘 Facebook',val:fb,color:'var(--blue)'}
-    ].map(r => \`<div class="bar-row"><div class="bar-label" style="min-width:110px;font-size:11px;">\${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:\${(r.val/mx*100).toFixed(1)}%;background:\${r.color};"></div></div><div style="min-width:50px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">\${fmtNum(r.val)}</div></div>\`).join('')}
-  </div>\`;
+    ].map(r => `<div class="bar-row"><div class="bar-label" style="min-width:110px;font-size:11px;">${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:${(r.val/mx*100).toFixed(1)}%;background:${r.color};"></div></div><div style="min-width:50px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">${fmtNum(r.val)}</div></div>`).join('')}
+  </div>`;
 }
 
 // ========== ADMIN HR (Section 7) ==========
@@ -2807,33 +2807,33 @@ async function loadAdminHR() {
   let hrList = [];
   try { const r = await api('/admin/users?role=hr&limit=50&sort=performance'); hrList = r.users || r || []; } catch(e) {}
 
-  page.innerHTML = \`
+  page.innerHTML = `
     <div class="alert" style="background:rgba(88,166,255,0.08);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
-      <strong style="color:var(--text);">🤝 \${fmtNum(hrTotal)} HR-менеджеров</strong> · по 100 мейкеров на каждого · KPI: % активных мейкеров, средние видео/нед, отток
+      <strong style="color:var(--text);">🤝 ${fmtNum(hrTotal)} HR-менеджеров</strong> · по 100 мейкеров на каждого · KPI: % активных мейкеров, средние видео/нед, отток
     </div>
 
     <div class="kpi-row">
       <div class="kpi-card" style="border-top:3px solid var(--gold);">
         <div class="kpi-label">Всего HR</div>
-        <div class="kpi-value" style="color:var(--gold);">\${fmtNum(hrTotal)}</div>
+        <div class="kpi-value" style="color:var(--gold);">${fmtNum(hrTotal)}</div>
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--green);">
         <div class="kpi-label">Топ-перформеры</div>
-        <div class="kpi-value" style="color:var(--green);">\${hrTop}</div>
+        <div class="kpi-value" style="color:var(--green);">${hrTop}</div>
         <div style="font-size:11px;color:var(--green);">↑ >95% активных</div>
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--blue);">
         <div class="kpi-label">Средний % активных</div>
-        <div class="kpi-value" style="color:var(--blue);">\${avgActive}%</div>
+        <div class="kpi-value" style="color:var(--blue);">${avgActive}%</div>
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--orange);">
         <div class="kpi-label">Под наблюдением</div>
-        <div class="kpi-value" style="color:var(--orange);">\${hrWatch}</div>
+        <div class="kpi-value" style="color:var(--orange);">${hrWatch}</div>
         <div style="font-size:11px;color:var(--orange);">↓ <75% активных</div>
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--purple);">
         <div class="kpi-label">Средняя зарплата</div>
-        <div class="kpi-value" style="color:var(--purple);">$\${fmtNum(d.hr_avg_salary||0)}</div>
+        <div class="kpi-value" style="color:var(--purple);">$${fmtNum(d.hr_avg_salary||0)}</div>
         <div style="font-size:11px;color:var(--muted);">/мес + бонусы</div>
       </div>
     </div>
@@ -2843,7 +2843,7 @@ async function loadAdminHR() {
       <table class="data-table">
         <thead><tr><th>#</th><th>HR-менеджер</th><th>Группа</th><th>Активны</th><th>Ср. видео/нед</th><th>Отток</th><th>Статус</th></tr></thead>
         <tbody>
-          \${hrList.length ? hrList.map((h,i) => {
+          ${hrList.length ? hrList.map((h,i) => {
             const pct = h.active_pct || 0;
             const pctColor = pct >= 90 ? 'var(--green)' : pct >= 75 ? 'var(--orange)' : 'var(--red)';
             const status = pct >= 95 ? '<span class="badge" style="background:rgba(212,168,67,0.15);color:var(--gold);">⭐ Звезда</span>' :
@@ -2852,15 +2852,15 @@ async function loadAdminHR() {
                            pct >= 75 ? '<span class="badge" style="background:rgba(210,153,34,0.15);color:var(--orange);">⚠️ Внимание</span>' :
                            pct >= 65 ? '<span class="badge" style="background:rgba(248,81,73,0.15);color:var(--red);">PIP</span>' :
                            '<span class="badge" style="background:rgba(248,81,73,0.15);color:var(--red);">Замена</span>';
-            return \`<tr>
-              <td style="color:\${i<3?'var(--gold)':'var(--muted)'};">\${i+1}</td>
-              <td style="color:var(--text);">\${esc(h.display_name||h.username||'—')}</td>
-              <td>\${h.group_size||0}</td>
-              <td style="color:\${pctColor};font-weight:700;">\${pct}%</td>
-              <td>\${(h.avg_videos_week||0).toFixed(1)}</td>
-              <td style="color:\${(h.churn_pct||0)>8?'var(--red)':'var(--green)'};">\${h.churn_pct||0}%</td>
-              <td>\${status}</td>
-            </tr>\`;
+            return `<tr>
+              <td style="color:${i<3?'var(--gold)':'var(--muted)'};">${i+1}</td>
+              <td style="color:var(--text);">${esc(h.display_name||h.username||'—')}</td>
+              <td>${h.group_size||0}</td>
+              <td style="color:${pctColor};font-weight:700;">${pct}%</td>
+              <td>${(h.avg_videos_week||0).toFixed(1)}</td>
+              <td style="color:${(h.churn_pct||0)>8?'var(--red)':'var(--green)'};">${h.churn_pct||0}%</td>
+              <td>${status}</td>
+            </tr>`;
           }).join('') : '<tr><td colspan="7" style="color:var(--muted);text-align:center;">Нет HR-менеджеров</td></tr>'}
         </tbody>
       </table>
@@ -2873,33 +2873,33 @@ async function loadAdminHR() {
       <div class="content-card">
         <h3 style="color:var(--gold);margin:0 0 14px;">📊 Распределение HR по эффективности</h3>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          \${[
+          ${[
             {label:'⭐ Звёзды (95%+)',val:d.hr_stars||0,color:'var(--gold)'},
             {label:'💎 Топ (90-94%)',val:d.hr_top||0,color:'var(--green)'},
             {label:'✅ Норма (85-89%)',val:d.hr_normal||0,color:'var(--blue)'},
             {label:'⚠️ Слабые (75-84%)',val:d.hr_weak||0,color:'var(--orange)'},
             {label:'🆘 PIP (65-74%)',val:d.hr_pip||0,color:'var(--red)'},
             {label:'❌ Замена (<65%)',val:d.hr_replace||0,color:'var(--muted)'}
-          ].map(r => \`<div class="bar-row"><div class="bar-label" style="min-width:150px;font-size:11px;">\${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:\${Math.max((r.val/(\${hrTotal}||1)*100),2)}%;background:\${r.color};"></div></div><div style="min-width:30px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">\${r.val}</div></div>\`).join('')}
+          ].map(r => `<div class="bar-row"><div class="bar-label" style="min-width:150px;font-size:11px;">${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:${Math.max((r.val/(hrTotal||1)*100),2)}%;background:${r.color};"></div></div><div style="min-width:30px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">${r.val}</div></div>`).join('')}
         </div>
       </div>
 
       <div class="content-card">
         <h3 style="color:var(--gold);margin:0 0 14px;">🎯 KPI HR-отдела</h3>
         <div style="display:flex;flex-direction:column;gap:14px;">
-          \${[
+          ${[
             {label:'% активных мейкеров (план: 90%)',val:avgActive,color:'var(--green)'},
             {label:'Выполнение плана (12 видео/нед)',val:d.hr_plan_pct||0,color:'var(--green)'},
             {label:'Найм за месяц',val:d.hr_hired_pct||0,color:'var(--gold)'},
             {label:'Удержание',val:d.hr_retention||0,color:'var(--green)'}
-          ].map(r => \`<div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;"><span style="color:var(--muted);">\${r.label}</span><span style="color:\${r.color};font-weight:700;">\${r.val}%</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width:\${Math.min(r.val,100)}%;background:\${r.color};"></div></div>
-          </div>\`).join('')}
+          ].map(r => `<div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;"><span style="color:var(--muted);">${r.label}</span><span style="color:${r.color};font-weight:700;">${r.val}%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.min(r.val,100)}%;background:${r.color};"></div></div>
+          </div>`).join('')}
         </div>
       </div>
     </div>
-  \`;
+  `;
 }
 
 // ========== ADMIN SHARES (Section 11) ==========
@@ -2915,7 +2915,7 @@ async function loadAdminShares() {
   let topHolders = [];
   try { const r = await api('/shares/top?limit=15'); topHolders = r.top || r || []; } catch(e) {}
 
-  page.innerHTML = \`
+  page.innerHTML = `
     <div class="alert" style="background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
       <strong style="color:var(--gold);">💎 100 000 акций · 6 категорий</strong> · Цена: $5K → $80K · Доход 1 акции: $127 → $2 036/мес · Капитализация к 2030: $8B
     </div>
@@ -2927,8 +2927,8 @@ async function loadAdminShares() {
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--green);">
         <div class="kpi-label">В ротации</div>
-        <div class="kpi-value" style="color:var(--green);">\${fmtNum(inRotation)}</div>
-        <div style="font-size:11px;color:var(--green);">\${(inRotation/totalShares*100).toFixed(1)}%</div>
+        <div class="kpi-value" style="color:var(--green);">${fmtNum(inRotation)}</div>
+        <div style="font-size:11px;color:var(--green);">${(inRotation/totalShares*100).toFixed(1)}%</div>
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--blue);">
         <div class="kpi-label">Цена (Год 1)</div>
@@ -2942,46 +2942,46 @@ async function loadAdminShares() {
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--orange);">
         <div class="kpi-label">Капитализация</div>
-        <div class="kpi-value" style="color:var(--orange);">$\${fmtNum(inRotation * 5000)}</div>
+        <div class="kpi-value" style="color:var(--orange);">$${fmtNum(inRotation * 5000)}</div>
       </div>
     </div>
 
     <div class="content-card">
       <h3 style="color:var(--gold);margin:0 0 14px;">🥧 Распределение 100 000 акций по 6 категориям</h3>
       <div style="display:flex;flex-direction:column;gap:1px;">
-        \${[
+        ${[
           {icon:'🎬',name:'Мейкеры',pct:'70%',total:70000,dist:d.shares_makers||0,color:'var(--gold)'},
           {icon:'🏢',name:'Управл. команда',pct:'17.5%',total:17500,dist:d.shares_team||0,color:'var(--blue)'},
           {icon:'🏛️',name:'Фонд развития',pct:'5%',total:5000,dist:d.shares_fund||0,color:'var(--muted)'},
           {icon:'💰',name:'Инвесторы',pct:'5%',total:5000,dist:d.shares_investors||0,color:'var(--green)'},
           {icon:'📣',name:'Блогеры',pct:'1.5%',total:1500,dist:d.shares_bloggers||0,color:'var(--orange)'},
           {icon:'🎓',name:'Адвизоры',pct:'1%',total:1000,dist:d.shares_advisors||0,color:'var(--purple)'}
-        ].map(c => \`<div style="background:var(--card);padding:12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid \${c.color};">
+        ].map(c => `<div style="background:var(--card);padding:12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid ${c.color};">
           <div>
-            <div style="font-size:12px;color:var(--text);font-weight:700;">\${c.icon} \${c.name} · \${c.pct}</div>
+            <div style="font-size:12px;color:var(--text);font-weight:700;">${c.icon} ${c.name} · ${c.pct}</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:18px;font-weight:700;color:\${c.color};">\${fmtNum(c.total)}</div>
-            <div style="font-size:10px;color:var(--green);">\${fmtNum(c.dist)} распределено</div>
+            <div style="font-size:18px;font-weight:700;color:${c.color};">${fmtNum(c.total)}</div>
+            <div style="font-size:10px;color:var(--green);">${fmtNum(c.dist)} распределено</div>
           </div>
-        </div>\`).join('')}
+        </div>`).join('')}
       </div>
 
       <div style="display:flex;gap:1px;margin-top:14px;">
         <div style="flex:1;background:var(--card);padding:14px;text-align:center;">
           <div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Распределено</div>
-          <div style="font-size:22px;font-weight:700;color:var(--gold);">\${fmtNum(distributed)}</div>
-          <div style="font-size:10px;color:var(--muted);">\${(distributed/totalShares*100).toFixed(1)}% от 100K</div>
+          <div style="font-size:22px;font-weight:700;color:var(--gold);">${fmtNum(distributed)}</div>
+          <div style="font-size:10px;color:var(--muted);">${(distributed/totalShares*100).toFixed(1)}% от 100K</div>
         </div>
         <div style="flex:1;background:var(--card);padding:14px;text-align:center;">
           <div style="font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">В ротации (активны)</div>
-          <div style="font-size:22px;font-weight:700;color:var(--green);">\${fmtNum(inRotation)}</div>
+          <div style="font-size:22px;font-weight:700;color:var(--green);">${fmtNum(inRotation)}</div>
           <div style="font-size:10px;color:var(--muted);">генерят доход</div>
         </div>
         <div style="flex:1;background:var(--card);padding:14px;text-align:center;">
           <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Свободно</div>
-          <div style="font-size:22px;font-weight:700;color:var(--text);">\${fmtNum(free)}</div>
-          <div style="font-size:10px;color:var(--muted);">\${(free/totalShares*100).toFixed(1)}% к выдаче</div>
+          <div style="font-size:22px;font-weight:700;color:var(--text);">${fmtNum(free)}</div>
+          <div style="font-size:10px;color:var(--muted);">${(free/totalShares*100).toFixed(1)}% к выдаче</div>
         </div>
       </div>
     </div>
@@ -3008,19 +3008,19 @@ async function loadAdminShares() {
       <table class="data-table">
         <thead><tr><th>#</th><th>Держатель</th><th>Категория</th><th>Акций</th><th>Доход/мес</th></tr></thead>
         <tbody>
-          \${topHolders.length ? topHolders.map((h,i) => {
+          ${topHolders.length ? topHolders.map((h,i) => {
             const catBadge = h.category === 'investor' ? '<span class="badge" style="background:rgba(63,185,80,0.15);color:var(--green);">Инвестор</span>' :
                              h.category === 'blogger' ? '<span class="badge" style="background:rgba(210,153,34,0.15);color:var(--orange);">Блогер</span>' :
                              h.category === 'advisor' ? '<span class="badge" style="background:rgba(188,140,255,0.15);color:var(--purple);">Адвизор</span>' :
                              h.category === 'maker' ? '<span class="badge" style="background:rgba(212,168,67,0.15);color:var(--gold);">Мейкер</span>' :
                              '<span class="badge" style="background:rgba(88,166,255,0.15);color:var(--blue);">Команда</span>';
-            return \`<tr>
-              <td style="color:\${i<3?'var(--gold)':'var(--muted)'};">\${i+1}</td>
-              <td style="color:var(--text);">\${esc(h.name||h.display_name||h.username||'—')}</td>
-              <td>\${catBadge}</td>
-              <td style="color:var(--gold);font-weight:700;">\${fmtNum(h.shares||0)}</td>
-              <td style="color:var(--green);font-weight:700;">$\${fmtNum((h.shares||0)*127)}</td>
-            </tr>\`;
+            return `<tr>
+              <td style="color:${i<3?'var(--gold)':'var(--muted)'};">${i+1}</td>
+              <td style="color:var(--text);">${esc(h.name||h.display_name||h.username||'—')}</td>
+              <td>${catBadge}</td>
+              <td style="color:var(--gold);font-weight:700;">${fmtNum(h.shares||0)}</td>
+              <td style="color:var(--green);font-weight:700;">$${fmtNum((h.shares||0)*127)}</td>
+            </tr>`;
           }).join('') : '<tr><td colspan="5" style="color:var(--muted);text-align:center;">Нет данных</td></tr>'}
         </tbody>
       </table>
@@ -3031,19 +3031,19 @@ async function loadAdminShares() {
       <div style="display:flex;gap:1px;margin-bottom:14px;">
         <div style="flex:1;background:var(--card);padding:14px;text-align:center;">
           <div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Сделок/мес</div>
-          <div style="font-size:24px;font-weight:700;color:var(--gold);">\${d.exchange_deals||0}</div>
+          <div style="font-size:24px;font-weight:700;color:var(--gold);">${d.exchange_deals||0}</div>
         </div>
         <div style="flex:1;background:var(--card);padding:14px;text-align:center;">
           <div style="font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Объём оборота</div>
-          <div style="font-size:24px;font-weight:700;color:var(--green);">$\${fmtNum(d.exchange_volume||0)}</div>
+          <div style="font-size:24px;font-weight:700;color:var(--green);">$${fmtNum(d.exchange_volume||0)}</div>
         </div>
         <div style="flex:1;background:var(--card);padding:14px;text-align:center;">
           <div style="font-size:9px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Активные ордера</div>
-          <div style="font-size:24px;font-weight:700;color:var(--blue);">\${d.exchange_orders||0}</div>
+          <div style="font-size:24px;font-weight:700;color:var(--blue);">${d.exchange_orders||0}</div>
         </div>
       </div>
     </div>
-  \`;
+  `;
 }
 
 // ========== ADMIN KE (Section 19) ==========
@@ -3063,7 +3063,7 @@ async function loadAdminKE() {
     {bonus:'+1',label:'🆕 Старт',count:d.ke_tier1||0,target:1000,color:'var(--muted)',bg:'var(--card)',border:'var(--border)'}
   ];
 
-  page.innerHTML = \`
+  page.innerHTML = `
     <div class="alert" style="background:rgba(88,166,255,0.08);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
       <strong style="color:var(--text);">⚡ Коэффициент Эффективности (КЭ)</strong> · 5 тиров: +5/+4/+3/+2/+1 акция/год · формула: Просмотры (40%) + Engagement (40%) + Равномерность (20%) · пересчёт 31 декабря
     </div>
@@ -3076,7 +3076,7 @@ async function loadAdminKE() {
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--green);">
         <div class="kpi-label">Топ-20% (КЭ 5)</div>
-        <div class="kpi-value" style="color:var(--green);">\${fmtNum(d.ke_tier5||0)}</div>
+        <div class="kpi-value" style="color:var(--green);">${fmtNum(d.ke_tier5||0)}</div>
         <div style="font-size:11px;color:var(--green);">+5 акций/год</div>
       </div>
       <div class="kpi-card" style="border-top:3px solid var(--blue);">
@@ -3098,13 +3098,13 @@ async function loadAdminKE() {
     <div class="content-card">
       <h3 style="color:var(--gold);margin:0 0 14px;">🎯 5 тиров КЭ · по 1 000 мейкеров</h3>
       <div class="tier-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
-        \${tiers.map(t => \`<div style="background:\${t.bg};border:2px solid \${t.border};padding:18px 12px;text-align:center;">
-          <div style="font-size:36px;font-weight:700;color:\${t.color};line-height:1;margin-bottom:4px;">\${t.bonus}</div>
-          <div style="font-size:10px;color:\${t.color};margin-bottom:10px;">акций/год</div>
-          <div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;">\${t.label}</div>
-          <div style="border-top:1px solid \${t.border};padding-top:8px;font-size:12px;color:var(--text);font-weight:700;">\${fmtNum(t.count)} чел</div>
-          <div style="font-size:9px;color:var(--muted);margin-top:4px;">\${fmtNum(t.count * parseInt(t.bonus))} акций/год</div>
-        </div>\`).join('')}
+        ${tiers.map(t => `<div style="background:${t.bg};border:2px solid ${t.border};padding:18px 12px;text-align:center;">
+          <div style="font-size:36px;font-weight:700;color:${t.color};line-height:1;margin-bottom:4px;">${t.bonus}</div>
+          <div style="font-size:10px;color:${t.color};margin-bottom:10px;">акций/год</div>
+          <div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;">${t.label}</div>
+          <div style="border-top:1px solid ${t.border};padding-top:8px;font-size:12px;color:var(--text);font-weight:700;">${fmtNum(t.count)} чел</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:4px;">${fmtNum(t.count * parseInt(t.bonus))} акций/год</div>
+        </div>`).join('')}
       </div>
       <div style="margin-top:14px;padding:12px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);font-size:11px;color:var(--text);">
         📊 <strong>ИТОГО:</strong> 5K + 4K + 3K + 2K + 1K = <strong style="color:var(--gold);">15 000 акций/год</strong> · за 4 года (2-5) = 60 000 + 10 000 стартовых = <strong style="color:var(--gold);">70 000 = 70%</strong> ✅
@@ -3119,32 +3119,32 @@ async function loadAdminKE() {
           <div style="font-size:11px;color:var(--muted);line-height:1.6;">3 компонента: охват, вовлечённость, стабильность</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:1px;">
-          \${[
+          ${[
             {n:'01',c:'var(--gold)',title:'Просмотры (40%)',desc:'Сумма 4 платформ через Apify'},
             {n:'02',c:'var(--blue)',title:'Engagement (40%)',desc:'Лайки + Целевые комменты ×3 + Репосты ×3'},
             {n:'03',c:'var(--green)',title:'Равномерность (20%)',desc:'Стабильность: 4/4 нед = 100%'},
             {n:'04',c:'var(--purple)',title:'Ранжирование',desc:'Топ-1000 → +5, далее +4/+3/+2/+1'},
             {n:'05',c:'var(--gold)',title:'Зачисление (31 дек)',desc:'Акции не сгорают при снижении КЭ'}
-          ].map(s => \`<div style="background:var(--card);padding:12px;display:flex;gap:12px;align-items:flex-start;">
-            <div style="font-size:18px;font-weight:700;color:\${s.c};min-width:28px;">\${s.n}</div>
+          ].map(s => `<div style="background:var(--card);padding:12px;display:flex;gap:12px;align-items:flex-start;">
+            <div style="font-size:18px;font-weight:700;color:${s.c};min-width:28px;">${s.n}</div>
             <div>
-              <div style="font-size:12px;color:var(--text);font-weight:700;">\${s.title}</div>
-              <div style="font-size:10px;color:var(--muted);">\${s.desc}</div>
+              <div style="font-size:12px;color:var(--text);font-weight:700;">${s.title}</div>
+              <div style="font-size:10px;color:var(--muted);">${s.desc}</div>
             </div>
-          </div>\`).join('')}
+          </div>`).join('')}
         </div>
       </div>
 
       <div class="content-card">
         <h3 style="color:var(--gold);margin:0 0 14px;">📊 Текущее распределение по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">промежуточный</span></h3>
         <div style="display:flex;flex-direction:column;gap:12px;">
-          \${tiers.map(t => \`<div>
+          ${tiers.map(t => `<div>
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
-              <span style="color:\${t.color};font-weight:700;">\${t.label} \${t.bonus}</span>
-              <span style="color:var(--text);font-weight:700;">\${fmtNum(t.count)} / 1 000</span>
+              <span style="color:${t.color};font-weight:700;">${t.label} ${t.bonus}</span>
+              <span style="color:var(--text);font-weight:700;">${fmtNum(t.count)} / 1 000</span>
             </div>
-            <div class="bar-track" style="height:16px;"><div class="bar-fill" style="width:\${Math.min((t.count/t.target*100),100)}%;background:\${t.color};"></div></div>
-          </div>\`).join('')}
+            <div class="bar-track" style="height:16px;"><div class="bar-fill" style="width:${Math.min((t.count/t.target*100),100)}%;background:${t.color};"></div></div>
+          </div>`).join('')}
         </div>
       </div>
     </div>
@@ -3154,14 +3154,14 @@ async function loadAdminKE() {
       <table class="data-table">
         <thead><tr><th>#</th><th>Мейкер</th><th>Eng. Rate</th><th>Просм/нед</th><th>КЭ</th><th>Прогноз</th></tr></thead>
         <tbody>
-          \${topKE.length ? topKE.slice(0,15).map((m,i) => \`<tr>
-            <td style="color:\${i<3?'var(--gold)':'var(--muted)'};">\${i+1}</td>
-            <td style="color:var(--text);">\${esc(m.display_name||m.username||'—')}</td>
-            <td style="color:var(--green);font-weight:700;">\${(m.engagement_rate||0).toFixed(1)}%</td>
-            <td>\${fmtNum(m.views_week||m.total_views||0)}</td>
-            <td style="color:var(--gold);font-weight:700;">\${(m.ke_score||0).toFixed(1)}</td>
+          ${topKE.length ? topKE.slice(0,15).map((m,i) => `<tr>
+            <td style="color:${i<3?'var(--gold)':'var(--muted)'};">${i+1}</td>
+            <td style="color:var(--text);">${esc(m.display_name||m.username||'—')}</td>
+            <td style="color:var(--green);font-weight:700;">${(m.engagement_rate||0).toFixed(1)}%</td>
+            <td>${fmtNum(m.views_week||m.total_views||0)}</td>
+            <td style="color:var(--gold);font-weight:700;">${(m.ke_score||0).toFixed(1)}</td>
             <td><span class="badge" style="background:rgba(212,168,67,0.15);color:var(--gold);">+5</span></td>
-          </tr>\`).join('') : '<tr><td colspan="6" style="color:var(--muted);text-align:center;">Нет данных</td></tr>'}
+          </tr>`).join('') : '<tr><td colspan="6" style="color:var(--muted);text-align:center;">Нет данных</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -3179,17 +3179,17 @@ async function loadAdminKE() {
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:1px;">
-        \${tiers.map(t => \`<div style="background:var(--card);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:12px;color:var(--text);">\${t.bonus} акций × 1 000 чел</div>
-          <span style="color:\${t.color};font-weight:700;">\${fmtNum(parseInt(t.bonus)*1000)} акц</span>
-        </div>\`).join('')}
+        ${tiers.map(t => `<div style="background:var(--card);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:12px;color:var(--text);">${t.bonus} акций × 1 000 чел</div>
+          <span style="color:${t.color};font-weight:700;">${fmtNum(parseInt(t.bonus)*1000)} акц</span>
+        </div>`).join('')}
         <div style="background:rgba(212,168,67,0.08);padding:14px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(212,168,67,0.3);">
           <div style="font-size:13px;color:var(--gold);font-weight:700;">💎 ИТОГО</div>
           <span style="color:var(--gold);font-weight:700;font-size:18px;">15 000</span>
         </div>
       </div>
     </div>
-  \`;
+  `;
 }
 
 </script>
