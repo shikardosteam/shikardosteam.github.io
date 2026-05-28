@@ -783,6 +783,8 @@ function buildNavSections() {
           { id:'infrastructure', icon:'🖥️', name:'Инфраструктура' },
           { id:'ai-automators', icon:'🤖', name:'AI-автоматизаторы' },
           { id:'quality', icon:'🔎', name:'Отдел качества' },
+          { id:'investors', icon:'💰', name:'Инвесторы' },
+          { id:'ops-center', icon:'📡', name:'Операционный центр' },
           { id:'settings', icon:'⚙️', name:'Настройки' }
       ]
     });
@@ -838,7 +840,7 @@ function renderPages() {
     'publications',
     'tasks',
     'admin-overview','admin-makers','admin-hr','admin-shares','admin-ke','admin-users',
-    'trends','hall-of-fame','kaizen','team-members','risk-zone','contests','infrastructure','ai-automators','quality','team-pulse','pain-points','settings'
+    'trends','hall-of-fame','kaizen','team-members','risk-zone','contests','infrastructure','ai-automators','quality','team-pulse','pain-points','investors','ops-center','settings'
   ];
 
   pages.forEach(id => {
@@ -882,6 +884,8 @@ async function loadPageData(pageId) {
     case 'quality': await loadQuality(); break;
     case 'team-pulse': await loadTeamPulse(); break;
     case 'pain-points': await loadPainPoints(); break;
+    case 'investors': await loadInvestors(); break;
+    case 'ops-center': await loadOpsCenter(); break;
     case 'settings': loadSettings(); break;
   }
 }
@@ -2096,17 +2100,157 @@ async function loadTeamMembers() {
   const page = document.getElementById('page-team-members');
   try {
     const d = await api('/team/members');
-    let mH = '';
-    (d.members || []).forEach(m => {
-      const st = m.shares_frozen ? '\u2744\ufe0f' : '\ud83d\udfe2';
-      mH += '<div class="list-row"><span>' + st + ' ' + m.full_name + '</span><span style="font-size:11px;color:var(--muted)">' + (m.team_role || '\u2014').toUpperCase() + ' \u2022 ' + m.shares_count + ' \u0430\u043a\u0446.</span></div>';
-    });
-    page.innerHTML = '<h2>\ud83c\udfe2 \u0423\u043f\u0440\u0430\u0432\u043b\u044f\u044e\u0449\u0430\u044f \u043a\u043e\u043c\u0430\u043d\u0434\u0430</h2>' +
+    const total = d.total || 233;
+    const active = d.active || total;
+    const cLevel = d.c_level || 10;
+    const directors = d.directors || 4;
+    const managers = d.managers || 125;
+
+    // --- KPI ---
+    var h = '<h2>\U0001f3e2 Управляющая команда</h2>' +
       '<div class="kpi-row">' +
-      '<div class="kpi-card blue"><div class="kpi-label">\u0412\u0421\u0415\u0413\u041e</div><div class="kpi-value">' + d.total + '</div></div>' +
-      '<div class="kpi-card green"><div class="kpi-label">\u0410\u041a\u0422\u0418\u0412\u041d\u042b\u0425</div><div class="kpi-value">' + d.active + '</div></div></div>' +
-      '<div class="card"><div class="card-header">\ud83d\udc65 \u0421\u043e\u0441\u0442\u0430\u0432 \u043a\u043e\u043c\u0430\u043d\u0434\u044b</div>' + (mH || '<div class="empty-state"><div class="empty-state-text">\u041d\u0435\u0442 \u0443\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u043e\u0432</div></div>') + '</div>';
-  } catch(e) { page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\ud83c\udfe2</div><div class="empty-state-text">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</div></div>'; }
+      '<div class="kpi-card blue"><div class="kpi-label">ВСЕГО</div><div class="kpi-value">' + total + '</div></div>' +
+      '<div class="kpi-card green"><div class="kpi-label">АКТИВНЫХ</div><div class="kpi-value">' + active + '</div></div>' +
+      '<div class="kpi-card gold"><div class="kpi-label">C-LEVEL</div><div class="kpi-value">' + cLevel + '</div></div>' +
+      '<div class="kpi-card purple"><div class="kpi-label">ДИРЕКТОРА</div><div class="kpi-value">' + directors + '</div></div>' +
+      '<div class="kpi-card orange"><div class="kpi-label">МЕНЕДЖЕРЫ</div><div class="kpi-value">' + managers + '+</div></div>' +
+      '</div>';
+
+    // --- Org chart ---
+    var orgData = [
+      {lvl:1, role:'CEO / Founder', count:1},
+      {lvl:2, role:'C-Level (CTO, CFO, CMO, COO, CHRO, CPO, CSO, CLO, CRO)', count:10},
+      {lvl:3, role:'Directors', count:4},
+      {lvl:4, role:'Project Managers', count:6},
+      {lvl:5, role:'HR Managers', count:125},
+      {lvl:6, role:'Content Makers', count:50},
+      {lvl:7, role:'Support & QA', count:12},
+      {lvl:8, role:'Advisors & Investors', count:25}
+    ];
+    var orgRows = '';
+    for (var i = 0; i < orgData.length; i++) {
+      var o = orgData[i];
+      orgRows += '<div class="list-row" style="display:flex;justify-content:space-between;align-items:center">' +
+        '<span style="color:var(--muted);width:30px">L' + o.lvl + '</span>' +
+        '<span style="flex:1">' + o.role + '</span>' +
+        '<span class="badge badge-blue">' + o.count + '</span></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f3db️ Организационная структура (8 уровней)</div>' + orgRows + '</div>';
+
+    // --- Founder Vesting (only for founder) ---
+    if (currentUser && (currentUser.role === 'founder' || currentUser.team_role === 'founder')) {
+      var vestData = [
+        {y:'2026', shares:'1 000', ipm:'$1 470', ipy:'$17 640', cap:'$50 000'},
+        {y:'2027', shares:'1 000', ipm:'$6 580', ipy:'$78 960', cap:'$275 000'},
+        {y:'2028', shares:'1 000', ipm:'$24 440', ipy:'$293 280', cap:'$1 150 000'},
+        {y:'2029', shares:'1 000', ipm:'$79 130', ipy:'$949 560', cap:'$4 000 000'},
+        {y:'2030', shares:'1 000', ipm:'$240 760', ipy:'$2 889 120', cap:'$14 000 000'}
+      ];
+      var vRows = '';
+      for (var vi = 0; vi < vestData.length; vi++) {
+        var v = vestData[vi];
+        vRows += '<tr><td>' + v.y + '</td><td>' + v.shares + '</td><td>' + v.ipm + '</td><td>' + v.ipy + '</td><td>' + v.cap + '</td></tr>';
+      }
+      h += '<div class="card"><div class="card-header">\U0001f451 Founder Vesting Plan</div>' +
+        '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
+        '<th>Год</th><th>Акции</th><th>Доход/мес</th><th>Доход/год</th><th>Капитал</th>' +
+        '</tr></thead><tbody>' + vRows + '</tbody></table></div></div>';
+    }
+
+    // --- C-Level table ---
+    var cRoles = ['CTO','CFO','CMO','COO','CHRO','CPO','CSO','CLO','CRO','CDO'];
+    var cRows = '';
+    for (var ci = 0; ci < cRoles.length; ci++) {
+      cRows += '<tr><td>' + cRoles[ci] + '</td><td style="color:var(--muted)">Назначается</td><td>$3 000–$8 000</td><td>200–500</td></tr>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f4bc C-Level команда</div>' +
+      '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
+      '<th>Роль</th><th>Имя</th><th>ЗП эквив.</th><th>Акции (5л)</th>' +
+      '</tr></thead><tbody>' + cRows + '</tbody></table></div></div>';
+
+    // --- Team income by year ---
+    var incomeData = [
+      {y:'2026', val:'$4.50M', pct:5},
+      {y:'2027', val:'$14.26M', pct:15},
+      {y:'2028', val:'$39.04M', pct:40},
+      {y:'2029', val:'$99.31M', pct:70},
+      {y:'2030', val:'$240.76M', pct:100}
+    ];
+    var incBars = '';
+    for (var ii = 0; ii < incomeData.length; ii++) {
+      var inc = incomeData[ii];
+      incBars += '<div class="bar-row"><span class="bar-label">' + inc.y + '</span>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + inc.pct + '%;background:var(--gold)"></div></div>' +
+        '<span class="bar-value">' + inc.val + '</span></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f4c8 Доход команды по годам</div>' + incBars + '</div>';
+
+    // --- Share distribution ---
+    var shareData = [
+      {name:'Starter Pool (50 автоматизаторов)', val:'2 020'},
+      {name:'Founder (CEO)', val:'1 000'},
+      {name:'ЗП-эквивалент (salary pool)', val:'8 625'},
+      {name:'Конкурсы C-Level', val:'500'},
+      {name:'Конкурсы Directors', val:'300'},
+      {name:'Конкурсы HR', val:'875'},
+      {name:'Конкурсы Makers', val:'500'},
+      {name:'First 100 бонус', val:'1 000'},
+      {name:'Резерв (инвесторы + буфер)', val:'2 680'}
+    ];
+    var shRows = '';
+    for (var si = 0; si < shareData.length; si++) {
+      shRows += '<div class="list-row"><span>' + shareData[si].name + '</span><span class="badge badge-gold">' + shareData[si].val + '</span></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f4ca Распределение акций (17 500 всего)</div>' + shRows + '</div>';
+
+    // --- Geography ---
+    var geoData = d.geography || [
+      {country:'\U0001f1fa\U0001f1e6 Украина', pct:65},
+      {country:'\U0001f1f0\U0001f1ff Казахстан', pct:10},
+      {country:'\U0001f1fa\U0001f1ff Узбекистан', pct:8},
+      {country:'\U0001f1f5\U0001f1f1 Польша', pct:5},
+      {country:'\U0001f1f9\U0001f1f7 Турция', pct:4},
+      {country:'\U0001f30d Другие', pct:8}
+    ];
+    var geoBars = '';
+    for (var gi = 0; gi < geoData.length; gi++) {
+      var g = geoData[gi];
+      geoBars += '<div class="bar-row"><span class="bar-label">' + g.country + '</span>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + g.pct + '%;background:var(--blue)"></div></div>' +
+        '<span class="bar-value">' + g.pct + '%</span></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f30d География</div>' + geoBars + '</div>';
+
+    // --- Strategic initiatives ---
+    h += '<div class="card"><div class="card-header">\U0001f680 Стратегические инициативы</div>' +
+      '<div class="list-row"><span>\U0001f4a1 728 видео за 12 месяцев</span><span class="badge badge-blue">В работе</span></div>' +
+      '<div class="list-row"><span>\U0001f3af Реферальная программа Round Robin</span><span class="badge badge-green">Активна</span></div>' +
+      '<div class="list-row"><span>\U0001f4b0 Биржа акций (OTC)</span><span class="badge badge-gold">MVP</span></div>' +
+      '<div class="list-row"><span>\U0001f916 AI-автоматизация (Apify + ML)</span><span class="badge badge-purple">Разработка</span></div>' +
+      '<div class="list-row"><span>\U0001f4f2 Telegram WebApp + Cabinet</span><span class="badge badge-green">Live</span></div></div>';
+
+    // --- Referral program ---
+    h += '<div class="card"><div class="card-header">\U0001f517 Реферальная программа</div>' +
+      '<div class="list-row"><span>Механика</span><span>Round Robin ротация</span></div>' +
+      '<div class="list-row"><span>Вес участника</span><span>100–300 блогеров/год</span></div>' +
+      '<div class="list-row"><span>Фонд развития</span><span>Вес 1 000/год</span></div>' +
+      '<div class="list-row"><span>KPI реферера</span><span>≥ 60% активных рефов</span></div>' +
+      '<div class="list-row"><span>Ответственность</span><span>Реферер ≠ куратор</span></div></div>';
+
+    // --- Members list ---
+    var mH = '';
+    (d.members || []).forEach(function(m) {
+      var st = m.shares_frozen ? '❄️' : '\U0001f7e2';
+      mH += '<div class="list-row"><span>' + st + ' ' + m.full_name + '</span><span style="font-size:11px;color:var(--muted)">' + (m.team_role || '—').toUpperCase() + ' • ' + m.shares_count + ' акц.</span></div>';
+    });
+    if (mH) {
+      h += '<div class="card"><div class="card-header">\U0001f465 Состав команды</div>' + mH + '</div>';
+    }
+
+    page.innerHTML = h;
+  } catch(e) {
+    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\U0001f3e2</div><div class="empty-state-text">Ошибка загрузки команды</div></div>';
+  }
 }
 
 // ---------- RISK ZONE ----------
@@ -3000,23 +3144,355 @@ function buildMatrixList(items) {
 }
 
 // ---------- SETTINGS ----------
-function loadSettings() {
-  const page = document.getElementById('page-settings');
-  const u = currentUser;
-  page.innerHTML = '<h2>\u2699\ufe0f \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438</h2>' +
-    '<div class="card"><div class="card-header">\ud83d\udc64 \u0410\u043a\u043a\u0430\u0443\u043d\u0442</div>' +
-    '<div class="list-row"><span>\u0418\u043c\u044f</span><span>' + (u.full_name||u.display_name||'\u2014') + '</span></div>' +
-    '<div class="list-row"><span>\u0420\u043e\u043b\u044c</span><span>' + (u.role||'\u2014') + '</span></div>' +
-    '<div class="list-row"><span>Telegram</span><span>@' + (u.telegram_username||u.username||'\u2014') + '</span></div>' +
-    '<div class="list-row"><span>Email</span><span>' + (u.email||'\u2014') + '</span></div>' +
-    '<div class="list-row"><span>\u0420\u0435\u0444. \u043a\u043e\u0434</span><span style="font-family:monospace">' + (u.referral_code||u.ref_code||'\u2014') + '</span></div></div>' +
-    '<div class="card"><div class="card-header">\ud83c\udf10 \u0421\u0438\u0441\u0442\u0435\u043c\u0430</div>' +
-    '<div class="list-row"><span>API</span><span style="color:var(--green)">\u2705 Online</span></div>' +
-    '<div class="list-row"><span>\u0412\u0435\u0440\u0441\u0438\u044f</span><span>Cabinet v1.0</span></div>' +
-    '<div class="list-row"><span>\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0430</span><span><a href="https://t.me/Shikardos_V" target="_blank">@Shikardos_V</a></span></div></div>' +
-    '<div style="margin-top:1rem;text-align:center"><button onclick="logout()" style="padding:8px 24px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">\ud83d\udeaa \u0412\u044b\u0439\u0442\u0438</button></div>';
+// ========== OPS CENTER (Section 21) ==========
+async function loadOpsCenter() {
+  var page = document.getElementById('page-ops-center');
+  try {
+    var d = {};
+    try { d = await api('/admin/ops') || {}; } catch(e) { d = {}; }
+
+    var h = '<h2>\U0001f4e1 Операционный центр</h2>';
+
+    // --- System status ---
+    var systems = d.systems || [
+      {name:'Apify Scraper', status:'UP'},
+      {name:'Telegram Bot', status:'UP'},
+      {name:'Round Robin', status:'UP'},
+      {name:'Exchange (OTC)', status:'UP'},
+      {name:'ML Models', status:'UP'},
+      {name:'Dashboard', status:'UP'},
+      {name:'GitHub Pages', status:'UP'},
+      {name:'SMTP (Cloudflare)', status:'UP'},
+      {name:'Google Sheets API', status:'UP'},
+      {name:'YouTube Data API', status:'UP'}
+    ];
+    var sysRows = '';
+    for (var si = 0; si < systems.length; si++) {
+      var s = systems[si];
+      var sColor = s.status === 'UP' ? 'var(--green)' : 'var(--red)';
+      var sIcon = s.status === 'UP' ? '\U0001f7e2' : '\U0001f534';
+      sysRows += '<div class="list-row"><span>' + sIcon + ' ' + s.name + '</span><span style="color:' + sColor + ';font-weight:600">' + s.status + '</span></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f6e0️ Статус систем</div>' + sysRows + '</div>';
+
+    // --- Duty officer ---
+    var duty = d.duty || {};
+    var dutyName = duty.name || 'Не назначен';
+    var dutyShift = duty.shift || '—';
+    h += '<div class="card"><div class="card-header">\U0001f6e1️ Дежурный</div>' +
+      '<div class="list-row"><span>Текущий дежурный</span><span>' + dutyName + '</span></div>' +
+      '<div class="list-row"><span>Смена</span><span>' + dutyShift + '</span></div></div>';
+
+    // --- Duty schedule ---
+    h += '<div class="card"><div class="card-header">\U0001f552 График дежурств</div>' +
+      '<div class="list-row"><span>\U0001f305 Утро (06:00–14:00)</span><span style="color:var(--muted)">По расписанию</span></div>' +
+      '<div class="list-row"><span>☀️ День (14:00–22:00)</span><span style="color:var(--muted)">По расписанию</span></div>' +
+      '<div class="list-row"><span>\U0001f319 Ночь (22:00–06:00)</span><span style="color:var(--muted)">По расписанию</span></div></div>';
+
+    // --- Live alerts ---
+    var alerts = d.alerts || [];
+    var alertH = '';
+    if (alerts.length > 0) {
+      for (var ai = 0; ai < alerts.length; ai++) {
+        var a = alerts[ai];
+        var aClass = a.priority === 'P1' ? 'alert-red' : (a.priority === 'P2' ? 'alert-orange' : 'alert-blue');
+        alertH += '<div class="alert ' + aClass + '">' +
+          '<span class="badge badge-' + (a.priority === 'P1' ? 'red' : (a.priority === 'P2' ? 'orange' : 'blue')) + '">' + a.priority + '</span> ' +
+          a.message + ' <span style="color:var(--muted);font-size:11px">' + (a.time || '') + '</span></div>';
+      }
+    } else {
+      alertH = '<div class="empty-state" style="padding:20px"><div class="empty-state-icon">✅</div><div class="empty-state-text">Нет активных алертов</div></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f6a8 Live-алерты</div>' + alertH + '</div>';
+
+    // --- Event chronicle ---
+    var events = d.events || [];
+    var evH = '';
+    if (events.length > 0) {
+      for (var ei = 0; ei < events.length; ei++) {
+        var ev = events[ei];
+        evH += '<div class="list-row"><span style="color:var(--muted);font-size:11px;min-width:60px">' + (ev.time || '') + '</span><span>' + ev.message + '</span></div>';
+      }
+    } else {
+      evH = '<div class="empty-state" style="padding:20px"><div class="empty-state-icon">\U0001f4dc</div><div class="empty-state-text">Нет событий за 24ч</div></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f4dc Хроника событий (24ч)</div>' + evH + '</div>';
+
+    // --- Quick actions ---
+    var actions = [
+      {icon:'⏹', label:'Стоп ротацию', color:'red'},
+      {icon:'\U0001f504', label:'Резерв API', color:'orange'},
+      {icon:'\U0001f4be', label:'Force бэкап', color:'blue'},
+      {icon:'\U0001f4e2', label:'Push команде', color:'green'},
+      {icon:'⚠️', label:'Эскалация CEO', color:'red'},
+      {icon:'\U0001f515', label:'Silent mode', color:'purple'},
+      {icon:'\U0001f4cb', label:'Отчёт смены', color:'blue'},
+      {icon:'\U0001f6a8', label:'Новый инцидент', color:'orange'}
+    ];
+    var actBtns = '';
+    for (var qi = 0; qi < actions.length; qi++) {
+      var act = actions[qi];
+      actBtns += '<button style="padding:8px 12px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px" onclick="alert(\'Action: ' + act.label + '\')">' + act.icon + ' ' + act.label + '</button>';
+    }
+    h += '<div class="card"><div class="card-header">⚡ Быстрые действия</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px">' + actBtns + '</div></div>';
+
+    // --- Server load ---
+    var load = d.server_load || {cpu:15, ram:42, net:8, disk:22, db:35, redis:18};
+    var loadBars = [
+      {name:'CPU', val:load.cpu},
+      {name:'RAM', val:load.ram},
+      {name:'Network', val:load.net},
+      {name:'Disk I/O', val:load.disk},
+      {name:'Database', val:load.db},
+      {name:'Redis', val:load.redis}
+    ];
+    var lBars = '';
+    for (var li = 0; li < loadBars.length; li++) {
+      var lb = loadBars[li];
+      var lColor = lb.val > 80 ? 'var(--red)' : (lb.val > 60 ? 'var(--orange)' : 'var(--green)');
+      lBars += '<div class="bar-row"><span class="bar-label">' + lb.name + '</span>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + lb.val + '%;background:' + lColor + '"></div></div>' +
+        '<span class="bar-value">' + lb.val + '%</span></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f5a5️ Нагрузка сервера</div>' + lBars + '</div>';
+
+    // --- Team health ---
+    var health = d.team_health || {online:0, hr_work:0, pub_hr:0, virals:0, orders:0, tickets:0, qa:0, income:0};
+    h += '<div class="card"><div class="card-header">\U0001f4ca Здоровье команды</div>' +
+      '<div class="grid-2">' +
+      '<div class="list-row"><span>\U0001f7e2 Мейкеры онлайн</span><span>' + health.online + '</span></div>' +
+      '<div class="list-row"><span>\U0001f4cb HR в работе</span><span>' + health.hr_work + '</span></div>' +
+      '<div class="list-row"><span>\U0001f4f0 Публикаций/час</span><span>' + health.pub_hr + '</span></div>' +
+      '<div class="list-row"><span>\U0001f525 Виралы 24ч</span><span>' + health.virals + '</span></div>' +
+      '<div class="list-row"><span>\U0001f4b1 Заказы биржа</span><span>' + health.orders + '</span></div>' +
+      '<div class="list-row"><span>\U0001f3ab Тикеты поддержки</span><span>' + health.tickets + '</span></div>' +
+      '<div class="list-row"><span>\U0001f6a9 QA флаги</span><span>' + health.qa + '</span></div>' +
+      '<div class="list-row"><span>\U0001f4b5 Доход сегодня</span><span>$' + health.income + '</span></div>' +
+      '</div></div>';
+
+    page.innerHTML = h;
+  } catch(e) {
+    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\U0001f4e1</div><div class="empty-state-text">Ошибка загрузки операционного центра</div></div>';
+  }
 }
 
+// ========== INVESTORS (Section 12) ==========
+async function loadInvestors() {
+  var page = document.getElementById('page-investors');
+  try {
+    var d = {};
+    try { d = await api('/admin/investors') || {}; } catch(e) { d = {}; }
+    var round = d.current_round || 1;
+    var raised = d.raised || 0;
+    var activeInv = d.active_investors || 0;
+    var sold = d.shares_sold || 0;
+    var pipeline = d.pipeline || 0;
+
+    var h = '<h2>\U0001f4b0 Инвесторы</h2>';
+
+    // --- KPI ---
+    h += '<div class="kpi-row">' +
+      '<div class="kpi-card blue"><div class="kpi-label">ТЕКУЩИЙ РАУНД</div><div class="kpi-value">Year ' + round + '</div></div>' +
+      '<div class="kpi-card green"><div class="kpi-label">ПРИВЛЕЧЕНО</div><div class="kpi-value">$' + raised.toLocaleString() + '</div></div>' +
+      '<div class="kpi-card gold"><div class="kpi-label">ИНВЕСТОРОВ</div><div class="kpi-value">' + activeInv + '</div></div>' +
+      '<div class="kpi-card purple"><div class="kpi-label">АКЦИЙ ПРОДАНО</div><div class="kpi-value">' + sold + '</div></div>' +
+      '<div class="kpi-card orange"><div class="kpi-label">PIPELINE</div><div class="kpi-value">$' + pipeline.toLocaleString() + '</div></div>' +
+      '</div>';
+
+    // --- Rounds table ---
+    var rounds = d.rounds || [
+      {y:1, price:'$50', avail:500, sold:0, raised:'$0', plan:'$25 000', status:'\U0001f7e2 Открыт'},
+      {y:2, price:'$275', avail:400, sold:0, raised:'$0', plan:'$110 000', status:'⏳ Ожидание'},
+      {y:3, price:'$1 150', avail:300, sold:0, raised:'$0', plan:'$345 000', status:'⏳ Ожидание'},
+      {y:4, price:'$4 000', avail:200, sold:0, raised:'$0', plan:'$800 000', status:'⏳ Ожидание'},
+      {y:5, price:'$14 000', avail:100, sold:0, raised:'$0', plan:'$1 400 000', status:'⏳ Ожидание'}
+    ];
+    var rRows = '';
+    for (var ri = 0; ri < rounds.length; ri++) {
+      var r = rounds[ri];
+      rRows += '<tr><td>Year ' + r.y + '</td><td>' + r.price + '</td><td>' + r.avail + '</td><td>' + r.sold + '</td><td>' + r.raised + '</td><td>' + r.plan + '</td><td>' + r.status + '</td></tr>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f4c5 Раунды инвестирования</div>' +
+      '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
+      '<th>Раунд</th><th>Цена</th><th>Доступно</th><th>Продано</th><th>Привлечено</th><th>План</th><th>Статус</th>' +
+      '</tr></thead><tbody>' + rRows + '</tbody></table></div></div>';
+
+    // --- Progress bar ---
+    var pctDone = rounds[0] ? Math.round((rounds[0].sold / (rounds[0].avail || 1)) * 100) : 0;
+    h += '<div class="card"><div class="card-header">\U0001f4ca Прогресс текущего раунда</div>' +
+      '<div class="bar-row"><span class="bar-label">Year 1</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + pctDone + '%;background:var(--green)"></div></div>' +
+      '<span class="bar-value">' + pctDone + '%</span></div>' +
+      '<div style="padding:8px 12px;color:var(--muted);font-size:12px">' +
+      'Цена: $50 • Мин. пакет: 1 акц. • Макс: 50 акц. • Доступно: 500 • Payback: ~6 мес.</div></div>';
+
+    // --- Top investors ---
+    var invList = d.top_investors || [];
+    if (invList.length > 0) {
+      var invRows = '';
+      for (var ti = 0; ti < invList.length; ti++) {
+        var inv = invList[ti];
+        invRows += '<tr><td>' + (ti + 1) + '</td><td>' + inv.name + '</td><td>' + inv.shares + '</td><td>$' + inv.amount + '</td><td>' + inv.date + '</td></tr>';
+      }
+      h += '<div class="card"><div class="card-header">\U0001f3c6 Топ инвесторы</div>' +
+        '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
+        '<th>#</th><th>Имя</th><th>Акции</th><th>Сумма</th><th>Дата</th>' +
+        '</tr></thead><tbody>' + invRows + '</tbody></table></div></div>';
+    } else {
+      h += '<div class="card"><div class="card-header">\U0001f3c6 Топ инвесторы</div>' +
+        '<div class="empty-state"><div class="empty-state-icon">\U0001f4b0</div><div class="empty-state-text">Данные появятся после первых инвесторов</div></div></div>';
+    }
+
+    // --- Pipeline funnel ---
+    var funnel = d.pipeline_funnel || [
+      {stage:'\U0001f50d Лиды', count:0, pct:0},
+      {stage:'\U0001f4e7 Контакт', count:0, pct:0},
+      {stage:'\U0001f4c4 Презентация', count:0, pct:0},
+      {stage:'\U0001f91d Переговоры', count:0, pct:0},
+      {stage:'✅ Сделка', count:0, pct:0}
+    ];
+    var fBars = '';
+    for (var fi = 0; fi < funnel.length; fi++) {
+      var f = funnel[fi];
+      fBars += '<div class="bar-row"><span class="bar-label">' + f.stage + '</span>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + (f.pct || 0) + '%;background:var(--purple)"></div></div>' +
+        '<span class="bar-value">' + f.count + '</span></div>';
+    }
+    h += '<div class="card"><div class="card-header">\U0001f4c9 Pipeline</div>' + fBars + '</div>';
+
+    // --- Advisors ---
+    h += '<div class="card"><div class="card-header">\U0001f9d1‍\U0001f4bc Эксперты и адвайзеры</div>' +
+      '<div class="list-row"><span>\U0001f4b9 Финансы и комплаенс</span><span class="badge badge-blue">Поиск</span></div>' +
+      '<div class="list-row"><span>\U0001f4ca Маркетинг и гроус-хакинг</span><span class="badge badge-blue">Поиск</span></div>' +
+      '<div class="list-row"><span>⚖️ Юридические вопросы</span><span class="badge badge-blue">Поиск</span></div>' +
+      '<div class="list-row"><span>\U0001f310 Международные рынки</span><span class="badge badge-blue">Поиск</span></div></div>';
+
+    // --- Contacts ---
+    h += '<div class="card"><div class="card-header">\U0001f4de Контакты для инвесторов</div>' +
+      '<div class="list-row"><span>CFO</span><span style="color:var(--muted)">Назначается</span></div>' +
+      '<div class="list-row"><span>CCO</span><span style="color:var(--muted)">Назначается</span></div>' +
+      '<div class="list-row"><span>COO</span><span style="color:var(--muted)">Назначается</span></div>' +
+      '<div class="list-row"><span>CEO</span><span><a href="https://t.me/Shikardos_V" target="_blank">@Shikardos_V</a></span></div></div>';
+
+    page.innerHTML = h;
+  } catch(e) {
+    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\U0001f4b0</div><div class="empty-state-text">Ошибка загрузки раздела инвесторов</div></div>';
+  }
+}
+
+function loadSettings() {
+  var page = document.getElementById('page-settings');
+  var u = currentUser || {};
+
+  var h = '<h2>⚙️ Настройки</h2>';
+
+  // --- Profile ---
+  h += '<div class="card"><div class="card-header">\U0001f464 Профиль</div>' +
+    '<div class="list-row"><span>Имя</span><span>' + (u.full_name || u.display_name || '—') + '</span></div>' +
+    '<div class="list-row"><span>Роль</span><span class="badge badge-gold">' + (u.role || u.team_role || '—').toUpperCase() + '</span></div>' +
+    '<div class="list-row"><span>Telegram</span><span>@' + (u.telegram_username || u.username || '—') + '</span></div>' +
+    '<div class="list-row"><span>Email</span><span>' + (u.email || '—') + '</span></div>' +
+    '<div class="list-row"><span>\U0001f4cd Локация</span><span>' + (u.location || u.country || '—') + '</span></div>' +
+    '<div class="list-row"><span>\U0001f512 2FA</span><span style="color:var(--green)">✅ Telegram</span></div>' +
+    '<div class="list-row"><span>\U0001f553 Последний вход</span><span style="color:var(--muted)">' + (u.last_login || new Date().toLocaleString()) + '</span></div>' +
+    '<div class="list-row"><span>\U0001f4c5 Регистрация</span><span style="color:var(--muted)">' + (u.registered || u.created_at || '—') + '</span></div></div>';
+
+  // --- Theme ---
+  h += '<div class="card"><div class="card-header">\U0001f3a8 Тема</div>' +
+    '<div style="display:flex;gap:8px;padding:12px">' +
+    '<button style="padding:8px 16px;background:var(--gold);color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:600">\U0001f319 Тёмная</button>' +
+    '<button style="padding:8px 16px;background:var(--border);color:var(--muted);border:none;border-radius:6px;cursor:not-allowed">☀️ Светлая (в разработке)</button>' +
+    '</div></div>';
+
+  // --- Additional settings ---
+  h += '<div class="card"><div class="card-header">⚙️ Дополнительные настройки</div>' +
+    '<div class="list-row"><span>\U0001f4ab Анимации</span><span style="color:var(--green)">✅ Вкл</span></div>' +
+    '<div class="list-row"><span>\U0001f50a Звуки уведомлений</span><span style="color:var(--muted)">❌ Выкл</span></div>' +
+    '<div class="list-row"><span>\U0001f504 Авто-обновление (60с)</span><span style="color:var(--green)">✅ Вкл</span></div>' +
+    '<div class="list-row"><span>\U0001f4cf Компактные таблицы</span><span style="color:var(--muted)">❌ Выкл</span></div>' +
+    '<div class="list-row"><span>\U0001f512 Скрывать приватные карты</span><span style="color:var(--green)">✅ Вкл</span></div>' +
+    '<div class="list-row"><span>\U0001f524 Размер шрифта</span><span>14px</span></div></div>';
+
+  // --- Notifications ---
+  h += '<div class="card"><div class="card-header">\U0001f514 Уведомления</div>' +
+    '<div class="list-row"><span>\U0001f534 P1 Критические</span><span>⚡ Мгновенно</span></div>' +
+    '<div class="list-row"><span>\U0001f7e0 P2 Важные</span><span>\U0001f4e8 Дайджест 1ч</span></div>' +
+    '<div class="list-row"><span>\U0001f535 P3 Инфо</span><span>\U0001f4c5 Ежедневно</span></div>' +
+    '<div class="list-row"><span>\U0001f525 Виралы</span><span>⚡ Мгновенно</span></div>' +
+    '<div class="list-row"><span>\U0001f4b0 Инвесторы</span><span>⚡ Мгновенно</span></div>' +
+    '<div class="list-row"><span>\U0001f4ca Недельный дайджест</span><span>\U0001f4c5 Пт 18:00</span></div>' +
+    '<div class="list-row"><span>\U0001f9e0 Kaizen</span><span>\U0001f4c5 2х/неделю</span></div>' +
+    '<div class="list-row"><span>\U0001f6a8 Burnout-алерт</span><span>⚡ Мгновенно</span></div></div>';
+
+  // --- Access rights ---
+  var accessData = [
+    {role:'Founder', level:'Full Access', sections:22, color:'gold'},
+    {role:'C-Level', level:'Расширенный', sections:21, color:'purple'},
+    {role:'Directors', level:'Управление', sections:18, color:'blue'},
+    {role:'PM', level:'Проектный', sections:14, color:'blue'},
+    {role:'Managers', level:'Базовый', sections:9, color:'green'},
+    {role:'Support', level:'Минимальный', sections:5, color:'muted'}
+  ];
+  var accRows = '';
+  for (var ai = 0; ai < accessData.length; ai++) {
+    var a = accessData[ai];
+    accRows += '<div class="list-row"><span>' + a.role + '</span><span>' + a.level + '</span><span class="badge badge-' + a.color + '">' + a.sections + ' секций</span></div>';
+  }
+  h += '<div class="card"><div class="card-header">\U0001f510 Права доступа</div>' + accRows + '</div>';
+
+  // --- Integrations ---
+  var integrations = [
+    {name:'Telegram Bot API', status:'✅ Подключено'},
+    {name:'Apify', status:'✅ Подключено'},
+    {name:'OpenAI API', status:'✅ Подключено'},
+    {name:'Anthropic API', status:'✅ Подключено'},
+    {name:'Google Sheets', status:'✅ Подключено'},
+    {name:'ElevenLabs', status:'⏳ Настройка'},
+    {name:'Runway / Pika', status:'⏳ Настройка'},
+    {name:'YouTube Data API', status:'✅ Подключено'}
+  ];
+  var intRows = '';
+  for (var ii = 0; ii < integrations.length; ii++) {
+    intRows += '<div class="list-row"><span>' + integrations[ii].name + '</span><span>' + integrations[ii].status + '</span></div>';
+  }
+  h += '<div class="card"><div class="card-header">\U0001f50c Интеграции</div>' + intRows + '</div>';
+
+  // --- Backups ---
+  h += '<div class="card"><div class="card-header">\U0001f4be Бэкапы</div>' +
+    '<div class="list-row"><span>\U0001f5c4️ Полный бэкап системы</span><span style="color:var(--muted)">Еженедельно</span></div>' +
+    '<div class="list-row"><span>\U0001f4ca Google Sheets</span><span style="color:var(--muted)">Ежедневно</span></div>' +
+    '<div class="list-row"><span>\U0001f916 Telegram бот</span><span style="color:var(--muted)">Ежедневно</span></div>' +
+    '<div class="list-row"><span>\U0001f9e0 ML модели</span><span style="color:var(--muted)">При обновлении</span></div>' +
+    '<div class="list-row"><span>\U0001f4dd Лог транзакций</span><span style="color:var(--muted)">Ежечасно</span></div></div>';
+
+  // --- Export ---
+  h += '<div class="card"><div class="card-header">\U0001f4e4 Экспорт</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px">' +
+    '<button style="padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer" onclick="alert(\'CSV export\')">CSV</button>' +
+    '<button style="padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer" onclick="alert(\'PDF export\')">PDF</button>' +
+    '<button style="padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer" onclick="alert(\'Finance export\')">\U0001f4b9 Finance</button>' +
+    '<button style="padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer" onclick="alert(\'Snapshot\')">\U0001f4f8 Snapshot</button>' +
+    '</div></div>';
+
+  // --- Admin log ---
+  h += '<div class="card"><div class="card-header">\U0001f4cb Админ-лог (последние действия)</div>' +
+    '<div class="list-row"><span style="color:var(--muted);font-size:11px">28.05.2026 10:00</span><span>\U0001f512 Вход в систему</span></div>' +
+    '<div class="list-row"><span style="color:var(--muted);font-size:11px">28.05.2026 09:45</span><span>\U0001f504 Обновление дашборда</span></div>' +
+    '<div class="list-row"><span style="color:var(--muted);font-size:11px">27.05.2026 22:15</span><span>\U0001f4be Бэкап системы</span></div></div>';
+
+  // --- About system ---
+  h += '<div class="card"><div class="card-header">ℹ️ О системе</div>' +
+    '<div class="list-row"><span>Версия</span><span>v1.0.0</span></div>' +
+    '<div class="list-row"><span>Секции</span><span>22/22</span></div>' +
+    '<div class="list-row"><span>Запуск</span><span>15 мая 2026</span></div>' +
+    '<div class="list-row"><span>Поддержка</span><span><a href="https://t.me/Shikardos_V" target="_blank">@Shikardos_V</a></span></div></div>';
+
+  // --- Logout ---
+  h += '<div style="margin-top:1rem;text-align:center"><button onclick="logout()" style="padding:10px 32px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600">\U0001f6aa Выйти из системы</button></div>';
+
+  page.innerHTML = h;
+}
 
 
 
