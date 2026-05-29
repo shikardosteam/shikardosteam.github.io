@@ -635,7 +635,7 @@ async function loadCabinet() {
 // ===== ROLE HELPERS =====
 function hasRole(r) {
   if (!currentUser) return false;
-  if (currentUser.role === 'admin' || currentUser.role === 'founder') return true;
+  if (currentUser.role === 'founder') return true;
   if (r === currentUser.role) return true;
   if (r === 'hr' && currentUser.team_role && currentUser.team_role.includes('hr')) return true;
   if (r === 'team' && currentUser.role === 'team') return true;
@@ -644,7 +644,7 @@ function hasRole(r) {
 
 function getRoleLabel(role) {
   const m = { maker:'Мейкер', investor:'Инвестор', blogger:'Блогер',
-              admin:'Администратор', team:'Команда', hr:'HR' };
+              founder:'Founder & CEO', team:'Команда', hr:'HR' };
   return m[role] || role || 'Участник';
 }
 
@@ -767,10 +767,10 @@ function buildNavSections() {
     });
   }
 
-  // Admin
-  if (hasRole('admin')) {
+  // Founder (полный доступ)
+  if (hasRole('founder')) {
     sections.push({
-      label: 'Администрирование',
+      label: 'Управление',
       items: [
         { id:'admin-overview', icon:'🔧', name:'Обзор системы' },
         { id:'admin-makers', icon:'👥', name:'Мейкеры' },
@@ -912,7 +912,7 @@ async function loadHome() {
   if (status === 'active' && balance > 0) alertsHtml += '<div class="alert alert-success">\u2705 Всё в порядке. Система работает, акции активны.</div>';
 
   var statsExtra = '';
-  if (u.role === 'admin' || u.role === 'founder' || u.role === 'team' || u.is_admin) {
+  if (u.role === 'founder' || u.role === 'team' || u.is_admin) {
     statsExtra = '<div class="kpi-row">' +
       '<div class="kpi-card"><div class="stat-label">Участников</div><div class="stat-value blue">' + fmtNum(stats.total_users || 0) + '</div></div>' +
       '<div class="kpi-card"><div class="stat-label">Мейкеров</div><div class="stat-value">' + fmtNum(stats.total_makers || 0) + '</div></div>' +
