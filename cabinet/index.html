@@ -635,7 +635,7 @@ async function loadCabinet() {
 // ===== ROLE HELPERS =====
 function hasRole(r) {
   if (!currentUser) return false;
-  if (currentUser.role === 'founder') return true;
+  if (currentUser.role === 'founder' || currentUser.team_role === 'founder') return true;
   if (r === currentUser.role) return true;
   if (r === 'hr' && currentUser.team_role && currentUser.team_role.includes('hr')) return true;
   if (r === 'team' && currentUser.role === 'team') return true;
