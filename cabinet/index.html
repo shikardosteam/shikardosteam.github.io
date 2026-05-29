@@ -3857,119 +3857,235 @@ function loadSettings() {
   var page = document.getElementById('page-settings');
   var u = currentUser || {};
 
-  var h = '<h2>⚙️ Настройки</h2>';
+  // --- Settings state from localStorage ---
+  var stg = JSON.parse(localStorage.getItem('st_settings') || '{}');
+  var defaults = {
+    animations: true,
+    sounds: false,
+    autoRefresh: true,
+    compactTables: false,
+    hidePrivate: true,
+    fontSize: 14,
+    theme: 'dark',
+    notif_p1: 'instant',
+    notif_p2: 'digest',
+    notif_p3: 'daily',
+    notif_virals: 'instant',
+    notif_investors: 'instant'
+  };
+  for (var dk in defaults) { if (stg[dk] === undefined) stg[dk] = defaults[dk]; }
+
+  function saveSt() { localStorage.setItem('st_settings', JSON.stringify(stg)); }
+
+  var h = '<h2>\u2699\uFE0F \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438</h2>';
 
   // --- Profile ---
-  h += '<div class="card"><div class="card-header">👤 Профиль</div>' +
-    '<div class="list-row"><span>Имя</span><span>' + (u.full_name || u.display_name || '—') + '</span></div>' +
-    (function(){
-    var r = u.role || u.team_role || '—';
-    var rl = (r === 'founder') ? 'Founder \x26 CEO' : r.toUpperCase();
-    return '<div class="list-row"><span>Роль</span><span class="badge badge-gold">' + rl + '</span></div>';
-  }()) +
-    '<div class="list-row"><span>Telegram</span><span>@' + (u.telegram_username || u.username || '—') + '</span></div>' +
-    '<div class="list-row"><span>Email</span><span>' + (u.email || '—') + '</span></div>' +
-    '<div class="list-row"><span>📍 Локация</span><span>' + (u.location || u.country || '—') + '</span></div>' +
-    '<div class="list-row"><span>🔒 2FA</span><span style="color:var(--green)">✅ Telegram</span></div>' +
-    '<div class="list-row"><span>🕓 Последний вход</span><span style="color:var(--muted)">' + (u.last_login || new Date().toLocaleString()) + '</span></div>' +
-    '<div class="list-row"><span>📅 Регистрация</span><span style="color:var(--muted)">' + (u.registered || u.created_at || '—') + '</span></div></div>';
+  var roleName = (function(){ var r = u.role || u.team_role || '\u2014'; return (r === 'founder') ? 'Founder \x26 CEO' : r.toUpperCase(); })();
+
+  h += '<div class="card"><div class="card-header">\uD83D\uDC64 \u041F\u0440\u043E\u0444\u0438\u043B\u044C</div>' +
+    '<div class="list-row"><span>\u0418\u043C\u044F</span><span><input id="stg-name" type="text" value="' + ((u.full_name || u.display_name || '').replace(/"/g,'\x26quot;')) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:200px;font-family:inherit" /></span></div>' +
+    '<div class="list-row"><span>\u0420\u043E\u043B\u044C</span><span class="badge badge-gold">' + roleName + '</span></div>' +
+    '<div class="list-row"><span>Telegram</span><span>@' + (u.telegram_username || u.username || '\u2014') + '</span></div>' +
+    '<div class="list-row"><span>Email</span><span><input id="stg-email" type="email" value="' + ((u.email || '').replace(/"/g,'\x26quot;')) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:200px;font-family:inherit" /></span></div>' +
+    '<div class="list-row"><span>\uD83D\uDCCD \u041B\u043E\u043A\u0430\u0446\u0438\u044F</span><span><input id="stg-location" type="text" value="' + ((u.location || u.country || '').replace(/"/g,'\x26quot;')) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:200px;font-family:inherit" /></span></div>' +
+    '<div class="list-row"><span>\uD83D\uDD12 2FA</span><span style="color:var(--green)">\u2705 Telegram</span></div>' +
+    '<div class="list-row"><span>\uD83D\uDD53 \u041F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0439 \u0432\u0445\u043E\u0434</span><span style="color:var(--muted)">' + (u.last_login || new Date().toLocaleString()) + '</span></div>' +
+    '<div class="list-row"><span>\uD83D\uDCC5 \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F</span><span style="color:var(--muted)">' + (u.registered || u.created_at || '\u2014') + '</span></div>' +
+    '<div style="padding:12px;text-align:right"><button id="stg-save-profile" style="padding:8px 20px;background:var(--gold);color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-family:inherit">\uD83D\uDCBE \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button></div></div>';
 
   // --- Theme ---
-  h += '<div class="card"><div class="card-header">🎨 Тема</div>' +
+  var isDark = stg.theme === 'dark';
+  h += '<div class="card"><div class="card-header">\uD83C\uDFA8 \u0422\u0435\u043C\u0430</div>' +
     '<div style="display:flex;gap:8px;padding:12px">' +
-    '<button style="padding:8px 16px;background:var(--gold);color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:600">🌙 Тёмная</button>' +
-    '<button style="padding:8px 16px;background:var(--border);color:var(--muted);border:none;border-radius:6px;cursor:not-allowed">☀️ Светлая (в разработке)</button>' +
+    '<button id="stg-theme-dark" style="padding:8px 16px;background:' + (isDark ? 'var(--gold)' : 'var(--border)') + ';color:' + (isDark ? '#000' : 'var(--muted)') + ';border:none;border-radius:6px;cursor:pointer;font-weight:600;font-family:inherit">\uD83C\uDF19 \u0422\u0451\u043C\u043D\u0430\u044F</button>' +
+    '<button id="stg-theme-light" style="padding:8px 16px;background:' + (!isDark ? 'var(--gold)' : 'var(--border)') + ';color:' + (!isDark ? '#000' : 'var(--muted)') + ';border:none;border-radius:6px;cursor:pointer;font-weight:600;font-family:inherit">\u2600\uFE0F \u0421\u0432\u0435\u0442\u043B\u0430\u044F</button>' +
     '</div></div>';
 
-  // --- Additional settings ---
-  h += '<div class="card"><div class="card-header">⚙️ Дополнительные настройки</div>' +
-    '<div class="list-row"><span>💫 Анимации</span><span style="color:var(--green)">✅ Вкл</span></div>' +
-    '<div class="list-row"><span>🔊 Звуки уведомлений</span><span style="color:var(--muted)">❌ Выкл</span></div>' +
-    '<div class="list-row"><span>🔄 Авто-обновление (60с)</span><span style="color:var(--green)">✅ Вкл</span></div>' +
-    '<div class="list-row"><span>📏 Компактные таблицы</span><span style="color:var(--muted)">❌ Выкл</span></div>' +
-    '<div class="list-row"><span>🔒 Скрывать приватные карты</span><span style="color:var(--green)">✅ Вкл</span></div>' +
-    '<div class="list-row"><span>🔤 Размер шрифта</span><span>14px</span></div></div>';
+  // --- Additional settings (toggles) ---
+  function toggleRow(key, icon, label) {
+    var on = stg[key];
+    return '<div class="list-row" style="cursor:pointer" data-toggle="' + key + '">' +
+      '<span>' + icon + ' ' + label + '</span>' +
+      '<span class="stg-toggle" data-key="' + key + '" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">' +
+      '<span style="width:40px;height:22px;border-radius:11px;background:' + (on ? 'var(--green)' : 'var(--border)') + ';position:relative;display:inline-block;transition:background .2s">' +
+      '<span style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;' + (on ? 'left:20px' : 'left:2px') + ';transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)"></span></span>' +
+      '<span style="color:' + (on ? 'var(--green)' : 'var(--muted)') + ';font-size:12px">' + (on ? '\u0412\u043A\u043B' : '\u0412\u044B\u043A\u043B') + '</span>' +
+      '</span></div>';
+  }
+
+  h += '<div class="card"><div class="card-header">\u2699\uFE0F \u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438</div>' +
+    toggleRow('animations', '\uD83D\uDCAB', '\u0410\u043D\u0438\u043C\u0430\u0446\u0438\u0438') +
+    toggleRow('sounds', '\uD83D\uDD0A', '\u0417\u0432\u0443\u043A\u0438 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u0439') +
+    toggleRow('autoRefresh', '\uD83D\uDD04', '\u0410\u0432\u0442\u043E-\u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 (60\u0441)') +
+    toggleRow('compactTables', '\uD83D\uDCCF', '\u041A\u043E\u043C\u043F\u0430\u043A\u0442\u043D\u044B\u0435 \u0442\u0430\u0431\u043B\u0438\u0446\u044B') +
+    toggleRow('hidePrivate', '\uD83D\uDD12', '\u0421\u043A\u0440\u044B\u0432\u0430\u0442\u044C \u043F\u0440\u0438\u0432\u0430\u0442\u043D\u044B\u0435 \u043A\u0430\u0440\u0442\u044B') +
+    '<div class="list-row"><span>\uD83D\uDD24 \u0420\u0430\u0437\u043C\u0435\u0440 \u0448\u0440\u0438\u0444\u0442\u0430</span>' +
+    '<span style="display:flex;align-items:center;gap:8px">' +
+    '<input id="stg-fontsize" type="range" min="12" max="18" value="' + stg.fontSize + '" style="width:100px;accent-color:var(--gold)">' +
+    '<span id="stg-fontsize-val" style="min-width:30px;font-size:12px">' + stg.fontSize + 'px</span></span></div>' +
+    '</div>';
 
   // --- Notifications ---
-  h += '<div class="card"><div class="card-header">🔔 Уведомления</div>' +
-    '<div class="list-row"><span>🔴 P1 Критические</span><span>⚡ Мгновенно</span></div>' +
-    '<div class="list-row"><span>🟠 P2 Важные</span><span>📨 Дайджест 1ч</span></div>' +
-    '<div class="list-row"><span>🔵 P3 Инфо</span><span>📅 Ежедневно</span></div>' +
-    '<div class="list-row"><span>🔥 Виралы</span><span>⚡ Мгновенно</span></div>' +
-    '<div class="list-row"><span>💰 Инвесторы</span><span>⚡ Мгновенно</span></div>' +
-    '<div class="list-row"><span>📊 Недельный дайджест</span><span>📅 Пт 18:00</span></div>' +
-    '<div class="list-row"><span>🧠 Kaizen</span><span>📅 2х/неделю</span></div>' +
-    '<div class="list-row"><span>🚨 Burnout-алерт</span><span>⚡ Мгновенно</span></div></div>';
+  function notifSelect(key, icon, label) {
+    var val = stg[key] || 'instant';
+    var opts = [
+      {v:'instant', t:'\u26A1 \u041C\u0433\u043D\u043E\u0432\u0435\u043D\u043D\u043E'},
+      {v:'digest', t:'\uD83D\uDCE8 \u0414\u0430\u0439\u0434\u0436\u0435\u0441\u0442 1\u0447'},
+      {v:'daily', t:'\uD83D\uDCC5 \u0415\u0436\u0435\u0434\u043D\u0435\u0432\u043D\u043E'},
+      {v:'off', t:'\u274C \u0412\u044B\u043A\u043B'}
+    ];
+    var selHtml = '<select data-notif="' + key + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer">';
+    for (var oi = 0; oi < opts.length; oi++) {
+      selHtml += '<option value="' + opts[oi].v + '"' + (val === opts[oi].v ? ' selected' : '') + '>' + opts[oi].t + '</option>';
+    }
+    selHtml += '</select>';
+    return '<div class="list-row"><span>' + icon + ' ' + label + '</span><span>' + selHtml + '</span></div>';
+  }
+
+  h += '<div class="card"><div class="card-header">\uD83D\uDD14 \u0423\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u044F</div>' +
+    notifSelect('notif_p1', '\uD83D\uDD34', 'P1 \u041A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0435') +
+    notifSelect('notif_p2', '\uD83D\uDFE0', 'P2 \u0412\u0430\u0436\u043D\u044B\u0435') +
+    notifSelect('notif_p3', '\uD83D\uDD35', 'P3 \u0418\u043D\u0444\u043E') +
+    notifSelect('notif_virals', '\uD83D\uDD25', '\u0412\u0438\u0440\u0430\u043B\u044B') +
+    notifSelect('notif_investors', '\uD83D\uDCB0', '\u0418\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u044B') +
+    '<div class="list-row"><span>\uD83D\uDCCA \u041D\u0435\u0434\u0435\u043B\u044C\u043D\u044B\u0439 \u0434\u0430\u0439\u0434\u0436\u0435\u0441\u0442</span><span style="color:var(--muted)">\uD83D\uDCC5 \u041F\u0442 18:00</span></div>' +
+    '<div class="list-row"><span>\uD83E\uDDE0 Kaizen</span><span style="color:var(--muted)">\uD83D\uDCC5 2\u0445/\u043D\u0435\u0434\u0435\u043B\u044E</span></div>' +
+    '<div class="list-row"><span>\uD83D\uDEA8 Burnout-\u0430\u043B\u0435\u0440\u0442</span><span style="color:var(--muted)">\u26A1 \u041C\u0433\u043D\u043E\u0432\u0435\u043D\u043D\u043E</span></div></div>';
 
   // --- Access rights ---
   var accessData = [
     {role:'Founder', level:'Full Access', sections:22, color:'gold'},
-    {role:'C-Level', level:'Расширенный', sections:21, color:'purple'},
-    {role:'Directors', level:'Управление', sections:18, color:'blue'},
-    {role:'PM', level:'Проектный', sections:14, color:'blue'},
-    {role:'Managers', level:'Базовый', sections:9, color:'green'},
-    {role:'Support', level:'Минимальный', sections:5, color:'muted'}
+    {role:'C-Level', level:'\u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u043D\u044B\u0439', sections:21, color:'purple'},
+    {role:'Directors', level:'\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435', sections:18, color:'blue'},
+    {role:'PM', level:'\u041F\u0440\u043E\u0435\u043A\u0442\u043D\u044B\u0439', sections:14, color:'blue'},
+    {role:'Managers', level:'\u0411\u0430\u0437\u043E\u0432\u044B\u0439', sections:9, color:'green'},
+    {role:'Support', level:'\u041C\u0438\u043D\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0439', sections:5, color:'muted'}
   ];
   var accRows = '';
   for (var ai = 0; ai < accessData.length; ai++) {
     var a = accessData[ai];
-    accRows += '<div class="list-row"><span>' + a.role + '</span><span>' + a.level + '</span><span class="badge badge-' + a.color + '">' + a.sections + ' секций</span></div>';
+    accRows += '<div class="list-row"><span>' + a.role + '</span><span>' + a.level + '</span><span class="badge badge-' + a.color + '">' + a.sections + ' \u0441\u0435\u043A\u0446\u0438\u0439</span></div>';
   }
-  h += '<div class="card"><div class="card-header">🔐 Права доступа</div>' + accRows + '</div>';
+  h += '<div class="card"><div class="card-header">\uD83D\uDD10 \u041F\u0440\u0430\u0432\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u0430</div>' + accRows + '</div>';
 
   // --- Integrations ---
   var integrations = [
-    {name:'Telegram Bot API', status:'✅ Подключено'},
-    {name:'Apify', status:'✅ Подключено'},
-    {name:'OpenAI API', status:'✅ Подключено'},
-    {name:'Anthropic API', status:'✅ Подключено'},
-    {name:'Google Sheets', status:'✅ Подключено'},
-    {name:'ElevenLabs', status:'⏳ Настройка'},
-    {name:'Runway / Pika', status:'⏳ Настройка'},
-    {name:'YouTube Data API', status:'✅ Подключено'}
+    {name:'Telegram Bot API', status:true},
+    {name:'Apify', status:true},
+    {name:'OpenAI API', status:true},
+    {name:'Anthropic API', status:true},
+    {name:'Google Sheets', status:true},
+    {name:'ElevenLabs', status:false},
+    {name:'Runway / Pika', status:false},
+    {name:'YouTube Data API', status:true}
   ];
   var intRows = '';
   for (var ii = 0; ii < integrations.length; ii++) {
-    intRows += '<div class="list-row"><span>' + integrations[ii].name + '</span><span>' + integrations[ii].status + '</span></div>';
+    var ig = integrations[ii];
+    intRows += '<div class="list-row"><span>' + ig.name + '</span><span style="color:' + (ig.status ? 'var(--green)' : 'var(--orange)') + '">' + (ig.status ? '\u2705 \u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E' : '\u23F3 \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430') + '</span></div>';
   }
-  h += '<div class="card"><div class="card-header">🔌 Интеграции</div>' + intRows + '</div>';
+  h += '<div class="card"><div class="card-header">\uD83D\uDD0C \u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438</div>' + intRows + '</div>';
 
   // --- Backups ---
-  h += '<div class="card"><div class="card-header">💾 Бэкапы</div>' +
-    '<div class="list-row"><span>🗄️ Полный бэкап системы</span><span style="color:var(--muted)">Еженедельно</span></div>' +
-    '<div class="list-row"><span>📊 Google Sheets</span><span style="color:var(--muted)">Ежедневно</span></div>' +
-    '<div class="list-row"><span>🤖 Telegram бот</span><span style="color:var(--muted)">Ежедневно</span></div>' +
-    '<div class="list-row"><span>🧠 ML модели</span><span style="color:var(--muted)">При обновлении</span></div>' +
-    '<div class="list-row"><span>📝 Лог транзакций</span><span style="color:var(--muted)">Ежечасно</span></div></div>';
+  h += '<div class="card"><div class="card-header">\uD83D\uDCBE \u0411\u044D\u043A\u0430\u043F\u044B</div>' +
+    '<div class="list-row"><span>\uD83D\uDDC4\uFE0F \u041F\u043E\u043B\u043D\u044B\u0439 \u0431\u044D\u043A\u0430\u043F \u0441\u0438\u0441\u0442\u0435\u043C\u044B</span><span style="color:var(--muted)">\u0415\u0436\u0435\u043D\u0435\u0434\u0435\u043B\u044C\u043D\u043E</span></div>' +
+    '<div class="list-row"><span>\uD83D\uDCCA Google Sheets</span><span style="color:var(--muted)">\u0415\u0436\u0435\u0434\u043D\u0435\u0432\u043D\u043E</span></div>' +
+    '<div class="list-row"><span>\uD83E\uDD16 Telegram \u0431\u043E\u0442</span><span style="color:var(--muted)">\u0415\u0436\u0435\u0434\u043D\u0435\u0432\u043D\u043E</span></div>' +
+    '<div class="list-row"><span>\uD83E\uDDE0 ML \u043C\u043E\u0434\u0435\u043B\u0438</span><span style="color:var(--muted)">\u041F\u0440\u0438 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0438</span></div>' +
+    '<div class="list-row"><span>\uD83D\uDCDD \u041B\u043E\u0433 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0439</span><span style="color:var(--muted)">\u0415\u0436\u0435\u0447\u0430\u0441\u043D\u043E</span></div></div>';
 
   // --- Export ---
-  h += '<div class="card"><div class="card-header">📤 Экспорт</div>' +
+  h += '<div class="card"><div class="card-header">\uD83D\uDCE4 \u042D\u043A\u0441\u043F\u043E\u0440\u0442</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px">' +
-    '<button style="padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer" onclick="alert(\'CSV export\')">CSV</button>' +
-    '<button style="padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer" onclick="alert(\'PDF export\')">PDF</button>' +
-    '<button style="padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer" onclick="alert(\'Finance export\')">💹 Finance</button>' +
-    '<button style="padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer" onclick="alert(\'Snapshot\')">📸 Snapshot</button>' +
+    '<button class="btn" onclick="alert(\'CSV export\')">CSV</button>' +
+    '<button class="btn" onclick="alert(\'PDF export\')">PDF</button>' +
+    '<button class="btn" onclick="alert(\'Finance export\')">\uD83D\uDCB9 Finance</button>' +
+    '<button class="btn" onclick="alert(\'Snapshot\')">\uD83D\uDCF8 Snapshot</button>' +
     '</div></div>';
 
   // --- Admin log ---
-  h += '<div class="card"><div class="card-header">📋 Админ-лог (последние действия)</div>' +
-    '<div class="list-row"><span style="color:var(--muted);font-size:11px">28.05.2026 10:00</span><span>🔒 Вход в систему</span></div>' +
-    '<div class="list-row"><span style="color:var(--muted);font-size:11px">28.05.2026 09:45</span><span>🔄 Обновление дашборда</span></div>' +
-    '<div class="list-row"><span style="color:var(--muted);font-size:11px">27.05.2026 22:15</span><span>💾 Бэкап системы</span></div></div>';
+  h += '<div class="card"><div class="card-header">\uD83D\uDCCB \u0410\u0434\u043C\u0438\u043D-\u043B\u043E\u0433 (\u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0435 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044F)</div>' +
+    '<div class="list-row"><span style="color:var(--muted);font-size:11px">28.05.2026 10:00</span><span>\uD83D\uDD12 \u0412\u0445\u043E\u0434 \u0432 \u0441\u0438\u0441\u0442\u0435\u043C\u0443</span></div>' +
+    '<div class="list-row"><span style="color:var(--muted);font-size:11px">28.05.2026 09:45</span><span>\uD83D\uDD04 \u041E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u0434\u0430\u0448\u0431\u043E\u0440\u0434\u0430</span></div>' +
+    '<div class="list-row"><span style="color:var(--muted);font-size:11px">27.05.2026 22:15</span><span>\uD83D\uDCBE \u0411\u044D\u043A\u0430\u043F \u0441\u0438\u0441\u0442\u0435\u043C\u044B</span></div></div>';
 
   // --- About system ---
-  h += '<div class="card"><div class="card-header">ℹ️ О системе</div>' +
-    '<div class="list-row"><span>Версия</span><span>v1.0.0</span></div>' +
-    '<div class="list-row"><span>Секции</span><span>22/22</span></div>' +
-    '<div class="list-row"><span>Запуск</span><span>15 мая 2026</span></div>' +
-    '<div class="list-row"><span>Поддержка</span><span><a href="https://t.me/Shikardos_V" target="_blank">@Shikardos_V</a></span></div></div>';
+  h += '<div class="card"><div class="card-header">\u2139\uFE0F \u041E \u0441\u0438\u0441\u0442\u0435\u043C\u0435</div>' +
+    '<div class="list-row"><span>\u0412\u0435\u0440\u0441\u0438\u044F</span><span>v1.0.0</span></div>' +
+    '<div class="list-row"><span>\u0421\u0435\u043A\u0446\u0438\u0438</span><span>22/22</span></div>' +
+    '<div class="list-row"><span>\u0417\u0430\u043F\u0443\u0441\u043A</span><span>15 \u043C\u0430\u044F 2026</span></div>' +
+    '<div class="list-row"><span>\u041F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430</span><span><a href="https://t.me/Shikardos_V" target="_blank" style="color:var(--gold)">@Shikardos_V</a></span></div></div>';
 
   // --- Logout ---
-  h += '<div style="margin-top:1rem;text-align:center"><button onclick="logout()" style="padding:10px 32px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600">🚪 Выйти из системы</button></div>';
+  h += '<div style="margin-top:1rem;text-align:center"><button onclick="logout()" style="padding:10px 32px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit">\uD83D\uDEAA \u0412\u044B\u0439\u0442\u0438 \u0438\u0437 \u0441\u0438\u0441\u0442\u0435\u043C\u044B</button></div>';
 
   page.innerHTML = h;
-}
 
+  // --- Event listeners ---
+  // Profile save
+  var saveBtn = document.getElementById('stg-save-profile');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      var newName = document.getElementById('stg-name').value;
+      var newEmail = document.getElementById('stg-email').value;
+      var newLoc = document.getElementById('stg-location').value;
+      api('/me', 'PATCH', { full_name: newName, email: newEmail, location: newLoc })
+        .then(function() {
+          saveBtn.textContent = '\u2705 \u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E';
+          saveBtn.style.background = 'var(--green)';
+          if (currentUser) { currentUser.full_name = newName; currentUser.email = newEmail; currentUser.location = newLoc; }
+          setTimeout(function(){ saveBtn.textContent = '\uD83D\uDCBE \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C'; saveBtn.style.background = 'var(--gold)'; }, 2000);
+        })
+        .catch(function() {
+          saveBtn.textContent = '\u274C \u041E\u0448\u0438\u0431\u043A\u0430';
+          saveBtn.style.background = 'var(--red)';
+          setTimeout(function(){ saveBtn.textContent = '\uD83D\uDCBE \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C'; saveBtn.style.background = 'var(--gold)'; }, 2000);
+        });
+    });
+  }
+
+  // Theme toggle
+  var darkBtn = document.getElementById('stg-theme-dark');
+  var lightBtn = document.getElementById('stg-theme-light');
+  if (darkBtn) darkBtn.addEventListener('click', function() { stg.theme = 'dark'; saveSt(); loadSettings(); });
+  if (lightBtn) lightBtn.addEventListener('click', function() { stg.theme = 'light'; saveSt(); loadSettings(); });
+
+  // Toggle switches
+  var toggleRows = page.querySelectorAll('[data-toggle]');
+  for (var ti = 0; ti < toggleRows.length; ti++) {
+    (function(row) {
+      row.addEventListener('click', function() {
+        var key = row.getAttribute('data-toggle');
+        stg[key] = !stg[key];
+        saveSt();
+        loadSettings();
+      });
+    })(toggleRows[ti]);
+  }
+
+  // Font size slider
+  var fsSlider = document.getElementById('stg-fontsize');
+  var fsVal = document.getElementById('stg-fontsize-val');
+  if (fsSlider) {
+    fsSlider.addEventListener('input', function() {
+      fsVal.textContent = fsSlider.value + 'px';
+      stg.fontSize = parseInt(fsSlider.value);
+      saveSt();
+      document.body.style.fontSize = stg.fontSize + 'px';
+    });
+  }
+
+  // Notification selects
+  var notifSelects = page.querySelectorAll('[data-notif]');
+  for (var ni = 0; ni < notifSelects.length; ni++) {
+    (function(sel) {
+      sel.addEventListener('change', function() {
+        stg[sel.getAttribute('data-notif')] = sel.value;
+        saveSt();
+      });
+    })(notifSelects[ni]);
+  }
+}
 
 
 // ========== ADMIN MAKERS (Section 6) ==========
