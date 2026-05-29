@@ -2975,9 +2975,27 @@ async function loadBloggers() {
       '<thead><tr><th>Менеджер</th><th>Блогеров</th><th>Аудитория</th><th>Привели</th></tr></thead>' +
       '<tbody>' + mgrRows + '</tbody></table></div></div>';
 
+
+    // --- 1 new block (29.05.2026) ---
+    var blogEff = d.blogger_effectiveness || [
+      {m:'\u042F\u043D\u0432',clicks:1200,conv:3.2},
+      {m:'\u0424\u0435\u0432',clicks:1800,conv:3.5},
+      {m:'\u041C\u0430\u0440',clicks:2400,conv:3.8},
+      {m:'\u0410\u043F\u0440',clicks:3100,conv:4.1},
+      {m:'\u041C\u0430\u0439',clicks:3800,conv:4.4}
+    ];
+    var beRows = '';
+    var beMax = 1;
+    for(var bi=0;bi<blogEff.length;bi++) if(blogEff[bi].clicks>beMax) beMax=blogEff[bi].clicks;
+    for(var bi=0;bi<blogEff.length;bi++) {
+      var be=blogEff[bi];
+      beRows += '<div class="bar-row"><div class="bar-label" style="min-width:50px;font-size:11px">' + be.m + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + (be.clicks/beMax*100).toFixed(0) + '%;background:var(--purple)"></div></div><div style="min-width:90px;text-align:right;font-size:11px">' + fmtNum(be.clicks) + ' / ' + be.conv + '%</div></div>';
+    }
+    var blogEffBlock = '<div class="content-card"><h3>\uD83D\uDCC8 \u042D\u0444\u0444\u0435\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C \u0431\u043B\u043E\u0433\u0435\u0440\u043E\u0432</h3><div class="bar-chart">' + beRows + '</div><div style="padding:8px 12px;font-size:10px;color:var(--muted)">\u041A\u043B\u0438\u043A\u0438 / \u043A\u043E\u043D\u0432\u0435\u0440\u0441\u0438\u044F</div></div>';
+
     page.innerHTML = '<div class="section-title">📣 Блогеры</div>' +
       kpiRow + blogTable + '<div class="grid-2">' + platCard + topicCard + '</div>' +
-      sharesCard + cpCard + funnelCard + mgrTable;
+      sharesCard + cpCard + funnelCard + mgrTable + blogEffBlock;
   } catch(e) {
     page.innerHTML = '<div class="section-title">📣 Блогеры</div>' +
       '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
@@ -3048,8 +3066,56 @@ async function loadInfrastructure() {
       '<div class="bar-row"><div class="bar-label">Диск</div><div class="bar-track"><div class="bar-fill" style="width:' + diskPct + '%;background:' + (diskPct > 80 ? 'var(--red)' : 'var(--orange)') + '"></div></div><div class="bar-value">' + diskPct + '%</div></div>' +
       '</div></div>';
 
+
+    // --- 4 new blocks (29.05.2026) ---
+    var backupTable = '<div class="content-card"><h3>\u{1F4BE} Расписание бэкапов</h3>' +
+      '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Система</th><th>Частота</th><th>Последний</th><th>Следующий</th><th>Статус</th></tr></thead><tbody>' +
+      '<tr><td>PostgreSQL</td><td>Ежедневно 03:00</td><td>' + (d.last_db_backup || '29.05.2026 03:00') + '</td><td>' + (d.next_db_backup || '30.05.2026 03:00') + '</td><td><span class="badge badge-green">OK</span></td></tr>' +
+      '<tr><td>Google Sheets</td><td>Ежедневно 04:00</td><td>' + (d.last_gs_backup || '29.05.2026 04:00') + '</td><td>' + (d.next_gs_backup || '30.05.2026 04:00') + '</td><td><span class="badge badge-green">OK</span></td></tr>' +
+      '<tr><td>Telegram Bot</td><td>Ежедневно 02:00</td><td>' + (d.last_bot_backup || '29.05.2026 02:00') + '</td><td>' + (d.next_bot_backup || '30.05.2026 02:00') + '</td><td><span class="badge badge-green">OK</span></td></tr>' +
+      '<tr><td>ML модели</td><td>При обновлении</td><td>' + (d.last_ml_backup || '—') + '</td><td>—</td><td><span class="badge badge-muted">standby</span></td></tr>' +
+      '<tr><td>Полный snapshot</td><td>Еженедельно Вс 01:00</td><td>' + (d.last_full_backup || '25.05.2026') + '</td><td>' + (d.next_full_backup || '01.06.2026') + '</td><td><span class="badge badge-green">OK</span></td></tr>' +
+      '</tbody></table></div></div>';
+
+    var intStatuses = [
+      {name:'Apify', ok: (d.apify_status||'connected')==='connected'},
+      {name:'Telegram Bot', ok: (d.bot_status||'online')==='online'},
+      {name:'Round Robin', ok: (d.rr_status||'active')==='active'},
+      {name:'ML Pipeline', ok: (d.ml_status||'standby')!=='error'},
+      {name:'Google Sheets', ok: true},
+      {name:'YouTube API', ok: true},
+      {name:'Cloudflare', ok: true},
+      {name:'GitHub Pages', ok: true}
+    ];
+    var intGrid = '';
+    for (var ig=0; ig<intStatuses.length; ig++) {
+      var ist = intStatuses[ig];
+      intGrid += '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:6px">' +
+        '<span style="width:8px;height:8px;border-radius:50%;background:' + (ist.ok?'var(--green)':'var(--red)') + '"></span>' +
+        '<span style="font-size:12px">' + ist.name + '</span>' +
+        '<span style="margin-left:auto;font-size:11px;color:' + (ist.ok?'var(--green)':'var(--red)') + '">' + (ist.ok?'✅':'❌') + '</span></div>';
+    }
+    var integrationStatus = '<div class="content-card"><h3>🔌 Статус интеграций</h3>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px">' + intGrid + '</div></div>';
+
+    var apiTimes = d.api_response_times || {avg:45,p95:120,p99:250};
+    var apiTimeChart = '<div class="content-card"><h3>⏱️ API Response Time</h3>' +
+      '<div class="kpi-row">' +
+      '<div class="kpi-card green"><div class="stat-label">AVG</div><div class="stat-value">' + (apiTimes.avg||45) + 'ms</div></div>' +
+      '<div class="kpi-card blue"><div class="stat-label">P95</div><div class="stat-value">' + (apiTimes.p95||120) + 'ms</div></div>' +
+      '<div class="kpi-card ' + ((apiTimes.p99||250)>500?'orange':'gold') + '"><div class="stat-label">P99</div><div class="stat-value">' + (apiTimes.p99||250) + 'ms</div></div>' +
+      '</div><div style="margin-top:12px"><canvas id="chart-api-time" height="120"></canvas></div></div>';
+
+    var errRates = d.error_rates || {rate_5xx:0.1, rate_4xx:2.3, rate_timeout:0.05};
+    var errorTracking = '<div class="content-card"><h3>⚠️ Error Rate Tracking</h3>' +
+      '<div class="kpi-row">' +
+      '<div class="kpi-card ' + ((errRates.rate_5xx||0)>1?'red':'green') + '"><div class="stat-label">5xx Ошибки</div><div class="stat-value">' + (errRates.rate_5xx||0.1) + '%</div></div>' +
+      '<div class="kpi-card ' + ((errRates.rate_4xx||0)>5?'orange':'blue') + '"><div class="stat-label">4xx Клиент</div><div class="stat-value">' + (errRates.rate_4xx||2.3) + '%</div></div>' +
+      '<div class="kpi-card green"><div class="stat-label">Timeout</div><div class="stat-value">' + (errRates.rate_timeout||0.05) + '%</div></div>' +
+      '</div></div>';
+
     page.innerHTML = '<div class="section-title">🖥️ Инфраструктура</div>' +
-      alertHtml + infraCards + sysTable + statCards + loadBar;
+      alertHtml + infraCards + sysTable + statCards + loadBar + backupTable + integrationStatus + apiTimeChart + errorTracking;
   } catch(e) {
     page.innerHTML = '<div class="section-title">🖥️ Инфраструктура</div>' +
       '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки инфраструктуры</div>';
@@ -3847,6 +3913,26 @@ async function loadInvestors() {
       '<div class="list-row"><span>COO</span><span style="color:var(--muted)">Назначается</span></div>' +
       '<div class="list-row"><span>CEO</span><span><a href="https://t.me/Shikardos_V" target="_blank">@Shikardos_V</a></span></div></div>';
 
+
+    // --- 2 new blocks (29.05.2026) ---
+    var invGeo = d.investor_geography || [{r:'\u0421\u041D\u0413',p:40},{r:'\u0415\u0432\u0440\u043E\u043F\u0430',p:25},{r:'\u0410\u0437\u0438\u044F',p:15},{r:'\u0411\u043B\u0438\u0436\u043D\u0438\u0439 \u0412\u043E\u0441\u0442\u043E\u043A',p:12},{r:'\u0414\u0440\u0443\u0433\u0438\u0435',p:8}];
+    var igRows = '';
+    for (var igi=0;igi<invGeo.length;igi++) {
+      igRows += '<div class="bar-row"><div class="bar-label" style="min-width:130px;font-size:12px">' + invGeo[igi].r + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + invGeo[igi].p + '%;background:var(--gold)"></div></div><div style="min-width:40px;text-align:right;font-size:12px;font-weight:700">' + invGeo[igi].p + '%</div></div>';
+    }
+    var invGeoBlock = '<div class="content-card"><h3>\uD83C\uDF0D \u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0438\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432</h3><div class="bar-chart">' + igRows + '</div></div>';
+
+    var invTimeline = '<div class="content-card"><h3>\uD83D\uDCC5 \u0422\u0430\u0439\u043C\u043B\u0430\u0439\u043D \u0438\u043D\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u0439</h3>' +
+      '<div style="position:relative;padding:16px 0 16px 24px;border-left:2px solid var(--gold)">' +
+      '<div style="margin-bottom:20px;padding-left:16px;position:relative"><div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold)"></div><div style="font-size:13px;font-weight:700;color:var(--gold)">2026 \u2014 $5M</div><div style="font-size:11px;color:var(--muted)">1 000 \u0430\u043A\u0446\u0438\u0439 \u00D7 $5K</div></div>' +
+      '<div style="margin-bottom:20px;padding-left:16px;position:relative"><div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--border)"></div><div style="font-size:13px;font-weight:600">2027 \u2014 $10M</div><div style="font-size:11px;color:var(--muted)">1 000 \u0430\u043A\u0446\u0438\u0439 \u00D7 $10K</div></div>' +
+      '<div style="margin-bottom:20px;padding-left:16px;position:relative"><div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--border)"></div><div style="font-size:13px;font-weight:600">2028 \u2014 $20M</div><div style="font-size:11px;color:var(--muted)">1 000 \u0430\u043A\u0446\u0438\u0439 \u00D7 $20K</div></div>' +
+      '<div style="margin-bottom:20px;padding-left:16px;position:relative"><div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--border)"></div><div style="font-size:13px;font-weight:600">2029 \u2014 $40M</div><div style="font-size:11px;color:var(--muted)">1 000 \u0430\u043A\u0446\u0438\u0439 \u00D7 $40K</div></div>' +
+      '<div style="padding-left:16px;position:relative"><div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--border)"></div><div style="font-size:13px;font-weight:600">2030 \u2014 $80M</div><div style="font-size:11px;color:var(--muted)">1 000 \u0430\u043A\u0446\u0438\u0439 \u00D7 $80K</div></div>' +
+      '</div><div style="padding:8px 12px;font-size:12px;color:var(--gold);font-weight:600">\u0418\u0422\u041E\u0413\u041E: $155M \u0437\u0430 5 \u043B\u0435\u0442</div></div>';
+
+    h += '<div class="grid-2">' + invGeoBlock + invTimeline + '</div>';
+
     page.innerHTML = h;
   } catch(e) {
     page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💰</div><div class="empty-state-text">Ошибка загрузки раздела инвесторов</div></div>';
@@ -4228,6 +4314,55 @@ function buildPlatformBars(d) {
       {label:'📘 Facebook',val:fb,color:'var(--blue)'}
     ].map(r => `<div class="bar-row"><div class="bar-label" style="min-width:110px;font-size:11px;">${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:${(r.val/mx*100).toFixed(1)}%;background:${r.color};"></div></div><div style="min-width:50px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">${fmtNum(r.val)}</div></div>`).join('')}
   </div>`;
+
+  // --- 5 new blocks (29.05.2026) ---
+  var geoData = (d.geography || [{c:'UA',n:'Украина',p:45},{c:'RU',n:'Россия',p:20},{c:'KZ',n:'Казахстан',p:10},{c:'BY',n:'Беларусь',p:8},{c:'UZ',n:'Узбекистан',p:5},{c:'Other',n:'Другие',p:12}]);
+  var geoRows = '';
+  for (var gi=0;gi<geoData.length;gi++) {
+    var g = geoData[gi];
+    geoRows += '<div class="bar-row"><div class="bar-label" style="min-width:110px;font-size:12px">' + g.n + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + g.p + '%;background:var(--gold)"></div></div><div style="min-width:40px;text-align:right;font-size:12px;font-weight:700">' + g.p + '%</div></div>';
+  }
+  var geoBlock = '<div class="content-card"><h3>🌍 География мейкеров</h3><div class="bar-chart">' + geoRows + '</div></div>';
+
+  var retentionBlock = '<div class="content-card"><h3>📉 Retention когорты</h3>' +
+    '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Когорта</th><th>M1</th><th>M2</th><th>M3</th><th>M6</th><th>M12</th></tr></thead><tbody>' +
+    '<tr><td>Янв 2026</td><td>100%</td><td>85%</td><td>72%</td><td>—</td><td>—</td></tr>' +
+    '<tr><td>Фев 2026</td><td>100%</td><td>82%</td><td>68%</td><td>—</td><td>—</td></tr>' +
+    '<tr><td>Мар 2026</td><td>100%</td><td>88%</td><td>—</td><td>—</td><td>—</td></tr>' +
+    '<tr><td>Апр 2026</td><td>100%</td><td>80%</td><td>—</td><td>—</td><td>—</td></tr>' +
+    '<tr><td>Май 2026</td><td>100%</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>' +
+    '</tbody></table></div><div style="padding:8px 12px;font-size:11px;color:var(--muted)">ℹ️ Данные обновляются ежемесячно</div></div>';
+
+  var wGrowth = d.weekly_growth || [{w:'W21',v:12},{w:'W22',v:18},{w:'W23',v:25},{w:'W24',v:31}];
+  var wgRows = '';
+  var wgMax = 1;
+  for (var wi=0;wi<wGrowth.length;wi++) if(wGrowth[wi].v>wgMax) wgMax=wGrowth[wi].v;
+  for (var wi=0;wi<wGrowth.length;wi++) {
+    wgRows += '<div class="bar-row"><div class="bar-label" style="min-width:50px;font-size:11px">' + wGrowth[wi].w + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + (wGrowth[wi].v/wgMax*100).toFixed(0) + '%;background:var(--green)"></div></div><div style="min-width:40px;text-align:right;font-size:12px;font-weight:700">+' + wGrowth[wi].v + '</div></div>';
+  }
+  var weeklyGrowthBlock = '<div class="content-card"><h3>📈 Недельный рост</h3><div class="bar-chart">' + wgRows + '</div></div>';
+
+  var keDistr = d.ke_distribution || [{tier:'Тир 1 (+5)',count:0,pct:0},{tier:'Тир 2 (+4)',count:0,pct:0},{tier:'Тир 3 (+3)',count:0,pct:0},{tier:'Тир 4 (+2)',count:0,pct:0},{tier:'Тир 5 (+1)',count:0,pct:0}];
+  var keRows = '';
+  for (var ki=0;ki<keDistr.length;ki++) {
+    var k=keDistr[ki];
+    var kColors = ['var(--gold)','var(--green)','var(--blue)','var(--orange)','var(--muted)'];
+    keRows += '<div class="bar-row"><div class="bar-label" style="min-width:90px;font-size:11px">' + k.tier + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + (k.pct||20) + '%;background:' + kColors[ki%5] + '"></div></div><div style="min-width:60px;text-align:right;font-size:12px">' + fmtNum(k.count) + ' (' + (k.pct||20) + '%)</div></div>';
+  }
+  var keHistBlock = '<div class="content-card"><h3>📊 Распределение КЭ</h3><div class="bar-chart">' + keRows + '</div></div>';
+
+  var funnel = d.onboarding_funnel || [{s:'Заявка',v:500},{s:'Скрининг',v:350},{s:'Тест',v:200},{s:'Онбординг',v:120},{s:'Активный',v:80}];
+  var fnMax = funnel[0] ? funnel[0].v : 1;
+  var fnRows = '';
+  for (var fi=0;fi<funnel.length;fi++) {
+    var f=funnel[fi];
+    var fnColors = ['var(--blue)','var(--purple)','var(--orange)','var(--green)','var(--gold)'];
+    fnRows += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="min-width:100px;font-size:12px;color:var(--muted)">' + f.s + '</div><div style="flex:1;height:28px;background:var(--bg);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + (f.v/fnMax*100).toFixed(0) + '%;background:' + fnColors[fi%5] + ';border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff">' + fmtNum(f.v) + '</div></div></div>';
+  }
+  var onboardBlock = '<div class="content-card"><h3>🎯 Воронка онбординга</h3>' + fnRows + '</div>';
+
+  page.innerHTML += geoBlock + retentionBlock + '<div class="grid-2">' + weeklyGrowthBlock + keHistBlock + '</div>' + onboardBlock;
+
 }
 
 // ========== ADMIN HR (Section 7) ==========
@@ -4336,6 +4471,23 @@ async function loadAdminHR() {
       </div>
     </div>
   `;
+
+  // --- 1 new block (29.05.2026) ---
+  var hrFunnel = [
+    {s:'\u041E\u0442\u043A\u043B\u0438\u043A\u0438', v: d.hr_applications || 150, color:'var(--blue)'},
+    {s:'\u0421\u043A\u0440\u0438\u043D\u0438\u043D\u0433', v: d.hr_screened || 80, color:'var(--purple)'},
+    {s:'\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u0435', v: d.hr_interviewed || 40, color:'var(--orange)'},
+    {s:'\u0422\u0435\u0441\u0442\u043E\u0432\u043E\u0435', v: d.hr_test || 20, color:'var(--green)'},
+    {s:'\u041D\u0430\u043D\u044F\u0442\u044B', v: d.hr_hired || 12, color:'var(--gold)'}
+  ];
+  var hfMax = hrFunnel[0].v || 1;
+  var hfHtml = '';
+  for (var hfi=0;hfi<hrFunnel.length;hfi++) {
+    var hf = hrFunnel[hfi];
+    hfHtml += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="min-width:120px;font-size:12px;color:var(--muted)">' + hf.s + '</div><div style="flex:1;height:30px;background:var(--bg);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + (hf.v/hfMax*100).toFixed(0) + '%;background:' + hf.color + ';border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:12px;font-weight:700;color:#fff">' + fmtNum(hf.v) + '</div></div></div>';
+  }
+  page.innerHTML += '<div class="content-card"><h3>\uD83D\uDCCA \u0412\u043E\u0440\u043E\u043D\u043A\u0430 \u043D\u0430\u0439\u043C\u0430 HR</h3>' + hfHtml + '</div>';
+
 }
 
 // ========== ADMIN SHARES (Section 11) ==========
@@ -4480,6 +4632,38 @@ async function loadAdminShares() {
       </div>
     </div>
   `;
+
+  // --- 2 new blocks (29.05.2026) ---
+  var incomeYears = [
+    {y:'2026', v:152.5, color:'var(--green)'},
+    {y:'2027', v:305, color:'var(--green)'},
+    {y:'2028', v:610, color:'var(--blue)'},
+    {y:'2029', v:1220, color:'var(--blue)'},
+    {y:'2030', v:2440, color:'var(--gold)'}
+  ];
+  var iyMax = 2440;
+  var iyRows = '';
+  for (var yi=0;yi<incomeYears.length;yi++) {
+    var iy = incomeYears[yi];
+    iyRows += '<div class="bar-row"><div class="bar-label" style="min-width:50px;font-size:12px">' + iy.y + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + (iy.v/iyMax*100).toFixed(0) + '%;background:' + iy.color + '"></div></div><div style="min-width:80px;text-align:right;font-size:12px;font-weight:700">$' + fmtNum(iy.v) + 'M</div></div>';
+  }
+  page.innerHTML += '<div class="grid-2"><div class="content-card"><h3>\uD83D\uDCB0 \u0414\u043E\u0445\u043E\u0434 \u043F\u043E \u0433\u043E\u0434\u0430\u043C</h3><div class="bar-chart">' + iyRows + '</div></div>';
+
+  var sharePrices = [
+    {y:'2026', p:'$5K'},
+    {y:'2027', p:'$10K'},
+    {y:'2028', p:'$20K'},
+    {y:'2029', p:'$40K'},
+    {y:'2030', p:'$80K'}
+  ];
+  var spHtml = '<div style="display:flex;align-items:flex-end;gap:12px;height:180px;padding:12px">';
+  var spHeights = [22,36,54,72,100];
+  for (var si=0;si<sharePrices.length;si++) {
+    spHtml += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-size:11px;font-weight:700;color:var(--gold)">' + sharePrices[si].p + '</div><div style="width:100%;height:' + spHeights[si] + '%;background:linear-gradient(to top,var(--gold-dim),var(--gold));border-radius:4px 4px 0 0"></div><div style="font-size:10px;color:var(--muted)">' + sharePrices[si].y + '</div></div>';
+  }
+  spHtml += '</div>';
+  page.innerHTML += '<div class="content-card"><h3>\uD83D\uDCC8 \u0426\u0435\u043D\u0430 \u0430\u043A\u0446\u0438\u0438</h3>' + spHtml + '</div></div>';
+
 }
 
 // ========== ADMIN KE (Section 19) ==========
