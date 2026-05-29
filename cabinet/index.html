@@ -2278,7 +2278,6 @@ async function loadKaizen() {
     } else {
       topH = '<div style="text-align:center;padding:30px;color:var(--muted);">\u041f\u043e\u043a\u0430 \u043d\u0435\u0442 \u0432\u043d\u0435\u0434\u0440\u0451\u043d\u043d\u044b\u0445 \u0438\u0434\u0435\u0439</div>';
     }
-    topH += '</tbody></table>';
 
     // Categories bars (from API)
     var catItems = d.categories || [];
@@ -2292,13 +2291,6 @@ async function loadKaizen() {
     } else {
       catBars = '<div style="text-align:center;padding:20px;color:var(--muted);">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</div>';
     }
-
-      '<div class="bar-row"><div class="bar-label" style="width:140px;">👥 HR и мейкеры</div><div class="bar-track"><div class="bar-fill" style="width:22%;background:var(--gold);"></div></div><div class="bar-value">22%</div></div>' +
-      '<div class="bar-row"><div class="bar-label" style="width:140px;">📱 Контент</div><div class="bar-track"><div class="bar-fill" style="width:17%;background:var(--green);"></div></div><div class="bar-value">17%</div></div>' +
-      '<div class="bar-row"><div class="bar-label" style="width:140px;">💰 Монетизация</div><div class="bar-track"><div class="bar-fill" style="width:13%;background:var(--orange);"></div></div><div class="bar-value">13%</div></div>' +
-      '<div class="bar-row"><div class="bar-label" style="width:140px;">🛡️ Безопасность</div><div class="bar-track"><div class="bar-fill" style="width:8%;background:var(--red);"></div></div><div class="bar-value">8%</div></div>' +
-      '<div class="bar-row"><div class="bar-label" style="width:140px;">📊 Аналитика</div><div class="bar-track"><div class="bar-fill" style="width:7%;background:var(--purple);"></div></div><div class="bar-value">7%</div></div>' +
-      '<div class="bar-row"><div class="bar-label" style="width:140px;">🌍 Прочее</div><div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--muted);"></div></div><div class="bar-value">5%</div></div>';
 
     // Top authors (from API)
     var topAuthorsData = d.top_authors || [];
@@ -3962,6 +3954,7 @@ async function loadAdminMakers() {
   const page = document.getElementById('page-admin-makers');
   let d = {};
   try { d = await api('/admin/stats'); } catch(e) {}
+  d = d || {};
   const makers = d.makers_total || 0;
   const active = d.makers_active || 0;
   const activePct = makers ? ((active/makers)*100).toFixed(1) : '0';
@@ -3969,7 +3962,7 @@ async function loadAdminMakers() {
   const frozen = d.frozen_count || 0;
 
   let topMakers = [];
-  try { const r = await api('/admin/users?role=maker&limit=10&sort=views'); topMakers = r.users || r || []; } catch(e) {}
+  try { const r = await api('/admin/users?role=maker&limit=10&sort=views'); topMakers = (r && r.users) || (Array.isArray(r) ? r : []); } catch(e) {}
 
   page.innerHTML = `
     <div class="alert" style="background:rgba(88,166,255,0.08);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
