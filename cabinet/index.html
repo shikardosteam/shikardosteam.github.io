@@ -376,6 +376,25 @@ h3 { font-size:18px; }
   .auth-container { padding:32px 20px; }
   .stat-value { font-size:26px; }
 }
+
+/* ===== CARD & LIST-ROW (layout fix 29.05.2026) ===== */
+.card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; margin-bottom:16px; overflow:hidden;
+}
+.card-header {
+  font-family:'Bebas Neue',sans-serif; font-size:16px;
+  letter-spacing:1.5px; padding:14px 16px;
+  border-bottom:1px solid var(--border); color:var(--gold);
+}
+.list-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 16px; border-bottom:1px solid rgba(48,54,61,0.5);
+  font-size:13px; gap:12px;
+}
+.list-row:last-child { border-bottom:none; }
+.list-row > span:first-child { color:var(--muted); white-space:nowrap; }
+.list-row > span:last-child { text-align:right; font-weight:500; }
 </style>
 </head>
 <body>
@@ -3843,7 +3862,11 @@ function loadSettings() {
   // --- Profile ---
   h += '<div class="card"><div class="card-header">👤 Профиль</div>' +
     '<div class="list-row"><span>Имя</span><span>' + (u.full_name || u.display_name || '—') + '</span></div>' +
-    '<div class="list-row"><span>Роль</span><span class="badge badge-gold">' + (u.role || u.team_role || '—').toUpperCase() + '</span></div>' +
+    (function(){
+    var r = u.role || u.team_role || '—';
+    var rl = (r === 'founder') ? 'Founder \x26 CEO' : r.toUpperCase();
+    return '<div class="list-row"><span>Роль</span><span class="badge badge-gold">' + rl + '</span></div>';
+  }()) +
     '<div class="list-row"><span>Telegram</span><span>@' + (u.telegram_username || u.username || '—') + '</span></div>' +
     '<div class="list-row"><span>Email</span><span>' + (u.email || '—') + '</span></div>' +
     '<div class="list-row"><span>📍 Локация</span><span>' + (u.location || u.country || '—') + '</span></div>' +
