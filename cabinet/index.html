@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script async src="https://telegram.org/js/telegram-widget.js?22"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -395,6 +396,18 @@ h3 { font-size:18px; }
 .list-row:last-child { border-bottom:none; }
 .list-row > span:first-child { color:var(--muted); white-space:nowrap; }
 .list-row > span:last-child { text-align:right; font-weight:500; }
+
+/* --- Print styles for PDF export --- */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .sidebar, .nav-header, .mobile-nav, #auth-screen { display: none !important; }
+  .main-content { margin: 0 !important; padding: 10px !important; }
+  .card { break-inside: avoid; border: 1px solid #ccc !important; background: #fff !important; }
+  .kpi-card { border: 1px solid #ccc !important; background: #f9f9f9 !important; }
+  .kpi-value, .stat-value { color: #000 !important; }
+  .bar-fill { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .badge { border: 1px solid #999 !important; }
+}
 </style>
 </head>
 <body>
@@ -631,6 +644,140 @@ function logout() {
   document.getElementById('cabinet').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
   showAuthStep('choose');
+}
+
+
+// ===== TOAST NOTIFICATIONS =====
+function showToast(msg, type) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  var bg = type === 'error' ? 'var(--red)' : type === 'warn' ? 'var(--orange)' : 'var(--green)';
+  t.style.cssText = 'position:fixed;top:20px;right:20px;z-index:99999;padding:12px 20px;border-radius:8px;color:#fff;font-size:13px;font-weight:600;background:' + bg + ';box-shadow:0 4px 20px rgba(0,0,0,0.3);transition:opacity 0.5s';
+  document.body.appendChild(t);
+  setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 500); }, 3000);
+}
+
+// ===== EXPORT FUNCTIONS =====
+function exportCSV() {
+  var page = document.querySelector('.page-content[style*="display: block"], .page-content[style*="display:block"]');
+  if (!page) page = document.querySelector('.page-content:not([style*="display: none"])');
+  if (!page) { showToast('Нет данных для экспорта', 'warn'); return; }
+  var tables = page.querySelectorAll('table');
+  if (tables.length === 0) {
+    // fallback: collect list-row data
+    var rows = page.querySelectorAll('.list-row');
+    if (rows.length === 0) { showToast('Нет табличных данных на странице', 'warn'); return; }
+    var csv = '\xEF\xBB\xBF';
+    rows.forEach(function(r) {
+      var cells = r.querySelectorAll('span');
+      var line = [];
+      cells.forEach(function(c) { line.push('"' + c.textContent.trim().replace(/"/g, '""') + '"'); });
+      csv += line.join(';') + '\n';
+    });
+    downloadFile(csv, 'cabinet_export_' + dateStamp() + '.csv', 'text/csv;charset=utf-8');
+    showToast('CSV экспортирован', 'ok');
+    return;
+  }
+  var csv = '\xEF\xBB\xBF';
+  tables.forEach(function(tbl, idx) {
+    if (idx > 0) csv += '\n\n';
+    tbl.querySelectorAll('tr').forEach(function(tr) {
+      var cells = tr.querySelectorAll('th, td');
+      var line = [];
+      cells.forEach(function(c) { line.push('"' + c.textContent.trim().replace(/"/g, '""') + '"'); });
+      csv += line.join(';') + '\n';
+    });
+  });
+  downloadFile(csv, 'cabinet_export_' + dateStamp() + '.csv', 'text/csv;charset=utf-8');
+  showToast('CSV экспортирован (' + tables.length + ' табл.)', 'ok');
+}
+
+function exportPDF() {
+  showToast('Подготовка PDF...', 'ok');
+  setTimeout(function() { window.print(); }, 300);
+}
+
+function exportFinance() {
+  var csv = '\xEF\xBB\xBF';
+  csv += '"Год";"Доход/мес за акцию";"Доход/год за акцию";"Цена акции";"Капитализация"\n';
+  var finData = [
+    ['2026','$127','$1 524','$5 000','$500M'],
+    ['2027','$254','$3 048','$10 000','$1B'],
+    ['2028','$508','$6 096','$20 000','$2B'],
+    ['2029','$1 018','$12 216','$40 000','$4B'],
+    ['2030','$2 036','$24 432','$80 000','$8B']
+  ];
+  finData.forEach(function(r) {
+    csv += r.map(function(c) { return '"' + c + '"'; }).join(';') + '\n';
+  });
+  csv += '\n"Распределение акций"\n';
+  csv += '"Категория";"Акции";"Процент"\n';
+  var distData = [
+    ['Мейкеры','70 000','70%'],
+    ['Управляющая команда','17 500','17.5%'],
+    ['Фонд развития','5 000','5%'],
+    ['Инвесторы','5 000','5%'],
+    ['Блогеры-партнёры','1 500','1.5%'],
+    ['Адвизоры','1 000','1%']
+  ];
+  distData.forEach(function(r) {
+    csv += r.map(function(c) { return '"' + c + '"'; }).join(';') + '\n';
+  });
+  downloadFile(csv, 'finance_report_' + dateStamp() + '.csv', 'text/csv;charset=utf-8');
+  showToast('Финансовый отчёт экспортирован', 'ok');
+}
+
+function exportSnapshot() {
+  if (typeof html2canvas === 'undefined') { showToast('html2canvas не загружен', 'error'); return; }
+  var page = document.querySelector('.page-content[style*="display: block"], .page-content[style*="display:block"]');
+  if (!page) page = document.querySelector('.page-content:not([style*="display: none"])');
+  if (!page) { showToast('Нет контента для скриншота', 'warn'); return; }
+  showToast('Создаю скриншот...', 'ok');
+  html2canvas(page, {
+    backgroundColor: '#0d1117',
+    scale: 2,
+    useCORS: true,
+    logging: false
+  }).then(function(canvas) {
+    var link = document.createElement('a');
+    link.download = 'cabinet_snapshot_' + dateStamp() + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('Скриншот сохранён', 'ok');
+  }).catch(function(e) {
+    showToast('Ошибка: ' + e.message, 'error');
+  });
+}
+
+function downloadFile(content, filename, mimeType) {
+  var blob = new Blob([content], { type: mimeType });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+function dateStamp() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// ===== OPS CENTER ACTIONS =====
+function opsAction(actionName, endpoint) {
+  if (!confirm('Выполнить: ' + actionName + '?')) return;
+  showToast(actionName + '...', 'ok');
+  api(endpoint, 'POST').then(function(res) {
+    if (res && !res.error) {
+      showToast(actionName + ' — OK', 'ok');
+    } else {
+      showToast(actionName + ' — endpoint не подключён', 'warn');
+    }
+  }).catch(function() {
+    showToast(actionName + ' — endpoint не подключён', 'warn');
+  });
 }
 
 // ===== LOAD CABINET =====
@@ -1410,7 +1557,9 @@ async function loadContent() {
     }
     var viewCard = '<div class="content-card"><h3>👁️ Просмотры по платформам</h3><div class="bar-chart">' + viewBars + '</div></div>';
 
-    var tiers = d.uniformity_tiers || { t4: 0, t3: 0, t2: 0, t1: 0 };
+    var tiers = d.uniformity_tiers || null;
+    var tiersEmpty = !tiers || ((tiers.t4||0)+(tiers.t3||0)+(tiers.t2||0)+(tiers.t1||0)) === 0;
+    if (!tiers) tiers = { t4: 0, t3: 0, t2: 0, t1: 0 };
     var totalMakers = (tiers.t4 || 0) + (tiers.t3 || 0) + (tiers.t2 || 0) + (tiers.t1 || 0);
     var uniPct = totalMakers > 0 ? Math.round(((tiers.t4 || 0) / totalMakers) * 100) : 0;
     var uniCard = '<div class="content-card"><h3>📊 Равномерность публикаций</h3>' +
@@ -1423,6 +1572,7 @@ async function loadContent() {
       '<div style="margin-top:8px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px">Общая равномерность: ' + uniPct + '%</div>' +
       '<div class="bar-track"><div class="bar-fill" style="width:' + uniPct + '%;background:var(--green)"></div></div></div></div>';
 
+    if (tiersEmpty) uniCard = '<div class="content-card"><h3>\uD83D\uDCCA Равномерность публикаций</h3><div style="color:var(--muted);text-align:center;padding:24px">Нет данных — будет доступно после первой недели</div></div>';
     var weeks = d.weekly_dynamics || [];
     var dynBars = '';
     var maxW = 1;
@@ -2403,7 +2553,7 @@ async function loadTeamMembers() {
         '<span style="flex:1">' + o.role + '</span>' +
         '<span class="badge badge-blue">' + o.count + '</span></div>';
     }
-    h += '<div class="card"><div class="card-header">🏛️ Организационная структура (8 уровней)</div>' + orgRows + '</div>';
+    h += '<div class="card"><div class="card-header">\uD83C\uDFDB\uFE0F Организационная структура (8 уровней)</div>' + orgRows + '<div style="padding:8px 12px;color:var(--muted);font-size:11px;text-align:right">* Плановая структура. Обновится по данным API.</div></div>';
 
     // --- Founder Vesting (only for founder) ---
     if (currentUser && (currentUser.role === 'founder' || currentUser.team_role === 'founder')) {
@@ -3693,22 +3843,22 @@ async function loadOpsCenter() {
 
     // --- System status ---
     var systems = d.systems || [
-      {name:'Apify Scraper', status:'UP'},
-      {name:'Telegram Bot', status:'UP'},
-      {name:'Round Robin', status:'UP'},
-      {name:'Exchange (OTC)', status:'UP'},
-      {name:'ML Models', status:'UP'},
+      {name:'Apify Scraper', status:'N/A'},
+      {name:'Telegram Bot', status:'N/A'},
+      {name:'Round Robin', status:'N/A'},
+      {name:'Exchange (OTC)', status:'N/A'},
+      {name:'ML Models', status:'N/A'},
       {name:'Dashboard', status:'UP'},
       {name:'GitHub Pages', status:'UP'},
-      {name:'SMTP (Cloudflare)', status:'UP'},
-      {name:'Google Sheets API', status:'UP'},
-      {name:'YouTube Data API', status:'UP'}
+      {name:'SMTP (Cloudflare)', status:'N/A'},
+      {name:'Google Sheets API', status:'N/A'},
+      {name:'YouTube Data API', status:'N/A'}
     ];
     var sysRows = '';
     for (var si = 0; si < systems.length; si++) {
       var s = systems[si];
-      var sColor = s.status === 'UP' ? 'var(--green)' : 'var(--red)';
-      var sIcon = s.status === 'UP' ? '🟢' : '🔴';
+      var sColor = s.status === 'UP' ? 'var(--green)' : (s.status === 'N/A' ? 'var(--muted)' : 'var(--red)');
+      var sIcon = s.status === 'UP' ? '\uD83D\uDFE2' : (s.status === 'N/A' ? '\u26AA' : '\uD83D\uDD34');
       sysRows += '<div class="list-row"><span>' + sIcon + ' ' + s.name + '</span><span style="color:' + sColor + ';font-weight:600">' + s.status + '</span></div>';
     }
     h += '<div class="card"><div class="card-header">🛠️ Статус систем</div>' + sysRows + '</div>';
@@ -3758,19 +3908,19 @@ async function loadOpsCenter() {
 
     // --- Quick actions ---
     var actions = [
-      {icon:'⏹', label:'Стоп ротацию', color:'red'},
-      {icon:'🔄', label:'Резерв API', color:'orange'},
-      {icon:'💾', label:'Force бэкап', color:'blue'},
-      {icon:'📢', label:'Push команде', color:'green'},
-      {icon:'⚠️', label:'Эскалация CEO', color:'red'},
-      {icon:'🔕', label:'Silent mode', color:'purple'},
-      {icon:'📋', label:'Отчёт смены', color:'blue'},
-      {icon:'🚨', label:'Новый инцидент', color:'orange'}
+      {icon:'\u23F9', label:'Стоп ротацию', color:'red', endpoint:'/admin/rotation/stop'},
+      {icon:'\uD83D\uDD04', label:'Резерв API', color:'orange', endpoint:'/admin/reserve-api'},
+      {icon:'\uD83D\uDCBE', label:'Force бэкап', color:'blue', endpoint:'/admin/backup'},
+      {icon:'\uD83D\uDCE2', label:'Push команде', color:'green', endpoint:'/admin/push-team'},
+      {icon:'\u26A0\uFE0F', label:'Эскалация CEO', color:'red', endpoint:'/admin/escalate'},
+      {icon:'\uD83D\uDD15', label:'Silent mode', color:'purple', endpoint:'/admin/silent-mode'},
+      {icon:'\uD83D\uDCCB', label:'Отчёт смены', color:'blue', endpoint:'/admin/shift-report'},
+      {icon:'\uD83D\uDEA8', label:'Новый инцидент', color:'orange', endpoint:'/admin/new-incident'}
     ];
     var actBtns = '';
     for (var qi = 0; qi < actions.length; qi++) {
       var act = actions[qi];
-      actBtns += '<button style="padding:8px 12px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px" onclick="alert(\'Action: ' + act.label + '\')">' + act.icon + ' ' + act.label + '</button>';
+      actBtns += '<button style="padding:8px 12px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px" onclick="opsAction(\'' + act.label + '\', \'' + (act.endpoint || '/admin/action') + '\')">' + act.icon + ' ' + act.label + '</button>';
     }
     h += '<div class="card"><div class="card-header">⚡ Быстрые действия</div>' +
       '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px">' + actBtns + '</div></div>';
@@ -4083,10 +4233,10 @@ function loadSettings() {
   // --- Export ---
   h += '<div class="card"><div class="card-header">\uD83D\uDCE4 \u042D\u043A\u0441\u043F\u043E\u0440\u0442</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px">' +
-    '<button class="btn" onclick="alert(\'CSV export\')">CSV</button>' +
-    '<button class="btn" onclick="alert(\'PDF export\')">PDF</button>' +
-    '<button class="btn" onclick="alert(\'Finance export\')">\uD83D\uDCB9 Finance</button>' +
-    '<button class="btn" onclick="alert(\'Snapshot\')">\uD83D\uDCF8 Snapshot</button>' +
+    '<button class="btn" onclick="exportCSV()">📊 CSV</button>' +
+    '<button class="btn" onclick="exportPDF()">📄 PDF</button>' +
+    '<button class="btn" onclick="exportFinance()">\uD83D\uDCB9 Finance</button>' +
+    '<button class="btn" onclick="exportSnapshot()">\uD83D\uDCF8 Snapshot</button>' +
     '</div></div>';
 
   // --- Admin log ---
