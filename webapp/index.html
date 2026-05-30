@@ -545,7 +545,7 @@ function buildMoreMenu() {
   var h = '<div style="font-size:14px;font-weight:600;padding:4px 0 8px">Разделы</div>';
   h += '<div class="more-grid">';
   items.forEach(function(it) {
-    h += '<div class="more-item" onclick="goSub('' + it.id + '')" ><span class="mi">' + it.ico + '</span>' + it.name + '</div>';
+    h += '<div class="more-item" onclick="goSub(\'' + it.id + '\')" ><span class="mi">' + it.ico + '</span>' + it.name + '</div>';
   });
   h += '</div>';
 
@@ -559,7 +559,7 @@ function buildMoreMenu() {
 // ===== SUB-PAGES =====
 async function loadSubPage(id) {
   var pg = $('pg-sub');
-  var back = '<div class="more-back" onclick="go('more')">← Назад</div>';
+  var back = '<div class="more-back" onclick="go(\'more\')">← Назад</div>';
 
   if (id === 'profile') {
     var p = U.profile || {};
