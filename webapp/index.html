@@ -3,500 +3,797 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Shikardos Team — Кабинет</title>
+<title>Shikardos Team</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--gold:#d4a843;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--orange:#d29922}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:70px}
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
-.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.error-msg{text-align:center;padding:40px 20px;color:var(--red)}
+/* ===== ADAPTIVE THEME (Telegram CSS vars with fallbacks) ===== */
+:root {
+  --bg: var(--tg-theme-bg-color, #0d1117);
+  --card: var(--tg-theme-secondary-bg-color, #161b22);
+  --text: var(--tg-theme-text-color, #e6edf3);
+  --hint: var(--tg-theme-hint-color, #8b949e);
+  --link: var(--tg-theme-link-color, #58a6ff);
+  --btn: var(--tg-theme-button-color, #d4a843);
+  --btn-text: var(--tg-theme-button-text-color, #0d1117);
+  --border: rgba(128,128,128,0.15);
+  --gold: #d4a843;
+  --green: #3fb950;
+  --red: #f85149;
+  --blue: #58a6ff;
+  --orange: #d29922;
+  --purple: #bc8cff;
+}
 
-/* Header */
-.header{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border)}
-.avatar{width:44px;height:44px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--bg);flex-shrink:0}
-.user-info h2{font-size:16px;font-weight:600;line-height:1.2}
-.user-info p{font-size:12px;color:var(--muted)}
-.role-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:rgba(212,168,67,0.15);color:var(--gold)}
-.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle}
-.status-dot.active{background:var(--green)}
-.status-dot.frozen{background:var(--red)}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 68px;
+  -webkit-tap-highlight-color: transparent;
+}
 
-/* Tabs */
-.tab-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;padding:4px 0 env(safe-area-inset-bottom)}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;gap:2px}
-.tab-btn.active{color:var(--gold)}
-.tab-btn .ico{font-size:20px}
-.tab-page{display:none;padding:12px}
-.tab-page.active{display:block}
+/* ===== LOADING / ERROR ===== */
+.loading { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; gap:16px; }
+.spinner { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg) } }
+.error-screen { text-align:center; padding:60px 20px; }
 
-/* Cards */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.stats-grid.three{grid-template-columns:1fr 1fr 1fr}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
-.stat-value{font-size:22px;font-weight:700;color:var(--gold)}
-.stat-value.green{color:var(--green)}
-.stat-value.red{color:var(--red)}
-.stat-value.blue{color:var(--blue)}
-.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
-.section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
-.section h3{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
-.row-label{font-size:12px;color:var(--muted)}
-.row-value{font-size:13px;font-weight:600}
-.progress-bar{width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:6px 0}
-.progress-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
-.chart-container{position:relative;width:100%;height:180px}
+/* ===== HEADER ===== */
+.header {
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50;
+  background:var(--bg);
+}
+.avatar {
+  width:40px; height:40px; border-radius:50%; background:var(--gold);
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; font-weight:700; color:var(--bg); flex-shrink:0;
+}
+.user-info { flex:1; min-width:0; }
+.user-info h2 { font-size:15px; font-weight:600; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.user-info .sub { font-size:11px; color:var(--hint); display:flex; align-items:center; gap:4px; }
+.role-tag {
+  display:inline-block; padding:1px 6px; border-radius:8px;
+  font-size:10px; font-weight:600; background:rgba(212,168,67,0.12); color:var(--gold);
+}
+.dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+.dot.ok { background:var(--green); }
+.dot.bad { background:var(--red); }
 
-/* List items */
-.list-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
-.list-item:last-child{border-bottom:none}
-.badge{display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:600}
-.badge.pending{background:rgba(210,153,34,0.15);color:var(--orange)}
-.badge.approved{background:rgba(63,185,80,0.12);color:var(--green)}
-.badge.rejected{background:rgba(248,81,73,0.12);color:var(--red)}
-.badge.active{background:rgba(63,185,80,0.12);color:var(--green)}
-.badge.frozen{background:rgba(248,81,73,0.12);color:var(--red)}
+/* ===== BOTTOM TAB BAR ===== */
+.tab-bar {
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  background:var(--card); border-top:1px solid var(--border);
+  display:flex; padding:2px 0 env(safe-area-inset-bottom);
+}
+.tab-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  padding:6px 2px; font-size:9px; color:var(--hint);
+  background:none; border:none; cursor:pointer; gap:1px;
+  transition: color 0.15s;
+}
+.tab-btn.active { color:var(--gold); }
+.tab-btn .ico { font-size:20px; line-height:1.2; }
 
-/* Rotation */
-.rotation-status{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600}
-.rotation-status.active{background:rgba(63,185,80,0.12);color:var(--green)}
-.rotation-status.inactive{background:rgba(248,81,73,0.12);color:var(--red)}
+/* ===== PAGES ===== */
+.page { display:none; padding:12px 14px; }
+.page.active { display:block; animation:fadeIn 0.2s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
 
-/* Empty state */
-.empty{text-align:center;padding:20px;color:var(--muted);font-size:13px}
+/* ===== CARDS ===== */
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+.kpi-grid.three { grid-template-columns:1fr 1fr 1fr; }
+.kpi { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px; }
+.kpi .val { font-size:20px; font-weight:700; color:var(--gold); }
+.kpi .val.green { color:var(--green); }
+.kpi .val.red { color:var(--red); }
+.kpi .val.blue { color:var(--blue); }
+.kpi .lbl { font-size:10px; color:var(--hint); margin-top:2px; }
 
-/* Income table */
-.income-table{width:100%;font-size:12px;border-collapse:collapse}
-.income-table td{padding:4px;border-bottom:1px solid var(--border)}
-.income-table td:last-child{text-align:right;font-weight:600;color:var(--gold)}
+.card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:12px; margin-bottom:10px;
+}
+.card h3 { font-size:13px; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:5px; }
 
-/* Admin cards */
-.admin-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.admin-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
-.admin-card .num{font-size:20px;font-weight:700}
-.admin-card .lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:12px; }
+.row .lbl { color:var(--hint); }
+.row .val { font-weight:600; }
 
-.saas-item{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
-.saas-item:last-child{border-bottom:none}
+.list-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:7px 0; border-bottom:1px solid var(--border); font-size:12px;
+}
+.list-item:last-child { border-bottom:none; }
+
+.badge { display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:600; }
+.badge.green { background:rgba(63,185,80,0.12); color:var(--green); }
+.badge.red { background:rgba(248,81,73,0.12); color:var(--red); }
+.badge.orange { background:rgba(210,153,34,0.12); color:var(--orange); }
+.badge.blue { background:rgba(88,166,255,0.12); color:var(--blue); }
+.badge.gold { background:rgba(212,168,67,0.12); color:var(--gold); }
+
+.empty { text-align:center; padding:20px; color:var(--hint); font-size:12px; }
+
+/* Chart */
+.chart-box { position:relative; width:100%; height:160px; }
 
 /* Leaderboard */
-.lb-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
-.lb-row:last-child{border-bottom:none}
-.lb-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.lb-rank.gold{background:rgba(212,168,67,0.2);color:var(--gold)}
-.lb-rank.silver{background:rgba(139,148,158,0.2);color:var(--muted)}
-.lb-rank.bronze{background:rgba(210,153,34,0.15);color:var(--orange)}
-.lb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lb-val{font-weight:700;color:var(--gold);font-size:13px}
+.lb-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.lb-row:last-child { border-bottom:none; }
+.lb-rank { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+.lb-rank.g { background:rgba(212,168,67,0.2); color:var(--gold); }
+.lb-rank.s { background:rgba(139,148,158,0.2); color:var(--hint); }
+.lb-rank.b { background:rgba(210,153,34,0.15); color:var(--orange); }
+.lb-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lb-val { font-weight:700; color:var(--gold); }
+
+/* Progress bar */
+.prog { width:100%; height:5px; background:var(--border); border-radius:3px; overflow:hidden; margin:5px 0; }
+.prog .fill { height:100%; border-radius:3px; transition:width 0.5s; }
+
+/* More menu grid */
+.more-grid {
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; padding:4px;
+}
+.more-item {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:14px 6px; background:var(--card); border:1px solid var(--border);
+  border-radius:12px; cursor:pointer; font-size:11px; color:var(--text);
+  transition: background 0.15s;
+}
+.more-item:active { background:var(--border); }
+.more-item .mi { font-size:24px; }
+.more-back {
+  display:flex; align-items:center; gap:6px; padding:10px 0; margin-bottom:8px;
+  font-size:13px; color:var(--link); cursor:pointer; font-weight:600;
+}
+
+/* Income table */
+.inc-tbl { width:100%; font-size:12px; border-collapse:collapse; }
+.inc-tbl td { padding:3px 4px; border-bottom:1px solid var(--border); }
+.inc-tbl td:last-child { text-align:right; font-weight:600; color:var(--gold); }
+
+/* Bar chart row */
+.bar-row { display:flex; align-items:center; gap:8px; padding:3px 0; font-size:11px; }
+.bar-label { width:70px; color:var(--hint); flex-shrink:0; }
+.bar-track { flex:1; height:14px; background:var(--border); border-radius:4px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; }
+.bar-val { width:36px; text-align:right; font-weight:600; font-size:11px; }
+
+/* Toast */
+.toast {
+  position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:9999;
+  padding:8px 16px; border-radius:8px; color:#fff; font-size:12px; font-weight:600;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3); transition:opacity 0.5s;
+}
 </style>
 </head>
 <body>
 
 <div id="app-loading" class="loading">
   <div class="spinner"></div>
-  <div style="color:var(--muted);font-size:14px">Загрузка кабинета...</div>
+  <div style="color:var(--hint);font-size:13px">Загрузка...</div>
 </div>
 
-<div id="app-content" style="display:none">
+<div id="app" style="display:none">
   <!-- HEADER -->
   <div class="header">
-    <div class="avatar" id="avatar">?</div>
+    <div class="avatar" id="hd-avatar">?</div>
     <div class="user-info">
-      <h2 id="user-name">—</h2>
-      <p><span class="role-badge" id="user-role">—</span><span class="status-dot" id="user-status-dot"></span></p>
+      <h2 id="hd-name">—</h2>
+      <div class="sub"><span class="role-tag" id="hd-role">—</span><span class="dot" id="hd-dot"></span></div>
     </div>
   </div>
 
-  <!-- TAB: ГЛАВНАЯ -->
-  <div id="page-home" class="tab-page active">
-    <div class="stats-grid" id="home-stats"></div>
-    <div class="section">
-      <h3>💰 Прогноз дохода</h3>
-      <div class="chart-container"><canvas id="income-chart"></canvas></div>
-      <table class="income-table" style="margin-top:8px" id="income-table"></table>
-    </div>
-    <div id="home-rotation" class="section" style="display:none">
-      <h3>🔄 Ротация</h3>
-      <div class="rotation-status" id="rotation-badge">—</div>
-      <div style="margin-top:8px">
-        <div class="row"><span class="row-label">SaaS ссылки</span><span class="row-value" id="saas-filled">0/0</span></div>
-        <div class="progress-bar"><div class="progress-fill" id="saas-progress" style="width:0%;background:var(--green)"></div></div>
-      </div>
-    </div>
-    <div id="home-project" class="section">
-      <h3>📈 Проект</h3>
-      <div class="row"><span class="row-label">Мейкеров</span><span class="row-value" id="stat-makers">—</span></div>
-      <div class="row"><span class="row-label">Видео за неделю</span><span class="row-value" id="stat-videos">—</span></div>
-      <div class="row"><span class="row-label">Просмотров</span><span class="row-value" id="stat-views">—</span></div>
-      <div class="row"><span class="row-label">SaaS офферов</span><span class="row-value" id="stat-offers">—</span></div>
-    </div>
-    <!-- CONTESTS -->
-    <div id="home-contests" class="section" style="display:none">
-      <h3>🏆 Конкурсы</h3>
-      <div id="contests-list"><div class="empty">Загрузка...</div></div>
-    </div>
-    <!-- HALL OF FAME -->
-    <div id="home-hall" class="section" style="display:none">
-      <h3>🏅 Зал славы</h3>
-      <div id="hall-content"><div class="empty">Загрузка...</div></div>
-    </div>
-  </div>
-
-  <!-- TAB: АНАЛИТИКА (ролевая) -->
-  <div id="page-analytics" class="tab-page">
-    <div id="analytics-content"></div>
-  </div>
-
-  <!-- TAB: АКЦИИ -->
-  <div id="page-shares" class="tab-page">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-value" id="sh-balance">0</div><div class="stat-label">Баланс акций</div></div>
-      <div class="stat-card"><div class="stat-value" id="sh-income">$0</div><div class="stat-label">Доход / мес</div></div>
-    </div>
-    <div class="section" id="sh-frozen-section" style="display:none">
-      <div style="color:var(--red);font-weight:600">❄️ Акции заморожены</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">Доход = $0. Загрузите видео чтобы разморозить.</div>
-    </div>
-    <div class="section">
-      <h3>📜 История транзакций</h3>
-      <div id="sh-history"><div class="empty">Нет транзакций</div></div>
-    </div>
-    <div class="section">
-      <h3>📦 SaaS ссылки</h3>
-      <div id="sh-saas-list"><div class="empty">Загрузка...</div></div>
-    </div>
-  </div>
-
-  <!-- TAB: ПРОФИЛЬ -->
-  <div id="page-profile" class="tab-page">
-    <div class="section">
-      <h3>👤 Мой профиль</h3>
-      <div class="row"><span class="row-label">Имя</span><span class="row-value" id="pf-name">—</span></div>
-      <div class="row"><span class="row-label">Роль</span><span class="row-value" id="pf-role">—</span></div>
-      <div class="row"><span class="row-label">Позиция</span><span class="row-value" id="pf-team-role">—</span></div>
-      <div class="row"><span class="row-label">Статус</span><span class="row-value" id="pf-status">—</span></div>
-      <div class="row"><span class="row-label">В системе с</span><span class="row-value" id="pf-date">—</span></div>
-      <div class="row"><span class="row-label">Телефон</span><span class="row-value" id="pf-phone">—</span></div>
-      <div class="row"><span class="row-label">Email</span><span class="row-value" id="pf-email">—</span></div>
-    </div>
-    <div class="section">
-      <h3>🔗 Реферальная программа</h3>
-      <div class="row"><span class="row-label">Мой код</span><span class="row-value" id="pf-ref-code" style="color:var(--gold)">—</span></div>
-      <div class="row"><span class="row-label">Привлечено</span><span class="row-value" id="pf-ref-count">0</span></div>
-      <div id="pf-ref-list" style="margin-top:8px"></div>
-    </div>
-    <div class="section" id="pf-ref-groups" style="display:none">
-      <h3>🏆 Реферальные группы</h3>
-      <div id="pf-groups-list"></div>
-    </div>
-    <!-- KAIZEN -->
-    <div class="section" id="pf-kaizen" style="display:none">
-      <h3>💡 Кайдзен</h3>
-      <div id="kaizen-stats" class="stats-grid three" style="margin-bottom:8px"></div>
-      <div id="kaizen-list"><div class="empty">Загрузка...</div></div>
-    </div>
-  </div>
+  <!-- PAGE: HOME -->
+  <div id="pg-home" class="page active"></div>
+  <!-- PAGE: SHARES -->
+  <div id="pg-shares" class="page"></div>
+  <!-- PAGE: TRENDS -->
+  <div id="pg-trends" class="page"></div>
+  <!-- PAGE: HALL -->
+  <div id="pg-hall" class="page"></div>
+  <!-- PAGE: MORE (menu) -->
+  <div id="pg-more" class="page"></div>
+  <!-- PAGE: SUB-PAGES (from More) -->
+  <div id="pg-sub" class="page"></div>
 
   <!-- BOTTOM TABS -->
   <div class="tab-bar">
-    <button class="tab-btn active" data-tab="home"><span class="ico">🏠</span>Главная</button>
-    <button class="tab-btn" data-tab="analytics"><span class="ico">📊</span>Аналитика</button>
-    <button class="tab-btn" data-tab="shares"><span class="ico">💎</span>Акции</button>
-    <button class="tab-btn" data-tab="profile"><span class="ico">👤</span>Профиль</button>
+    <button class="tab-btn active" onclick="go('home')"><span class="ico">🏠</span>Главная</button>
+    <button class="tab-btn" onclick="go('shares')"><span class="ico">💎</span>Акции</button>
+    <button class="tab-btn" onclick="go('trends')"><span class="ico">📈</span>Тренды</button>
+    <button class="tab-btn" onclick="go('hall')"><span class="ico">🏆</span>Зал</button>
+    <button class="tab-btn" onclick="go('more')"><span class="ico">⚙️</span>Ещё</button>
   </div>
 </div>
 
-<div id="app-error" class="error-msg" style="display:none">
-  <div style="font-size:40px;margin-bottom:12px">⚠️</div>
-  <div id="error-text">Ошибка загрузки</div>
+<div id="app-error" class="error-screen" style="display:none">
+  <div style="font-size:48px;margin-bottom:12px">⚠️</div>
+  <div style="font-size:15px;font-weight:600;margin-bottom:6px">Ошибка</div>
+  <div id="err-text" style="color:var(--hint);font-size:13px">—</div>
 </div>
 
 <script>
-const tg=window.Telegram.WebApp;
-tg.ready();tg.expand();
-tg.setHeaderColor('#0d1117');tg.setBackgroundColor('#0d1117');
+// ===== INIT TELEGRAM =====
+var tg = window.Telegram.WebApp;
+tg.ready(); tg.expand();
+var isDark = tg.colorScheme === 'dark';
+if (!tg.themeParams || !tg.themeParams.bg_color) {
+  // No theme from TG — set our defaults
+  tg.setHeaderColor('#0d1117');
+  tg.setBackgroundColor('#0d1117');
+}
 
-const API='https://worker-production-26d0.up.railway.app/api/v1';
-const RATES=[127,254,508,1018,2036];
-const ROLE_NAMES={maker:'Мейкер',hr:'HR-менеджер',investor:'Инвестор',blogger:'Блогер',team:'Управляющая команда',advisor:'Адвизор'};
-const STATUS_NAMES={active:'Активен',frozen:'Заморожен',pending:'Ожидание',waitlist:'В очереди',banned:'Заблокирован',inactive:'Неактивен'};
-const GROUP_STATUS={credited:'✅ Зачтено',pending:'⏳ Заполняется',filling:'⏳ Заполняется',completed:'✅ Завершено'};
-const GROUP_CATEGORY={linear:'Линейная',exponential:'Экспоненциальная',team:'Командная',special:'Специальная'};
-const KAIZEN_STATUS={new:'🟡 Новое',reviewing:'🟠 На рассм.',approved:'✅ Одобрено',rejected:'❌ Отклонено',implemented:'🚀 Внедрено'};
-const CONTEST_STATUS={active:'🟢 Активный',upcoming:'🟡 Скоро',ended:'⏹ Завершён'};
-let USER={};let initData=tg.initData||'';
+// ===== CONFIG =====
+var API_BASE = 'https://worker-production-26d0.up.railway.app/api/v1';
+var RATES = [127, 254, 508, 1018, 2036];
+var PRICES = [5000, 10000, 20000, 40000, 80000];
+var ROLE_NAMES = {maker:'Мейкер', hr:'HR-менеджер', investor:'Инвестор', blogger:'Блогер', team:'Команда', advisor:'Адвизор', founder:'Founder & CEO'};
+var STATUS_NAMES = {active:'Активен', frozen:'Заморожен', pending:'Ожидание', waitlist:'В очереди'};
+var initData = tg.initData || '';
+var U = {}; // current user
+var charts = {};
 
-function $(id){return document.getElementById(id)}
-function fmt(n){return(n||0).toLocaleString('en-US')}
-function fmtUSD(n){return'$'+fmt(n)}
-function fmtDate(s){if(!s)return'—';const d=new Date(s);return d.toLocaleDateString('ru-RU')}
+// ===== HELPERS =====
+function $(id) { return document.getElementById(id); }
+function fmt(n) { return (n || 0).toLocaleString('en-US'); }
+function fmtUSD(n) { return '$' + fmt(n); }
+function fmtDate(s) { if (!s) return '—'; return new Date(s).toLocaleDateString('ru-RU'); }
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-async function api(path){
-  const r=await fetch(API+path,{headers:{'X-Telegram-Init-Data':initData}});
-  if(!r.ok)throw new Error('API '+r.status);
+async function api(path) {
+  var r = await fetch(API_BASE + path, {headers: {'X-Telegram-Init-Data': initData}});
+  if (!r.ok) throw new Error('API ' + r.status);
   return r.json();
 }
 
-// ===== TABS =====
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    $('page-'+btn.dataset.tab).classList.add('active');
+function toast(msg, type) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  t.style.background = type === 'error' ? 'var(--red)' : type === 'warn' ? 'var(--orange)' : 'var(--green)';
+  document.body.appendChild(t);
+  setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 500); }, 2500);
+}
+
+// ===== NAVIGATION =====
+var currentPage = 'home';
+function go(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var pg = $('pg-' + page);
+  if (pg) pg.classList.add('active');
+  // Highlight tab
+  var btns = document.querySelectorAll('.tab-btn');
+  var tabMap = {home:0, shares:1, trends:2, hall:3, more:4, sub:4};
+  var idx = tabMap[page];
+  if (idx !== undefined && btns[idx]) btns[idx].classList.add('active');
+  // Lazy load
+  if (page === 'trends' && !pg.dataset.loaded) loadTrends();
+  if (page === 'hall' && !pg.dataset.loaded) loadHall();
+  if (page === 'more' && !pg.dataset.loaded) buildMoreMenu();
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+function goSub(subId) {
+  currentPage = 'sub';
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  $('pg-sub').classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var btns = document.querySelectorAll('.tab-btn');
+  if (btns[4]) btns[4].classList.add('active');
+  loadSubPage(subId);
+  window.scrollTo(0, 0);
+}
+
+// ===== HOME PAGE =====
+function buildHome(profile, shares) {
+  var sc = shares.shares_count || 0;
+  var frozen = shares.shares_frozen;
+  var role = profile.role;
+  var h = '';
+
+  // KPI
+  h += '<div class="kpi-grid">';
+  h += '<div class="kpi"><div class="val' + (frozen ? ' red' : '') + '">' + fmt(sc) + '</div><div class="lbl">Акции</div></div>';
+  h += '<div class="kpi"><div class="val">' + fmtUSD(sc * RATES[0]) + '</div><div class="lbl">Доход / мес</div></div>';
+  if (role === 'maker') {
+    h += '<div class="kpi"><div class="val blue" id="home-vids">—</div><div class="lbl">Видео / нед</div></div>';
+    h += '<div class="kpi"><div class="val green" id="home-ke">—</div><div class="lbl">КЭ тир</div></div>';
+  }
+  h += '</div>';
+
+  // Frozen alert
+  if (frozen) {
+    h += '<div class="card" style="border-color:var(--red)"><div style="color:var(--red);font-weight:600;font-size:13px">❄️ Акции заморожены</div><div style="font-size:11px;color:var(--hint);margin-top:3px">Доход = $0. Загрузите видео.</div></div>';
+  }
+
+  // Income chart
+  h += '<div class="card"><h3>📊 Прогноз дохода</h3><div class="chart-box"><canvas id="ch-income"></canvas></div>';
+  h += '<table class="inc-tbl" style="margin-top:6px">';
+  for (var i = 0; i < 5; i++) h += '<tr><td>Год ' + (i+1) + '</td><td>' + fmtUSD(sc * RATES[i]) + '/мес</td></tr>';
+  h += '</table></div>';
+
+  // Project stats
+  h += '<div class="card"><h3>📈 Проект</h3>';
+  h += '<div class="row"><span class="lbl">Участников</span><span class="val" id="home-users">—</span></div>';
+  h += '<div class="row"><span class="lbl">Мейкеров</span><span class="val" id="home-makers">—</span></div>';
+  h += '<div class="row"><span class="lbl">Видео/нед</span><span class="val" id="home-videos-total">—</span></div>';
+  h += '<div class="row"><span class="lbl">Офферов</span><span class="val" id="home-offers">—</span></div>';
+  h += '</div>';
+
+  $('pg-home').innerHTML = h;
+
+  // Chart
+  if (charts.income) charts.income.destroy();
+  charts.income = new Chart($('ch-income'), {
+    type: 'bar',
+    data: {labels:['Г1','Г2','Г3','Г4','Г5'], datasets:[{data:RATES.map(function(r){return sc*r;}), backgroundColor:'#d4a843', borderRadius:6}]},
+    options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}},
+              y:{ticks:{color:'#8b949e',font:{size:9},callback:function(v){return v>=1000?'$'+Math.round(v/1000)+'K':'$'+v;}},grid:{color:'rgba(128,128,128,0.1)'}}}}
   });
-});
 
-// ===== HOME TAB =====
-function buildHomeStats(profile,shares){
-  const role=profile.role;
-  const sc=shares.shares_count||0;
-  let html='';
-  html+='<div class="stat-card"><div class="stat-value'+(shares.shares_frozen?' red':'')+'">'+fmt(sc)+'</div><div class="stat-label">Акции</div></div>';
-  html+='<div class="stat-card"><div class="stat-value">'+fmtUSD(sc*RATES[0])+'</div><div class="stat-label">Доход / мес</div></div>';
-  if(role==='maker'){
-    html+='<div class="stat-card"><div class="stat-value blue" id="home-videos">—</div><div class="stat-label">Видео / нед</div></div>';
-    html+='<div class="stat-card"><div class="stat-value" id="home-ke">—</div><div class="stat-label">КЭ тир</div></div>';
+  // Maker-specific
+  if (role === 'maker') {
+    api('/maker/videos').then(function(v) { $('home-vids').textContent = (v.this_week_count||0)+'/12'; }).catch(function(){});
+    api('/maker/ke').then(function(k) { $('home-ke').textContent = k.tier ? 'T'+k.tier : '—'; }).catch(function(){});
   }
-  $('home-stats').innerHTML=html;
-  if(role==='maker')$('home-stats').classList.add('');
+
+  // Project stats
+  api('/stats/project').then(function(s) {
+    $('home-users').textContent = fmt(s.total_users || 0);
+    $('home-makers').textContent = fmt(s.total_makers || 0);
+    $('home-videos-total').textContent = fmt(s.videos_this_week || 0);
+    $('home-offers').textContent = s.total_offers || 0;
+  }).catch(function(){});
 }
 
-function buildIncomeChart(shares){
-  const sc=shares.shares_count||0;
-  const tbl=$('income-table');
-  let h='';for(let i=0;i<5;i++)h+='<tr><td>Год '+(i+1)+'</td><td>'+fmtUSD(sc*RATES[i])+'/мес</td></tr>';
-  tbl.innerHTML=h;
-  new Chart($('income-chart'),{
-    type:'bar',
-    data:{labels:['Год 1','Год 2','Год 3','Год 4','Год 5'],datasets:[{data:RATES.map(r=>sc*r),backgroundColor:'#d4a843',borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#8b949e',font:{size:9},callback:v=>'$'+(v>=1000?Math.round(v/1000)+'K':v)},grid:{color:'rgba(48,54,61,0.5)'}}}}
+// ===== SHARES PAGE =====
+function buildShares(shares) {
+  var sc = shares.shares_count || 0;
+  var frozen = shares.shares_frozen;
+  var h = '';
+
+  h += '<div class="kpi-grid">';
+  h += '<div class="kpi"><div class="val' + (frozen?' red':'') + '">' + fmt(sc) + '</div><div class="lbl">Баланс акций</div></div>';
+  h += '<div class="kpi"><div class="val">' + fmtUSD(sc * RATES[0]) + '</div><div class="lbl">Доход / мес</div></div>';
+  h += '</div>';
+
+  // Rotation
+  h += '<div class="card"><h3>🔄 Ротация</h3><div id="sh-rot"></div></div>';
+
+  // History
+  h += '<div class="card"><h3>📜 Транзакции</h3><div id="sh-hist"><div class="empty">Загрузка...</div></div></div>';
+
+  // SaaS
+  h += '<div class="card"><h3>📦 SaaS ссылки</h3><div id="sh-saas"><div class="empty">Загрузка...</div></div></div>';
+
+  $('pg-shares').innerHTML = h;
+
+  // Load rotation
+  api('/offers').then(function(o) {
+    var items = o.items || [];
+    var filled = items.filter(function(i){return i.my_link;}).length;
+    var inR = filled >= items.length && items.length > 0;
+    var rH = '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:600;background:' + (inR?'rgba(63,185,80,0.1)':'rgba(248,81,73,0.1)') + ';color:' + (inR?'var(--green)':'var(--red)') + '">' + (inR?'✅ В ротации':'❌ Не в ротации') + '</div>';
+    rH += '<div style="margin-top:6px"><div class="row"><span class="lbl">Заполнено</span><span class="val">' + filled + '/' + items.length + '</span></div>';
+    rH += '<div class="prog"><div class="fill" style="width:' + (items.length>0?Math.round(filled/items.length*100):0) + '%;background:var(--green)"></div></div></div>';
+    $('sh-rot').innerHTML = rH;
+
+    var sl = '';
+    items.forEach(function(i) { sl += '<div class="list-item"><span>' + (i.my_link?'✅':'❌') + ' ' + esc(i.name) + '</span></div>'; });
+    $('sh-saas').innerHTML = sl || '<div class="empty">Нет офферов</div>';
+  }).catch(function() { $('sh-rot').innerHTML = '<div class="empty">—</div>'; });
+
+  // History
+  api('/shares/history').then(function(h) {
+    if (h.items && h.items.length) {
+      var hl = '';
+      h.items.forEach(function(t) {
+        var sign = t.amount > 0 ? '+' : '';
+        var color = t.amount > 0 ? 'var(--green)' : 'var(--red)';
+        hl += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(t.reason) + '</div><div style="font-size:10px;color:var(--hint)">' + fmtDate(t.created_at) + '</div></div><span style="color:' + color + ';font-weight:700">' + sign + t.amount + '</span></div>';
+      });
+      $('sh-hist').innerHTML = hl;
+    } else {
+      $('sh-hist').innerHTML = '<div class="empty">Нет транзакций</div>';
+    }
+  }).catch(function() { $('sh-hist').innerHTML = '<div class="empty">—</div>'; });
+}
+
+// ===== TRENDS PAGE =====
+async function loadTrends() {
+  var pg = $('pg-trends');
+  pg.innerHTML = '<div class="loading" style="min-height:40vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/trends');
+    var h = '';
+
+    // KPI
+    h += '<div class="kpi-grid three">';
+    h += '<div class="kpi"><div class="val gold">' + fmt(d.top5_percent||0) + '</div><div class="lbl">Top 5%</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + fmt(d.avg_views_top5||0) + '</div><div class="lbl">Ср.просм. top5</div></div>';
+    h += '<div class="kpi"><div class="val green">' + fmt(d.templates_count||0) + '</div><div class="lbl">Шаблонов</div></div>';
+    h += '</div>';
+
+    // Top videos
+    var vids = d.top_videos || [];
+    h += '<div class="card"><h3>🎬 Топ видео</h3>';
+    if (vids.length) {
+      vids.forEach(function(v, i) {
+        h += '<div class="list-item"><div><span style="color:var(--gold);font-weight:700">#' + (i+1) + '</span> ' + esc(v.maker||'—') + '<div style="font-size:10px;color:var(--hint)">' + esc(v.platform||'') + ' · ' + esc(v.niche||'') + '</div></div><span style="font-weight:700">' + fmt(v.views||0) + '</span></div>';
+      });
+    } else {
+      h += '<div class="empty">Нет данных</div>';
+    }
+    h += '</div>';
+
+    // Best posting times
+    var times = d.best_posting_times || [];
+    if (times.length) {
+      h += '<div class="card"><h3>⏰ Лучшее время</h3>';
+      times.forEach(function(t) {
+        h += '<div class="row"><span class="lbl">' + esc(t.platform) + '</span><span class="val" style="color:var(--blue)">' + esc(t.time) + '</span><span style="color:var(--green);font-size:11px">' + esc(String(t.boost||'')) + '</span></div>';
+      });
+      h += '</div>';
+    }
+
+    // Viral patterns
+    var pats = d.viral_patterns || [];
+    if (pats.length) {
+      h += '<div class="card"><h3>🧬 Виральные паттерны</h3>';
+      pats.forEach(function(p) {
+        h += '<div style="padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px"><div style="font-weight:600;color:var(--gold);font-size:12px">' + esc(p.name||'') + '</div><div style="font-size:11px;color:var(--hint);margin-top:3px">' + esc(p.description||'') + '</div></div>';
+      });
+      h += '</div>';
+    }
+
+    pg.innerHTML = h;
+    pg.dataset.loaded = '1';
+  } catch(e) {
+    pg.innerHTML = '<div class="empty">Ошибка загрузки трендов</div>';
+  }
+}
+
+// ===== HALL OF FAME =====
+async function loadHall() {
+  var pg = $('pg-hall');
+  pg.innerHTML = '<div class="loading" style="min-height:40vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/hall-of-fame');
+    var h = '';
+
+    // Shares leaderboard
+    var ts = d.top_shares || d.top_by_shares || [];
+    if (ts.length) {
+      h += '<div class="card"><h3>💰 Топ по акциям</h3>';
+      ts.forEach(function(u, i) {
+        var cls = i === 0 ? 'g' : i === 1 ? 's' : i === 2 ? 'b' : '';
+        var me = u.is_me ? ' style="color:var(--gold)"' : '';
+        h += '<div class="lb-row"><div class="lb-rank ' + cls + '">' + (i+1) + '</div><div class="lb-name"' + me + '>' + esc(u.full_name||'—') + '</div><div class="lb-val">' + (u.shares_count||0) + '</div></div>';
+      });
+      h += '</div>';
+    }
+
+    // Videos leaderboard
+    var tv = d.top_videos_this_week || d.top_by_videos || [];
+    if (tv.length) {
+      h += '<div class="card"><h3>🎥 Топ по видео (неделя)</h3>';
+      tv.forEach(function(u, i) {
+        var cls = i === 0 ? 'g' : i === 1 ? 's' : i === 2 ? 'b' : '';
+        h += '<div class="lb-row"><div class="lb-rank ' + cls + '">' + (i+1) + '</div><div class="lb-name">' + esc(u.full_name||'—') + '</div><div class="lb-val">' + (u.videos_this_week || u.video_count || 0) + '</div></div>';
+      });
+      h += '</div>';
+    }
+
+    // My rank
+    if (d.my_rank) {
+      h += '<div class="card" style="text-align:center"><span style="font-size:13px">📍 Ваше место: <strong style="color:var(--gold)">#' + d.my_rank + '</strong></span></div>';
+    }
+
+    if (!h) h = '<div class="empty">Нет данных</div>';
+    pg.innerHTML = h;
+    pg.dataset.loaded = '1';
+  } catch(e) {
+    pg.innerHTML = '<div class="empty">Ошибка загрузки</div>';
+  }
+}
+
+// ===== MORE MENU =====
+function buildMoreMenu() {
+  var pg = $('pg-more');
+  var items = [
+    {id:'profile', ico:'👤', name:'Профиль'},
+    {id:'kaizen', ico:'💡', name:'Кайдзен'},
+    {id:'contests', ico:'🏅', name:'Конкурсы'},
+    {id:'referrals', ico:'🔗', name:'Рефералы'}
+  ];
+
+  // Role-specific
+  var role = U.profile ? U.profile.role : '';
+  var teamRole = U.profile ? (U.profile.team_role || '') : '';
+  var isAdmin = U.profile ? U.profile.is_admin : false;
+
+  if (role === 'maker') {
+    items.push({id:'videos', ico:'📹', name:'Видео'});
+    items.push({id:'ke', ico:'⚡', name:'КЭ'});
+    items.push({id:'offers', ico:'🔗', name:'Офферы'});
+  }
+  if (role === 'hr' || teamRole === 'hr' || teamRole === 'hr_director') {
+    items.push({id:'hr-makers', ico:'👥', name:'Мои мейкеры'});
+  }
+  if (role === 'investor') {
+    items.push({id:'portfolio', ico:'💼', name:'Портфель'});
+  }
+  if (role === 'blogger') {
+    items.push({id:'publications', ico:'📝', name:'Публикации'});
+  }
+  if (isAdmin || role === 'founder' || teamRole === 'founder') {
+    items.push({id:'admin', ico:'🔧', name:'Админ'});
+    items.push({id:'risk', ico:'⚠️', name:'Риски'});
+    items.push({id:'infra', ico:'🖥️', name:'Инфра'});
+  }
+
+  var h = '<div style="font-size:14px;font-weight:600;padding:4px 0 8px">Разделы</div>';
+  h += '<div class="more-grid">';
+  items.forEach(function(it) {
+    h += '<div class="more-item" onclick="goSub('' + it.id + '')" ><span class="mi">' + it.ico + '</span>' + it.name + '</div>';
   });
+  h += '</div>';
+
+  // Version
+  h += '<div style="text-align:center;padding:20px 0;font-size:10px;color:var(--hint)">Shikardos Team v2.0 · Telegram Mini App</div>';
+
+  pg.innerHTML = h;
+  pg.dataset.loaded = '1';
 }
 
-// ===== CONTESTS (Home tab) =====
-async function loadContests(){
-  try{
-    const c=await api('/contests');
-    if(!c.items||!c.items.length){$('contests-list').innerHTML='<div class="empty">Нет активных конкурсов</div>';$('home-contests').style.display='block';return;}
-    let h='';
-    c.items.forEach(i=>{
-      const st=CONTEST_STATUS[i.status]||i.status;
-      const prize=i.prize_shares?('🏆 '+i.prize_shares+' акц.'):'';
-      h+='<div class="list-item"><div><div style="font-weight:600">'+i.title+'</div><div style="font-size:10px;color:var(--muted)">'+st+(prize?' · '+prize:'')+'</div></div>'+(i.my_entry?'<span class="badge approved">Участвую</span>':'')+'</div>';
-    });
-    $('contests-list').innerHTML=h;
-    $('home-contests').style.display='block';
-  }catch(e){$('home-contests').style.display='none';}
-}
+// ===== SUB-PAGES =====
+async function loadSubPage(id) {
+  var pg = $('pg-sub');
+  var back = '<div class="more-back" onclick="go('more')">← Назад</div>';
 
-// ===== HALL OF FAME (Home tab) =====
-async function loadHallOfFame(){
-  try{
-    const h=await api('/hall-of-fame');
-    let html='';
-    if(h.top_by_shares&&h.top_by_shares.length){
-      html+='<div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted)">💰 Топ по акциям</div>';
-      h.top_by_shares.forEach((u,idx)=>{
-        const cls=idx===0?'gold':idx===1?'silver':'bronze';
-        html+='<div class="lb-row"><div class="lb-rank '+cls+'">'+(idx+1)+'</div><div class="lb-name">'+u.full_name+'</div><div class="lb-val">'+u.shares_count+'</div></div>';
+  if (id === 'profile') {
+    var p = U.profile || {};
+    var h = back + '<div class="card"><h3>👤 Профиль</h3>';
+    h += '<div class="row"><span class="lbl">Имя</span><span class="val">' + esc(p.full_name||'—') + '</span></div>';
+    h += '<div class="row"><span class="lbl">Роль</span><span class="val">' + (ROLE_NAMES[p.role]||p.role) + '</span></div>';
+    if (p.team_role) h += '<div class="row"><span class="lbl">Позиция</span><span class="val">' + p.team_role.toUpperCase() + '</span></div>';
+    h += '<div class="row"><span class="lbl">Статус</span><span class="val">' + (STATUS_NAMES[p.status]||p.status) + '</span></div>';
+    h += '<div class="row"><span class="lbl">Email</span><span class="val">' + esc(p.email||'—') + '</span></div>';
+    h += '<div class="row"><span class="lbl">Регистрация</span><span class="val">' + fmtDate(p.registered_at) + '</span></div>';
+    h += '</div>';
+    pg.innerHTML = h;
+
+  } else if (id === 'kaizen') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var k = await api('/kaizen');
+      var h = back;
+      if (k.stats) {
+        h += '<div class="kpi-grid three"><div class="kpi"><div class="val">' + k.stats.total + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val" style="color:var(--orange)">' + k.stats.new + '</div><div class="lbl">Новых</div></div><div class="kpi"><div class="val green">' + k.stats.approved + '</div><div class="lbl">Одобрено</div></div></div>';
+      }
+      h += '<div class="card"><h3>💡 Предложения</h3>';
+      if (k.items && k.items.length) {
+        k.items.forEach(function(i) {
+          var st = {new:'🟡',reviewing:'🟠',approved:'✅',rejected:'❌',implemented:'🚀'}[i.status] || '⚪';
+          h += '<div class="list-item"><div style="max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">' + esc(i.text) + '</div><span style="font-size:11px">' + st + '</span></div>';
+        });
+      } else { h += '<div class="empty">Нет предложений</div>'; }
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+
+  } else if (id === 'contests') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var c = await api('/contests');
+      var h = back + '<div class="card"><h3>🏅 Конкурсы</h3>';
+      if (c.items && c.items.length) {
+        c.items.forEach(function(i) {
+          var st = {active:'🟢',upcoming:'🟡',ended:'⏹'}[i.status]||'⚪';
+          h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(i.title) + '</div><div style="font-size:10px;color:var(--hint)">' + st + ' ' + (i.status||'') + (i.prize_shares?' · 🏆 '+i.prize_shares+' акц.':'') + '</div></div>' + (i.my_entry?'<span class="badge green">Участвую</span>':'') + '</div>';
+        });
+      } else { h += '<div class="empty">Нет конкурсов</div>'; }
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+
+  } else if (id === 'referrals') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var r = await api('/referrals');
+      var h = back + '<div class="card"><h3>🔗 Реферальная программа</h3>';
+      h += '<div class="row"><span class="lbl">Мой код</span><span class="val" style="color:var(--gold)">' + esc(r.referral_code||'—') + '</span></div>';
+      h += '<div class="row"><span class="lbl">Привлечено</span><span class="val">' + (r.total_referrals||0) + '</span></div>';
+      if (r.referrals && r.referrals.length) {
+        r.referrals.forEach(function(ref) {
+          h += '<div class="list-item"><span>' + esc(ref.full_name) + '</span><span class="badge gold">' + (ROLE_NAMES[ref.role]||ref.role) + '</span></div>';
+        });
+      }
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+
+  } else if (id === 'admin') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var a = await api('/admin/overview');
+      var rc = a.role_counts || {};
+      var h = back + '<div class="kpi-grid three"><div class="kpi"><div class="val">' + a.total_users + '</div><div class="lbl">Юзеров</div></div><div class="kpi"><div class="val green">' + a.active_users + '</div><div class="lbl">Активных</div></div><div class="kpi"><div class="val red">' + a.frozen_users + '</div><div class="lbl">Заморожено</div></div></div>';
+      h += '<div class="card"><h3>🔧 Статистика</h3>';
+      h += '<div class="row"><span class="lbl">Waitlist</span><span class="val" style="color:var(--orange)">' + a.waitlist_new + '</span></div>';
+      h += '<div class="row"><span class="lbl">Баги</span><span class="val" style="color:var(--red)">' + a.bugs_open + '</span></div>';
+      h += '<div class="row"><span class="lbl">Кайдзен</span><span class="val" style="color:var(--blue)">' + a.kaizen_new + '</span></div>';
+      h += '<div class="row"><span class="lbl">Акций выдано</span><span class="val" style="color:var(--gold)">' + fmt(a.total_shares) + '</span></div>';
+      h += '<div class="row"><span class="lbl">Видео/нед</span><span class="val">' + a.videos_this_week + '</span></div>';
+      h += '<div class="row"><span class="lbl">Офферов</span><span class="val">' + a.offers_active + '</span></div>';
+      h += '</div>';
+      h += '<div class="card"><h3>👥 По ролям</h3>';
+      ['maker','hr','investor','blogger','team'].forEach(function(r) { h += '<div class="row"><span class="lbl">' + (ROLE_NAMES[r]||r) + '</span><span class="val">' + (rc[r]||0) + '</span></div>'; });
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Только для админов</div>'; }
+
+  } else if (id === 'videos') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var v = await api('/maker/videos');
+      var h = back + '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + (v.this_week_count||0) + '/12</div><div class="lbl">Видео/нед</div></div><div class="kpi"><div class="val">' + fmt(v.total_count||0) + '</div><div class="lbl">Всего</div></div></div>';
+      h += '<div class="card"><h3>📹 По платформам</h3>';
+      ['youtube','tiktok','instagram','facebook'].forEach(function(p) {
+        var cnt = v[p+'_count'] || 0;
+        h += '<div class="row"><span class="lbl">' + p.charAt(0).toUpperCase()+p.slice(1) + '</span><span class="val">' + cnt + '</span></div>';
       });
-    }
-    if(h.top_by_videos&&h.top_by_videos.length){
-      html+='<div style="font-size:12px;font-weight:600;margin:10px 0 6px;color:var(--muted)">🎥 Топ по видео (неделя)</div>';
-      h.top_by_videos.forEach((u,idx)=>{
-        const cls=idx===0?'gold':idx===1?'silver':'bronze';
-        html+='<div class="lb-row"><div class="lb-rank '+cls+'">'+(idx+1)+'</div><div class="lb-name">'+u.full_name+'</div><div class="lb-val">'+u.video_count+'</div></div>';
-      });
-    }
-    if(h.my_rank){
-      html+='<div style="margin-top:10px;padding:8px;background:rgba(212,168,67,0.08);border-radius:8px;font-size:12px">📍 Ваше место: <strong style="color:var(--gold)">#'+h.my_rank+'</strong></div>';
-    }
-    $('hall-content').innerHTML=html||'<div class="empty">Нет данных</div>';
-    $('home-hall').style.display='block';
-  }catch(e){$('home-hall').style.display='none';}
-}
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 
-// ===== KAIZEN (Profile tab) =====
-async function loadKaizen(){
-  try{
-    const k=await api('/kaizen');
-    if(k.stats){
-      $('kaizen-stats').innerHTML='<div class="stat-card"><div class="stat-value">'+k.stats.total+'</div><div class="stat-label">Всего</div></div><div class="stat-card"><div class="stat-value" style="color:var(--orange)">'+k.stats.new+'</div><div class="stat-label">Новых</div></div><div class="stat-card"><div class="stat-value green">'+k.stats.approved+'</div><div class="stat-label">Одобрено</div></div>';
-    }
-    if(k.items&&k.items.length){
-      let h='';
-      k.items.forEach(i=>{
-        const st=KAIZEN_STATUS[i.status]||i.status;
-        h+='<div class="list-item"><div><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+i.text+'</div><div style="font-size:10px;color:var(--muted)">'+fmtDate(i.created_at)+'</div></div><span style="font-size:10px">'+st+'</span></div>';
-      });
-      $('kaizen-list').innerHTML=h;
-    }else{
-      $('kaizen-list').innerHTML='<div class="empty">Нет предложений</div>';
-    }
-    $('pf-kaizen').style.display='block';
-  }catch(e){$('pf-kaizen').style.display='none';}
-}
+  } else if (id === 'ke') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var k = await api('/maker/ke');
+      var h = back + '<div class="card"><h3>⚡ Коэффициент Эффективности</h3>';
+      h += '<div style="text-align:center;padding:16px"><div style="font-size:36px;font-weight:700;color:var(--gold)">' + (k.tier ? 'Тир ' + k.tier : '—') + '</div>';
+      h += '<div style="font-size:12px;color:var(--hint);margin-top:4px">Бонус: +' + (k.tier?({1:5,2:4,3:3,4:2,5:1}[k.tier]||0):0) + ' акций/год</div></div>';
+      h += '<div style="font-size:11px;color:var(--hint);border-top:1px solid var(--border);padding-top:8px">(Просмотры×0.4) + (Engagement×0.4) + (Равномерность×0.2)</div>';
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Нет данных КЭ</div>'; }
 
-// ===== ANALYTICS TAB (role-specific) =====
-async function buildAnalytics(profile){
-  const el=$('analytics-content');
-  const role=profile.role;
+  } else if (id === 'infra') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var d = await api('/infrastructure');
+      var h = back + '<div class="card"><h3>🖥️ Инфраструктура</h3>';
+      h += '<div class="row"><span class="lbl">БД</span><span class="val" style="color:var(--green)">' + (d.db_status||'—') + '</span></div>';
+      h += '<div class="row"><span class="lbl">API</span><span class="val" style="color:var(--green)">' + (d.api_status||'—') + '</span></div>';
+      h += '<div class="row"><span class="lbl">Бот</span><span class="val" style="color:var(--green)">' + (d.bot_status||'—') + '</span></div>';
+      h += '<div class="row"><span class="lbl">Записей в БД</span><span class="val">' + fmt(d.total_records||0) + '</span></div>';
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 
-  if(role==='maker'){
-    el.innerHTML='<div class="section"><h3>🎬 Видео за неделю</h3><div class="chart-container" style="height:140px"><canvas id="ch-platforms"></canvas></div></div><div class="section"><h3>📊 КЭ рейтинг</h3><div id="an-ke"></div></div>';
-    try{
-      const v=await api('/maker/videos');
-      $('home-videos').textContent=(v.this_week_count||0)+'/12';
-      new Chart($('ch-platforms'),{type:'bar',data:{labels:['YouTube','TikTok','Instagram','Facebook'],datasets:[{data:[v.youtube_count||0,v.tiktok_count||0,v.instagram_count||0,v.facebook_count||0],backgroundColor:['#f85149','#58a6ff','#d4a843','#3fb950'],borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{max:3,ticks:{color:'#8b949e',stepSize:1},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}}}});
-    }catch(e){}
-    try{const k=await api('/maker/ke');$('home-ke').textContent=k.tier?'Тир '+k.tier:'—';$('an-ke').innerHTML='<div class="row"><span class="row-label">Текущий тир</span><span class="row-value" style="color:var(--gold)">'+(k.tier?'Тир '+k.tier:'Не определён')+'</span></div><div class="row"><span class="row-label">Бонус акций/год</span><span class="row-value">+'+(k.tier?({1:5,2:4,3:3,4:2,5:1}[k.tier]||0):0)+'</span></div><div style="font-size:11px;color:var(--muted);margin-top:8px">Формула: (Просмотры×0.4)+(Еngagement×0.4)+(Равномерность×0.2)</div>';}catch(e){$('an-ke').innerHTML='<div class="empty">Нет данных КЭ</div>';}
+  } else if (id === 'risk') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var d = await api('/risk-zone/stats');
+      var h = back + '<div class="kpi-grid three"><div class="kpi"><div class="val red">' + (d.total_open||0) + '</div><div class="lbl">Открытых</div></div><div class="kpi"><div class="val orange">' + (d.p1_count||0) + '</div><div class="lbl">P1</div></div><div class="kpi"><div class="val green">' + (d.resolved_today||0) + '</div><div class="lbl">Решено сегодня</div></div></div>';
+      h += '<div class="card"><h3>⚠️ Зона риска</h3>';
+      try {
+        var an = await api('/risk-zone/anomalies?limit=10');
+        if (an.items && an.items.length) {
+          an.items.forEach(function(a) {
+            var sev = a.severity === 'critical' ? '🔴' : a.severity === 'high' ? '🟠' : '🟡';
+            h += '<div class="list-item"><div><div style="font-size:12px">' + sev + ' ' + esc(a.check_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + fmtDate(a.created_at) + '</div></div></div>';
+          });
+        } else { h += '<div class="empty">Нет аномалий</div>'; }
+      } catch(e2) { h += '<div class="empty">Нет данных</div>'; }
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 
-  }else if(role==='hr'||(role==='team'&&profile.team_role==='hr')){
-    el.innerHTML='<div class="section"><h3>👥 Мои мейкеры</h3><div id="an-hr-stats"></div></div><div class="section"><h3>📋 Список мейкеров</h3><div id="an-hr-list"></div></div>';
-    try{
-      const h=await api('/hr/overview');
-      $('an-hr-stats').innerHTML='<div class="stats-grid three"><div class="stat-card"><div class="stat-value">'+h.total_makers+'</div><div class="stat-label">Всего</div></div><div class="stat-card"><div class="stat-value green">'+h.active_makers+'</div><div class="stat-label">Активных</div></div><div class="stat-card"><div class="stat-value red">'+h.frozen_makers+'</div><div class="stat-label">Заморожено</div></div></div><div class="row"><span class="row-label">Ожидают проверки</span><span class="row-value" style="color:var(--orange)">'+h.pending_reviews+'</span></div><div class="row"><span class="row-label">Видео за неделю</span><span class="row-value">'+h.videos_this_week+'</span></div>';
-      if(h.makers.length){let ml='';h.makers.forEach(m=>{ml+='<div class="list-item"><span>'+m.full_name+'</span><span class="badge '+(m.shares_frozen?'frozen':'active')+'">'+(m.shares_frozen?'❄️':'🟢')+' '+m.shares_count+' акц.</span></div>';});$('an-hr-list').innerHTML=ml;}else{$('an-hr-list').innerHTML='<div class="empty">Нет мейкеров</div>';}
-    }catch(e){el.innerHTML='<div class="empty">Нет данных HR</div>';}
+  } else if (id === 'hr-makers') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var d = await api('/hr/overview');
+      var h = back + '<div class="kpi-grid three"><div class="kpi"><div class="val">' + d.total_makers + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + d.active_makers + '</div><div class="lbl">Активных</div></div><div class="kpi"><div class="val red">' + d.frozen_makers + '</div><div class="lbl">Заморожено</div></div></div>';
+      h += '<div class="card"><h3>👥 Мейкеры</h3>';
+      if (d.makers && d.makers.length) {
+        d.makers.forEach(function(m) {
+          h += '<div class="list-item"><span>' + esc(m.full_name) + '</span><span class="badge ' + (m.shares_frozen?'red':'green') + '">' + (m.shares_frozen?'❄️':'🟢') + ' ' + m.shares_count + '</span></div>';
+        });
+      } else { h += '<div class="empty">Нет мейкеров</div>'; }
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 
-  }else if(role==='investor'){
-    el.innerHTML='<div class="section"><h3>💼 Портфель</h3><div id="an-inv"></div></div><div class="section"><h3>🧮 Калькулятор</h3><div id="an-calc"></div></div>';
-    const sc=USER.shares?.shares_count||0;
-    const prices=[5000,10000,20000,40000,80000];
-    const val=sc*prices[0];
-    $('an-inv').innerHTML='<div class="stats-grid"><div class="stat-card"><div class="stat-value">'+fmt(sc)+'</div><div class="stat-label">Акций</div></div><div class="stat-card"><div class="stat-value">'+fmtUSD(val)+'</div><div class="stat-label">Стоимость (Год 1)</div></div></div><div class="row"><span class="row-label">Цена акции сейчас</span><span class="row-value">$5 000</span></div>';
-    let ct='<table class="income-table">';for(let i=0;i<5;i++)ct+='<tr><td>Год '+(i+1)+'</td><td>'+fmtUSD(sc*RATES[i])+'/мес</td></tr>';ct+='</table>';$('an-calc').innerHTML=ct;
+  } else if (id === 'portfolio') {
+    var sc = U.shares ? U.shares.shares_count || 0 : 0;
+    var h = back + '<div class="kpi-grid"><div class="kpi"><div class="val">' + fmt(sc) + '</div><div class="lbl">Акций</div></div><div class="kpi"><div class="val">' + fmtUSD(sc*PRICES[0]) + '</div><div class="lbl">Стоимость</div></div></div>';
+    h += '<div class="card"><h3>📊 Прогноз</h3><table class="inc-tbl">';
+    for (var i = 0; i < 5; i++) h += '<tr><td>Год ' + (i+1) + '</td><td>' + fmtUSD(sc*RATES[i]) + '/мес</td></tr>';
+    h += '</table></div>';
+    pg.innerHTML = h;
 
-  }else if(role==='blogger'){
-    el.innerHTML='<div class="section"><h3>📝 Мои публикации</h3><div id="an-blog-stats"></div><div id="an-blog-list" style="margin-top:8px"></div></div>';
-    try{
-      const b=await api('/blogger/content');
-      $('an-blog-stats').innerHTML='<div class="stats-grid three"><div class="stat-card"><div class="stat-value">'+b.total+'</div><div class="stat-label">Всего</div></div><div class="stat-card"><div class="stat-value" style="color:var(--orange)">'+b.pending+'</div><div class="stat-label">На проверке</div></div><div class="stat-card"><div class="stat-value green">'+b.approved+'</div><div class="stat-label">Одобрено</div></div></div>';
-      if(b.items.length){let bl='';b.items.forEach(i=>{bl+='<div class="list-item"><span style="max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+i.url+'</span><span class="badge '+i.status+'">'+({pending:'⏳',approved:'✅',rejected:'❌'}[i.status]||'')+'</span></div>';});$('an-blog-list').innerHTML=bl;}else{$('an-blog-list').innerHTML='<div class="empty">Нет публикаций</div>';}
-    }catch(e){el.innerHTML='<div class="empty">Нет данных</div>';}
+  } else if (id === 'publications') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var b = await api('/blogger/content');
+      var h = back + '<div class="kpi-grid three"><div class="kpi"><div class="val">' + b.total + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val" style="color:var(--orange)">' + b.pending + '</div><div class="lbl">На проверке</div></div><div class="kpi"><div class="val green">' + b.approved + '</div><div class="lbl">Одобрено</div></div></div>';
+      h += '<div class="card"><h3>📝 Публикации</h3>';
+      if (b.items && b.items.length) {
+        b.items.forEach(function(i) {
+          var st = {pending:'⏳',approved:'✅',rejected:'❌'}[i.status]||'⚪';
+          h += '<div class="list-item"><span style="max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">' + esc(i.url) + '</span><span>' + st + '</span></div>';
+        });
+      } else { h += '<div class="empty">Нет публикаций</div>'; }
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 
-  }else if(role==='team'){
-    el.innerHTML='<div class="section"><h3>📋 Задачи</h3><div id="an-tasks-stats"></div><div id="an-tasks-list" style="margin-top:8px"></div></div>';
-    try{
-      const t=await api('/team/tasks');
-      const bs=t.by_status||{};
-      $('an-tasks-stats').innerHTML='<div class="stats-grid"><div class="stat-card"><div class="stat-value">'+t.total+'</div><div class="stat-label">Всего задач</div></div><div class="stat-card"><div class="stat-value" style="color:var(--orange)">'+(bs.new||0)+'</div><div class="stat-label">Новых</div></div></div>';
-      if(t.items.length){let tl='';t.items.forEach(i=>{const em={low:'⚪',normal:'🟣',high:'🟡',urgent:'🔴'}[i.priority]||'⚪';const se={new:'📋',in_progress:'⏳',done:'✅',cancelled:'❌'}[i.status]||'📋';tl+='<div class="list-item"><span>'+em+' '+i.title.substring(0,40)+'</span><span>'+se+'</span></div>';});$('an-tasks-list').innerHTML=tl;}else{$('an-tasks-list').innerHTML='<div class="empty">Нет задач</div>';}
-    }catch(e){el.innerHTML='<div class="empty">Нет данных</div>';}
+  } else if (id === 'offers') {
+    pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+    try {
+      var o = await api('/offers');
+      var items = o.items || [];
+      var h = back + '<div class="card"><h3>🔗 SaaS Офферы</h3>';
+      if (items.length) {
+        items.forEach(function(i) {
+          h += '<div class="list-item"><span>' + (i.my_link?'✅':'❌') + ' ' + esc(i.name) + '</span></div>';
+        });
+      } else { h += '<div class="empty">Нет офферов</div>'; }
+      h += '</div>';
+      pg.innerHTML = h;
+    } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+
+  } else {
+    pg.innerHTML = back + '<div class="empty">Раздел в разработке</div>';
   }
-
-  // Admin section — append to any role
-  if(profile.is_admin){
-    const adm=document.createElement('div');adm.innerHTML='<div class="section" style="margin-top:12px"><h3>🔧 Админ-панель</h3><div id="an-admin"></div></div>';
-    el.appendChild(adm);
-    try{
-      const a=await api('/admin/overview');
-      const rc=a.role_counts||{};
-      $('an-admin').innerHTML='<div class="admin-grid"><div class="admin-card"><div class="num">'+a.total_users+'</div><div class="lbl">Юзеров</div></div><div class="admin-card"><div class="num" style="color:var(--green)">'+a.active_users+'</div><div class="lbl">Активных</div></div><div class="admin-card"><div class="num" style="color:var(--red)">'+a.frozen_users+'</div><div class="lbl">Заморожено</div></div></div><div class="admin-grid"><div class="admin-card"><div class="num" style="color:var(--orange)">'+a.waitlist_new+'</div><div class="lbl">Waitlist</div></div><div class="admin-card"><div class="num" style="color:var(--red)">'+a.bugs_open+'</div><div class="lbl">Баги</div></div><div class="admin-card"><div class="num" style="color:var(--blue)">'+a.kaizen_new+'</div><div class="lbl">Кайдзен</div></div></div><div class="row"><span class="row-label">Мейкеров</span><span class="row-value">'+(rc.maker||0)+'</span></div><div class="row"><span class="row-label">HR</span><span class="row-value">'+(rc.hr||0)+'</span></div><div class="row"><span class="row-label">Инвесторов</span><span class="row-value">'+(rc.investor||0)+'</span></div><div class="row"><span class="row-label">Блогеров</span><span class="row-value">'+(rc.blogger||0)+'</span></div><div class="row"><span class="row-label">Команда</span><span class="row-value">'+(rc.team||0)+'</span></div><div class="row"><span class="row-label">Всего акций</span><span class="row-value" style="color:var(--gold)">'+fmt(a.total_shares)+'</span></div><div class="row"><span class="row-label">Видео за неделю</span><span class="row-value">'+a.videos_this_week+'</span></div><div class="row"><span class="row-label">SaaS офферов</span><span class="row-value">'+a.offers_active+'</span></div><div class="row"><span class="row-label">Конкурсов</span><span class="row-value">'+a.contests_active+'</span></div>';
-    }catch(e){}
-  }
-}
-
-// ===== SHARES TAB =====
-async function buildSharesTab(shares){
-  const sc=shares.shares_count||0;
-  $('sh-balance').textContent=fmt(sc);
-  $('sh-balance').style.color=shares.shares_frozen?'var(--red)':'var(--gold)';
-  $('sh-income').textContent=fmtUSD(sc*RATES[0]);
-  if(shares.shares_frozen)$('sh-frozen-section').style.display='block';
-
-  try{
-    const h=await api('/shares/history');
-    if(h.items&&h.items.length){
-      let hl='';h.items.forEach(t=>{
-        const sign=t.amount>0?'+':'';const color=t.amount>0?'var(--green)':'var(--red)';
-        hl+='<div class="list-item"><div><div style="font-weight:600">'+t.reason+'</div><div style="font-size:10px;color:var(--muted)">'+fmtDate(t.created_at)+'</div></div><span style="color:'+color+';font-weight:700">'+sign+t.amount+'</span></div>';
-      });$('sh-history').innerHTML=hl;
-    }
-  }catch(e){}
-
-  try{
-    const o=await api('/offers');
-    const items=o.items||[];
-    const filled=items.filter(i=>i.my_link).length;
-    $('saas-filled').textContent=filled+'/'+items.length;
-    $('saas-progress').style.width=(items.length>0?Math.round(filled/items.length*100):0)+'%';
-    const inR=filled>=items.length&&items.length>0;
-    const rb=$('rotation-badge');
-    rb.className='rotation-status '+(inR?'active':'inactive');
-    rb.textContent=inR?'✅ В ротации':'❌ Не в ротации';
-    $('home-rotation').style.display='block';
-    let sl='';items.forEach(i=>{sl+='<div class="saas-item"><span>'+(i.my_link?'✅':'❌')+'</span><span>'+i.name+'</span></div>';});
-    $('sh-saas-list').innerHTML=sl||'<div class="empty">Нет офферов</div>';
-  }catch(e){$('sh-saas-list').innerHTML='<div class="empty">Нет офферов</div>';}
-}
-
-// ===== PROFILE TAB =====
-async function buildProfileTab(profile){
-  $('pf-name').textContent=profile.full_name||'—';
-  $('pf-role').textContent=ROLE_NAMES[profile.role]||profile.role;
-  $('pf-team-role').textContent=profile.team_role?profile.team_role.toUpperCase():'—';
-  $('pf-status').textContent=profile.status==='active'?'🟢 Активен':profile.status==='frozen'?'❄️ Заморожен':'⚪ '+(STATUS_NAMES[profile.status]||profile.status);
-  $('pf-date').textContent=fmtDate(profile.registered_at);
-  $('pf-phone').textContent=profile.phone||'—';
-  $('pf-email').textContent=profile.email||'—';
-
-  try{
-    const r=await api('/referrals');
-    $('pf-ref-code').textContent=r.referral_code||'—';
-    $('pf-ref-count').textContent=r.total_referrals;
-    if(r.referrals.length){let rl='';r.referrals.forEach(ref=>{rl+='<div class="list-item"><span>'+ref.full_name+'</span><span class="badge active">'+(ROLE_NAMES[ref.role]||ref.role)+'</span></div>';});$('pf-ref-list').innerHTML=rl;}
-    if(r.groups.length){$('pf-ref-groups').style.display='block';let gl='';r.groups.forEach(g=>{gl+='<div class="list-item"><span>'+(GROUP_CATEGORY[g.category]||g.category)+' ('+g.current_count+'/'+g.required_count+')</span><span class="badge '+(g.status==='credited'?'approved':'pending')+'">'+(GROUP_STATUS[g.status]||g.status)+'</span></div>';});$('pf-groups-list').innerHTML=gl;}
-  }catch(e){}
-}
-
-// ===== PROJECT STATS =====
-async function loadProjectStats(){
-  try{
-    const s=await api('/stats/project');
-    $('stat-makers').textContent=fmt(s.total_makers);
-    $('stat-videos').textContent=fmt(s.videos_this_week);
-    $('stat-views').textContent=fmt(s.total_views);
-    $('stat-offers').textContent=s.total_offers||0;
-  }catch(e){}
 }
 
 // ===== INIT =====
-async function init(){
-  try{
-    if(!initData&&!tg.initDataUnsafe?.user)throw new Error('Откройте через Telegram бот');
-    const [profile,shares]=await Promise.all([api('/profile'),api('/shares')]);
-    USER={profile,shares};
+async function init() {
+  try {
+    if (!initData && !tg.initDataUnsafe.user) throw new Error('Откройте через Telegram бот');
+    var res = await Promise.all([api('/profile'), api('/shares')]);
+    var profile = res[0];
+    var shares = res[1];
+    U = {profile: profile, shares: shares};
 
     // Header
-    $('avatar').textContent=(profile.full_name||'?')[0].toUpperCase();
-    $('user-name').textContent=profile.full_name||'Участник';
-    $('user-role').textContent=ROLE_NAMES[profile.role]||profile.role;
-    const dot=$('user-status-dot');
-    dot.classList.add(profile.status==='active'?'active':'frozen');
+    $('hd-avatar').textContent = (profile.full_name || '?')[0].toUpperCase();
+    $('hd-name').textContent = profile.full_name || 'Участник';
+    var roleLabel = ROLE_NAMES[profile.role] || profile.role;
+    if (profile.team_role && profile.role === 'team') {
+      var trMap = {cto:'CTO',cmo:'CMO',cfo:'CFO',coo:'COO',hr_director:'HR Dir',pm:'PM',founder:'Founder'};
+      roleLabel = trMap[profile.team_role] || roleLabel;
+    }
+    if (profile.role === 'founder') roleLabel = 'Founder & CEO';
+    $('hd-role').textContent = roleLabel;
+    $('hd-dot').classList.add(profile.status === 'active' ? 'ok' : 'bad');
 
-    // Build tabs
-    buildHomeStats(profile,shares);
-    buildIncomeChart(shares);
-    buildAnalytics(profile);
-    buildSharesTab(shares);
-    buildProfileTab(profile);
-    loadProjectStats();
-    loadContests();
-    loadHallOfFame();
-    loadKaizen();
+    // Build pages
+    buildHome(profile, shares);
+    buildShares(shares);
 
-    $('app-loading').style.display='none';
-    $('app-content').style.display='block';
-  }catch(err){
-    $('app-loading').style.display='none';
-    $('app-error').style.display='block';
-    $('error-text').textContent=err.message||'Ошибка загрузки';
+    $('app-loading').style.display = 'none';
+    $('app').style.display = 'block';
+
+    // Haptic
+    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+  } catch(err) {
+    $('app-loading').style.display = 'none';
+    $('app-error').style.display = 'block';
+    $('err-text').textContent = err.message || 'Ошибка';
   }
 }
 init();
