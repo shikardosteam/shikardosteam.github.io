@@ -254,9 +254,15 @@ body {
 </div>
 
 <div id="app-error" class="error-screen" style="display:none">
-  <div style="font-size:48px;margin-bottom:12px">⚠️</div>
-  <div style="font-size:15px;font-weight:600;margin-bottom:6px">Ошибка</div>
-  <div id="err-text" style="color:var(--hint);font-size:13px">—</div>
+  <div style="font-size:48px;margin-bottom:12px">🔐</div>
+  <div style="font-size:15px;font-weight:600;margin-bottom:6px">Вход в систему</div>
+  <div id="err-text" style="color:var(--hint);font-size:13px;margin-bottom:16px">Войдите через Telegram бот или по email</div>
+  <div id="email-fallback" style="max-width:300px;margin:0 auto">
+    <input type="email" id="fb-email" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+    <input type="password" id="fb-password" placeholder="Пароль" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+    <button onclick="emailFallbackLogin()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:var(--bg);font-weight:600;font-size:14px;cursor:pointer">Войти</button>
+    <div id="fb-error" style="color:var(--red);font-size:12px;margin-top:8px;text-align:center"></div>
+  </div>
 </div>
 
 <script>
@@ -1645,6 +1651,54 @@ function loadSettingsPage(pg, back) {
   h += '</div>';
   h += '<div class="note-box">💡 Расширенные настройки в shikardos.team/cabinet.</div>';
   pg.innerHTML = h;
+}
+
+
+// ===== EMAIL FALLBACK AUTH =====
+async function emailFallbackLogin() {
+  var email = document.getElementById('fb-email').value.trim();
+  var password = document.getElementById('fb-password').value;
+  var errEl = document.getElementById('fb-error');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'Введите email и пароль'; return; }
+  try {
+    var resp = await fetch(API_BASE + '/auth/email-login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email: email, password: password})
+    });
+    var data = await resp.json();
+    if (!resp.ok) { errEl.textContent = data.detail || 'Ошибка'; return; }
+    // Got JWT — use it for all API calls
+    initData = '';
+    var jwtToken = data.token;
+    // Override api function to use JWT
+    window._origApi = api;
+    api = async function(path) {
+      var r = await fetch(API_BASE + path, {headers: {'Authorization': 'Bearer ' + jwtToken}});
+      if (!r.ok) throw new Error('API ' + r.status);
+      return r.json();
+    };
+    // Re-init with JWT auth
+    var res = await Promise.all([api('/profile'), api('/shares')]);
+    var profile = res[0];
+    var shares = res[1];
+    U = {profile: profile, shares: shares};
+    $('hd-avatar').textContent = (profile.full_name || '?')[0].toUpperCase();
+    $('hd-name').textContent = profile.full_name || 'Участник';
+    var roleLabel = ROLE_NAMES[profile.role] || profile.role;
+    if (profile.team_role && profile.role === 'team') {
+      var trMap = {cto:'CTO',cmo:'CMO',cfo:'CFO',coo:'COO',hr_director:'HR Dir',pm:'PM',founder:'Founder'};
+      roleLabel = trMap[profile.team_role] || roleLabel;
+    }
+    if (profile.role === 'founder') roleLabel = 'Founder & CEO';
+    $('hd-role').textContent = roleLabel;
+    $('hd-dot').classList.add(profile.status === 'active' ? 'ok' : 'bad');
+    buildHome(profile, shares);
+    buildShares(shares);
+    $('app-error').style.display = 'none';
+    $('app').style.display = 'block';
+  } catch(e) { errEl.textContent = e.message || 'Ошибка подключения'; }
 }
 
 // ===== INIT =====

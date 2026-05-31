@@ -457,6 +457,14 @@ h3 { font-size:18px; }
         </div>
       </div>
 
+      <div class="auth-divider" style="margin-top:16px">или по email</div>
+
+      <div id="email-login-form" style="margin-top:12px">
+        <input type="email" id="auth-email" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+        <input type="password" id="auth-password" placeholder="Пароль (мин. 8 символов)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+        <button onclick="emailLogin()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:#000;font-weight:600;font-size:14px;cursor:pointer">Войти по Email</button>
+      </div>
+
       <div id="auth-error-choose" class="auth-error"></div>
     </div>
 
@@ -789,6 +797,43 @@ function opsAction(actionName, endpoint) {
 }
 
 // ===== LOAD CABINET =====
+
+// ── Email + Password auth ──
+async function emailLogin() {
+  var email = document.getElementById('auth-email').value.trim();
+  var password = document.getElementById('auth-password').value;
+  if (!email || !password) {
+    document.getElementById('auth-error-choose').textContent = 'Введите email и пароль';
+    return;
+  }
+  showAuthStep('loading');
+  try {
+    var resp = await fetch(API_BASE + '/auth/email-login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email: email, password: password})
+    });
+    var data = await resp.json();
+    if (!resp.ok) {
+      showAuthStep('choose');
+      document.getElementById('auth-error-choose').textContent = data.detail || 'Ошибка входа';
+      return;
+    }
+    token = data.token;
+    localStorage.setItem('st_token', token);
+    currentUser = await api('/auth/me');
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('cabinet').style.display = 'block';
+    renderTopbar();
+    renderSidebar();
+    renderPages();
+    navigateTo('home');
+  } catch(e) {
+    showAuthStep('choose');
+    document.getElementById('auth-error-choose').textContent = 'Ошибка подключения';
+  }
+}
+
 async function loadCabinet() {
   const me = await api('/auth/me');
   if (!me || !me.id) {
