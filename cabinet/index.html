@@ -530,7 +530,7 @@ h3 { font-size:18px; }
    ============================================================ */
 
 const API_BASE = 'https://api.shikardos.team/api/v1';
-let token = sessionStorage.getItem('st_token') || null;
+let token = localStorage.getItem('st_token') || null;
 let currentUser = null;
 let charts = {};
 
@@ -609,7 +609,7 @@ async function startTelegramAuth() {
     if (res.status === 'confirmed' && res.token) {
       cancelTelegramAuth();
       token = res.token;
-      sessionStorage.setItem('st_token', token);
+      localStorage.setItem('st_token', token);
       await loadCabinet();
     } else if (res.status === 'expired') {
       cancelTelegramAuth();
@@ -634,7 +634,7 @@ window.handleGoogleAuth = async function(response) {
   const data = await api('/auth/google', 'POST', { credential: response.credential });
   if (data && data.token) {
     token = data.token;
-    sessionStorage.setItem('st_token', token);
+    localStorage.setItem('st_token', token);
     await loadCabinet();
   } else {
     showAuthStep('choose');
@@ -645,7 +645,7 @@ window.handleGoogleAuth = async function(response) {
 
 function logout() {
   token = null;
-  sessionStorage.removeItem('st_token');
+  localStorage.removeItem('st_token');
   currentUser = null;
   Object.values(charts).forEach(c => c.destroy());
   charts = {};
@@ -2290,7 +2290,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     } else {
       token = null;
-      sessionStorage.removeItem('st_token');
+      localStorage.removeItem('st_token');
     }
   }
   showAuthStep('choose');
