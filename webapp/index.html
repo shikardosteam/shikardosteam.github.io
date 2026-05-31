@@ -281,11 +281,11 @@ var charts = {};
 
 // ===== TEAM ROLE ACCESS =====
 var TEAM_ROLE_ACCESS = {
-  _common: ['home','shares','profile','trends','hall','tasks','kaizen','contests','referrals','settings'],
-  cto: ['infrastructure','ai-automators','quality','admin','content'],
+  _common: ['home','shares','profile','trends','hall','tasks','kaizen','contests','referrals','settings','team-members','team-pulse','pain-points'],
+  cto: ['infrastructure','ai-automators','quality','admin','content','admin-ke','risk-zone','ops-center'],
   cmo: ['content','trends','bloggers','admin'],
   cfo: ['investors','admin-shares','admin'],
-  coo: ['ops-center','admin-hr','admin-makers','admin','admin-users'],
+  coo: ['ops-center','admin-hr','admin-makers','admin','admin-users','risk-zone'],
   hr_director: ['admin-hr','admin-makers','team-pulse','pain-points','admin'],
   pm: ['admin-makers','content','admin'],
   maker: ['home','shares','profile','videos','ke','offers','trends','hall'],
@@ -603,9 +603,20 @@ function buildMoreMenu() {
     {id:'team-members', ico:'🏢', name:'Команда', access:'team-members'},
     {id:'team-pulse', ico:'💓', name:'Пульс', access:'team-pulse'},
     {id:'pain-points', ico:'🔥', name:'Боли', access:'pain-points'},
-    {id:'admin', ico:'🔧', name:'Админ', access:'admin'},
+    {id:'content', ico:'🎬', name:'Контент', access:'content'},
+    {id:'admin', ico:'🔧', name:'Обзор', access:'admin'},
+    {id:'admin-makers', ico:'👥', name:'Админ:Мейк', access:'admin-makers'},
+    {id:'admin-hr', ico:'🧑‍💼', name:'Админ:HR', access:'admin-hr'},
+    {id:'admin-shares', ico:'💎', name:'Админ:Акции', access:'admin-shares'},
+    {id:'admin-ke', ico:'📊', name:'Админ:КЭ', access:'admin-ke'},
+    {id:'admin-users', ico:'👤', name:'Юзеры', access:'admin-users'},
+    {id:'bloggers', ico:'📰', name:'Блогеры', access:'bloggers'},
+    {id:'investors', ico:'💰', name:'Инвесторы', access:'investors'},
+    {id:'ai-automators', ico:'🤖', name:'AI-автомат.', access:'ai-automators'},
+    {id:'quality', ico:'✅', name:'Качество', access:'quality'},
     {id:'risk', ico:'⚠️', name:'Риски', access:'risk-zone'},
     {id:'infra', ico:'🖥️', name:'Инфра', access:'infrastructure'},
+    {id:'ops-center', ico:'🎛️', name:'Ops Center', access:'ops-center'},
     {id:'settings', ico:'⚙️', name:'Настройки', access:'settings'}
   ];
 
@@ -647,6 +658,21 @@ async function loadSubPage(id) {
   else if (id === 'admin') { loadAdmin(pg, back); }
   else if (id === 'risk') { loadRisk(pg, back); }
   else if (id === 'infra') { loadInfra(pg, back); }
+  else if (id === 'team-members') { loadTeamMembers(pg, back); }
+  else if (id === 'team-pulse') { loadTeamPulse(pg, back); }
+  else if (id === 'pain-points') { loadPainPoints(pg, back); }
+  else if (id === 'content') { loadContentPage(pg, back); }
+  else if (id === 'admin-makers') { loadAdminMakers(pg, back); }
+  else if (id === 'admin-hr') { loadAdminHR(pg, back); }
+  else if (id === 'admin-shares') { loadAdminShares(pg, back); }
+  else if (id === 'admin-ke') { loadAdminKE(pg, back); }
+  else if (id === 'admin-users') { loadAdminUsers(pg, back); }
+  else if (id === 'bloggers') { loadBloggers(pg, back); }
+  else if (id === 'investors') { loadInvestors(pg, back); }
+  else if (id === 'ai-automators') { loadAIAutomators(pg, back); }
+  else if (id === 'quality') { loadQualityPage(pg, back); }
+  else if (id === 'ops-center') { loadOpsCenter(pg, back); }
+  else if (id === 'settings') { loadSettingsPage(pg, back); }
   else { pg.innerHTML = back + '<div class="empty">Раздел в разработке</div>'; }
 }
 
@@ -1346,6 +1372,281 @@ async function loadInfra(pg, back) {
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
 
+// ---------- TEAM MEMBERS (P2) ----------
+async function loadTeamMembers(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/team/members');
+    var h = back;
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val blue">' + (d.total||0) + '</div><div class="lbl">Всего</div></div>';
+    h += '<div class="kpi"><div class="val green">' + (d.active||0) + '</div><div class="lbl">Активных</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + (d.c_level||0) + '</div><div class="lbl">C-Level</div></div>';
+    h += '<div class="kpi"><div class="val">' + (d.managers||0) + '</div><div class="lbl">Менеджеры</div></div>';
+    h += '</div>';
+    var orgData = [{lvl:1,role:'CEO / Founder',n:1},{lvl:2,role:'C-Level',n:10},{lvl:3,role:'Directors',n:4},{lvl:4,role:'PM',n:6},{lvl:5,role:'HR Managers',n:125},{lvl:6,role:'Content Makers',n:50},{lvl:7,role:'Support & QA',n:12},{lvl:8,role:'Advisors',n:25}];
+    h += '<div class="card"><h3>🏛️ Орг структура</h3>';
+    for (var i = 0; i < orgData.length; i++) { var o = orgData[i]; h += '<div class="row"><span class="lbl">L' + o.lvl + ' ' + o.role + '</span><span class="val">' + o.n + '</span></div>'; }
+    h += '</div>';
+    if (U.profile && (U.profile.role === 'founder' || U.profile.team_role === 'founder')) {
+      h += '<div class="card"><h3>👑 Founder Vesting</h3><div class="m-tbl-wrap"><table class="m-tbl">';
+      h += '<tr><th>Год</th><th>Акции</th><th>Доход/мес</th><th>Капитал</th></tr>';
+      var vd = [{y:'2026',s:'1 000',i:'$1 470',c:'$50K'},{y:'2027',s:'1 000',i:'$6 580',c:'$275K'},{y:'2028',s:'1 000',i:'$24 440',c:'$1.15M'},{y:'2029',s:'1 000',i:'$79 130',c:'$4M'},{y:'2030',s:'1 000',i:'$240 760',c:'$14M'}];
+      for (var v = 0; v < vd.length; v++) h += '<tr><td>' + vd[v].y + '</td><td>' + vd[v].s + '</td><td style="color:var(--gold)">' + vd[v].i + '</td><td>' + vd[v].c + '</td></tr>';
+      h += '</table></div></div>';
+    }
+    h += '<div class="card"><h3>📈 Доход команды</h3>';
+    var incD = [{y:'2026',v:'$4.50M',p:5},{y:'2027',v:'$14.26M',p:15},{y:'2028',v:'$39.04M',p:40},{y:'2029',v:'$99.31M',p:70},{y:'2030',v:'$240.76M',p:100}];
+    for (var ii = 0; ii < incD.length; ii++) { h += '<div class="bar-row"><div class="bar-label">' + incD[ii].y + '</div><div class="bar-track"><div class="bar-fill" style="width:' + incD[ii].p + '%;background:var(--gold)"></div></div><div class="bar-val">' + incD[ii].v + '</div></div>'; }
+    h += '</div>';
+    var members = d.members || [];
+    if (members.length > 0) { h += '<div class="card"><h3>👥 Состав</h3>'; for (var m = 0; m < members.length; m++) { var mb = members[m]; h += '<div class="list-item"><span>' + (mb.shares_frozen?'❄️':'🟢') + ' ' + esc(mb.full_name) + '</span><span style="font-size:10px;color:var(--hint)">' + (mb.team_role||'—').toUpperCase() + ' · ' + (mb.shares_count||0) + '</span></div>'; } h += '</div>'; }
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- TEAM PULSE (P2) ----------
+async function loadTeamPulse(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/team-pulse');
+    var h = back;
+    h += '<div class="alert alert-info">❤️ Еженедельный анонимный опрос. 5 метрик.</div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val green">' + ((d.pulse_overall||0).toFixed?(d.pulse_overall||0).toFixed(1):'0') + '</div><div class="lbl">Пульс /10</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + (d.pulse_survey_pct||0) + '%</div><div class="lbl">Участие</div></div>';
+    h += '<div class="kpi"><div class="val blue">+' + (d.pulse_enps||0) + '</div><div class="lbl">eNPS</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + (d.pulse_stress_pct||0) + '%</div><div class="lbl">Стресс</div></div>';
+    h += '</div>';
+    h += '<div class="kpi-grid three"><div class="kpi"><div class="val green">' + (d.regs_week||0) + '</div><div class="lbl">Рег/нед</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + (d.videos_week||0) + '</div><div class="lbl">Видео/нед</div></div>';
+    h += '<div class="kpi"><div class="val">' + (d.active_makers||0) + '/' + (d.total_makers||0) + '</div><div class="lbl">Акт.мейк</div></div></div>';
+    var metrics = d.pulse_metrics || [{name:'❤️ Состояние',score:0},{name:'🔥 Мотивация',score:0},{name:'🤝 Отношения',score:0},{name:'🎯 Ясность',score:0},{name:'⚖️ Нагрузка',score:0}];
+    var mC = ['var(--green)','var(--gold)','var(--blue)','var(--orange)','var(--purple)'];
+    h += '<div class="card"><h3>📊 5 метрик</h3>';
+    for (var m = 0; m < metrics.length; m++) { var mt = metrics[m]; var sc = mt.score||0; h += '<div style="margin-bottom:10px"><div class="row"><span class="lbl">' + (mt.name||'') + '</span><span class="val" style="color:' + mC[m%5] + '">' + sc.toFixed(1) + '/10</span></div><div class="prog"><div class="fill" style="width:' + Math.round(sc*10) + '%;background:' + mC[m%5] + '"></div></div></div>'; }
+    h += '</div>';
+    var burnout = d.burnout_risk || [];
+    if (burnout.length > 0) { h += '<div class="card"><h3>🔥 Выгорание (' + burnout.length + ')</h3>'; for (var br = 0; br < burnout.length; br++) { var b = burnout[br]; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(b.name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(b.reason||'') + '</div></div><span class="badge ' + (b.level==='critical'?'red':'orange') + '">' + (b.level==='critical'?'Крит.':'Вним.') + '</span></div>'; } h += '</div>'; }
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- PAIN POINTS (P2) ----------
+async function loadPainPoints(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/pain-points');
+    var feed = d.feed || [];
+    var critical = feed.filter(function(f){return f.priority==='critical'||f.type==='violation';});
+    var important = feed.filter(function(f){return f.priority!=='critical'&&f.type!=='violation'&&f.status!=='resolved';});
+    var resolved = feed.filter(function(f){return f.status==='resolved'||f.status==='dismissed';});
+    var rPct = feed.length>0?Math.round(resolved.length/feed.length*100):0;
+    var h = back;
+    h += '<div class="alert alert-info">🧠 Агрегация: Пульс + Кайдзен + Риск + Support.</div>';
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val red">' + critical.length + '</div><div class="lbl">Критичных</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + important.length + '</div><div class="lbl">Важных</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + resolved.length + '</div><div class="lbl">Решено</div></div>';
+    h += '<div class="kpi"><div class="val green">' + rPct + '%</div><div class="lbl">% решённых</div></div></div>';
+    if (critical.length>0) { h += '<div class="card"><h3>🔴 Критичные</h3>'; for (var c=0;c<critical.length;c++) { var it=critical[c]; h += '<div class="list-item"><div style="flex:1"><div style="font-weight:600;font-size:12px">' + esc((it.text||'').substring(0,80)) + '</div><div style="font-size:10px;color:var(--hint)">' + esc(it.author||'') + '</div></div><span class="badge red">' + esc(it.type||'') + '</span></div>'; } h += '</div>'; }
+    if (important.length>0) { h += '<div class="card"><h3>🟠 Важные (' + important.length + ')</h3>'; for (var ip=0;ip<Math.min(important.length,15);ip++) { var imp=important[ip]; h += '<div class="list-item"><div style="flex:1;font-size:12px">' + esc((imp.text||'').substring(0,60)) + '</div><span class="badge orange">' + esc(imp.category||'') + '</span></div>'; } h += '</div>'; }
+    if (feed.length===0) h += '<div class="empty">Нет болей</div>';
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- CONTENT (P3) ----------
+async function loadContentPage(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/content') || {};
+    var h = back;
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + fmt(d.videos_this_week||0) + '</div><div class="lbl">Видео/нед</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(d.total_videos||0) + '</div><div class="lbl">Всего</div></div>';
+    h += '<div class="kpi"><div class="val green">' + (d.avg_per_maker||0) + '</div><div class="lbl">Ср/мейкер</div></div>';
+    h += '<div class="kpi"><div class="val' + ((d.makers_below_plan||0)>0?' red':'') + '">' + (d.makers_below_plan||0) + '</div><div class="lbl">Ниже плана</div></div></div>';
+    var plats = d.platform_publications || [{name:'YouTube',count:0},{name:'Instagram',count:0},{name:'TikTok',count:0},{name:'Facebook',count:0}];
+    var maxP = 1; for (var p=0;p<plats.length;p++) if (plats[p].count>maxP) maxP=plats[p].count;
+    var pC = ['var(--red)','var(--purple)','var(--blue)','var(--orange)'];
+    h += '<div class="card"><h3>📱 По платформам</h3>';
+    for (var p=0;p<plats.length;p++) { h += '<div class="bar-row"><div class="bar-label">' + esc(plats[p].name) + '</div><div class="bar-track"><div class="bar-fill" style="width:' + Math.round(plats[p].count/maxP*100) + '%;background:' + pC[p%4] + '"></div></div><div class="bar-val">' + fmt(plats[p].count) + '</div></div>'; }
+    h += '</div>';
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- ADMIN: MAKERS (P3) ----------
+async function loadAdminMakers(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/admin/makers'); var makers = d.makers||d||[]; if (!Array.isArray(makers)) makers=[];
+    var total=makers.length,active=0,frozen=0;
+    for (var i=0;i<makers.length;i++){if(makers[i].status==='active')active++;if(makers[i].shares_frozen)frozen++;}
+    var h = back;
+    h += '<div class="kpi-grid three"><div class="kpi"><div class="val blue">' + total + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + active + '</div><div class="lbl">Акт.</div></div><div class="kpi"><div class="val red">' + frozen + '</div><div class="lbl">Замор.</div></div></div>';
+    h += '<div class="card"><h3>👥 Мейкеры</h3>';
+    if (makers.length>0) { h += '<div class="m-tbl-wrap"><table class="m-tbl"><tr><th>Имя</th><th>Ст.</th><th>Видео</th><th>Акц.</th></tr>'; for (var j=0;j<makers.length;j++) { var m=makers[j]; h += '<tr><td>' + esc(m.display_name||m.username||'—') + '</td><td><span class="badge ' + (m.shares_frozen?'red':'green') + '">' + (m.shares_frozen?'❄️':'🟢') + '</span></td><td>' + fmt(m.videos_count||0) + '</td><td>' + fmt(m.shares||0) + '</td></tr>'; } h += '</table></div>'; }
+    else { h += '<div class="empty">Нет</div>'; }
+    h += '</div>'; pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- ADMIN: HR (P3) ----------
+async function loadAdminHR(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/admin/hr'); var hrs = d.hr_managers||d||[]; if (!Array.isArray(hrs)) hrs=[];
+    var h = back;
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + hrs.length + '</div><div class="lbl">HR менеджеров</div></div><div class="kpi"><div class="val green">' + fmt(d.total_makers_managed||0) + '</div><div class="lbl">Мейкеров</div></div></div>';
+    h += '<div class="card"><h3>🧑‍💼 HR</h3>';
+    if (hrs.length>0) { for (var i=0;i<hrs.length;i++) { var hr=hrs[i]; h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(hr.display_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">Мейкеров: ' + (hr.makers_count||0) + '</div></div><span class="badge gold">' + fmt(hr.shares||0) + '</span></div>'; } }
+    else { h += '<div class="empty">Нет HR</div>'; }
+    h += '</div>'; pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- ADMIN: SHARES (P3) ----------
+async function loadAdminShares(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/admin/shares');
+    var h = back;
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(d.total_issued||0) + '</div><div class="lbl">Выдано</div></div>';
+    h += '<div class="kpi"><div class="val green">' + fmt(d.in_rotation||0) + '</div><div class="lbl">В ротации</div></div>';
+    h += '<div class="kpi"><div class="val red">' + fmt(d.frozen||0) + '</div><div class="lbl">Замор.</div></div></div>';
+    var dist = d.distribution||{}; var dK = Object.keys(dist);
+    if (dK.length>0) { h += '<div class="card"><h3>📊 Распределение</h3>'; for (var i=0;i<dK.length;i++) h += '<div class="row"><span class="lbl">' + esc(dK[i]) + '</span><span class="val">' + fmt(dist[dK[i]]) + '</span></div>'; h += '</div>'; }
+    var txns = d.recent_transactions||[];
+    if (txns.length>0) { h += '<div class="card"><h3>📜 Транзакции</h3>'; for (var t=0;t<Math.min(txns.length,15);t++) { var tx=txns[t]; var sign=tx.amount>0?'+':''; var color=tx.amount>0?'var(--green)':'var(--red)'; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(tx.user||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(tx.reason||'') + '</div></div><span style="color:' + color + ';font-weight:700">' + sign + tx.amount + '</span></div>'; } h += '</div>'; }
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- ADMIN: KE (P3) ----------
+async function loadAdminKE(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/admin/ke');
+    var h = back;
+    h += '<div class="kpi-grid three"><div class="kpi"><div class="val" style="color:var(--gold)">' + ((d.avg_score||0).toFixed?(d.avg_score||0).toFixed(2):'0') + '</div><div class="lbl">Ср. КЭ</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + (d.calculated_count||0) + '</div><div class="lbl">Рассчитано</div></div>';
+    h += '<div class="kpi"><div class="val">' + daysUntilNewYear() + '</div><div class="lbl">До пересчёта</div></div></div>';
+    var tiers = d.tier_distribution||{};
+    h += '<div class="card"><h3>📊 По тирам</h3>';
+    for (var t=1;t<=5;t++) h += '<div class="row"><span class="lbl">Тир ' + t + ' (+' + (6-t) + '/год)</span><span class="val">' + (tiers['tier_'+t]||tiers[t]||0) + '</span></div>';
+    h += '</div>';
+    var top = d.top_performers||[];
+    if (top.length>0) { h += '<div class="card"><h3>🏆 Топ КЭ</h3>'; for (var i=0;i<top.length;i++) { var tp=top[i]; h += '<div class="lb-row"><div class="lb-rank ' + (i<3?['g','s','b'][i]:'') + '">' + (i+1) + '</div><div class="lb-name">' + esc(tp.display_name||'—') + '</div><div class="lb-val">' + (tp.score||0).toFixed(2) + '</div></div>'; } h += '</div>'; }
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- ADMIN: USERS (P3) ----------
+async function loadAdminUsers(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/admin/overview');
+    var h = back;
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val">' + fmt(d.total_users||0) + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + fmt(d.active_users||0) + '</div><div class="lbl">Активных</div></div></div>';
+    var byRole = d.users_by_role||d.role_counts||{}; var rK = Object.keys(byRole);
+    if (rK.length>0) { h += '<div class="card"><h3>👤 По ролям</h3>'; for (var r=0;r<rK.length;r++) h += '<div class="row"><span class="lbl">' + (ROLE_NAMES[rK[r]]||rK[r]) + '</span><span class="val">' + byRole[rK[r]] + '</span></div>'; h += '</div>'; }
+    h += '<div class="note-box">💡 Управление через Telegram-бот (/admin).</div>';
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- BLOGGERS (P3) ----------
+async function loadBloggers(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/admin/bloggers'); var bl = d.bloggers||d||[]; if (!Array.isArray(bl)) bl=[];
+    var h = back;
+    h += '<div class="kpi-grid three"><div class="kpi"><div class="val blue">' + bl.length + '</div><div class="lbl">Блогеров</div></div><div class="kpi"><div class="val green">' + fmtViews(d.total_reach||0) + '</div><div class="lbl">Охват</div></div><div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(d.total_publications||0) + '</div><div class="lbl">Публик.</div></div></div>';
+    h += '<div class="card"><h3>📰 Блогеры</h3>';
+    if (bl.length>0) { for (var i=0;i<bl.length;i++) { var b=bl[i]; h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(b.display_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + fmt(b.publications||0) + ' публ.</div></div><span class="badge gold">' + fmt(b.shares||0) + '</span></div>'; } }
+    else { h += '<div class="empty">Нет</div>'; }
+    h += '</div>'; pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- INVESTORS (P3) ----------
+async function loadInvestors(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/admin/investors'); var inv = d.investors||d||[]; if (!Array.isArray(inv)) inv=[];
+    var h = back;
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + inv.length + '</div><div class="lbl">Инвесторов</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + fmtUSD(d.total_invested||0) + '</div><div class="lbl">Привлечено</div></div></div>';
+    h += '<div class="card"><h3>📊 Раунды</h3><div class="m-tbl-wrap"><table class="m-tbl"><tr><th>Год</th><th>Цена</th><th>Цель</th></tr>';
+    var rds = [{y:'2026',p:'$5K',t:'$5M'},{y:'2027',p:'$10K',t:'$10M'},{y:'2028',p:'$20K',t:'$20M'},{y:'2029',p:'$40K',t:'$40M'},{y:'2030',p:'$80K',t:'$80M'}];
+    for (var r=0;r<rds.length;r++) h += '<tr><td>' + rds[r].y + '</td><td>' + rds[r].p + '</td><td style="color:var(--gold)">' + rds[r].t + '</td></tr>';
+    h += '</table></div></div>';
+    if (inv.length>0) { h += '<div class="card"><h3>💰 Список</h3>'; for (var i=0;i<inv.length;i++) h += '<div class="list-item"><span>' + esc(inv[i].display_name||'—') + '</span><span class="badge gold">' + fmt(inv[i].shares||0) + '</span></div>'; h += '</div>'; }
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- AI AUTOMATORS (P3) ----------
+async function loadAIAutomators(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/ai-automators'); var internal=d.internal||[]; var offerers=d.offerers||[];
+    var h = back;
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + internal.length + '</div><div class="lbl">Внутренних</div></div><div class="kpi"><div class="val" style="color:var(--gold)">' + offerers.length + '</div><div class="lbl">Офферщиков</div></div></div>';
+    h += '<div class="alert alert-warn">⚠️ 4 внутренних ≠ 50 офферщиков. Разные роли!</div>';
+    h += '<div class="card"><h3>🤖 Внутренние</h3>';
+    if (internal.length>0) { for (var i=0;i<internal.length;i++) { var a=internal[i]; h += '<div class="list-item"><span>' + esc(a.name||a.display_name||'—') + '</span><span class="badge blue">' + esc(a.area||'') + '</span></div>'; } }
+    else { h += '<div class="empty">Нет</div>'; }
+    h += '</div>'; pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- QUALITY (P3) ----------
+async function loadQualityPage(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = await api('/quality');
+    var h = back;
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val green">' + (d.approval_rate||0) + '%</div><div class="lbl">Одобрено</div></div>';
+    h += '<div class="kpi"><div class="val red">' + (d.rejection_rate||0) + '%</div><div class="lbl">Отклонено</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + fmt(d.total_reviewed||0) + '</div><div class="lbl">Проверено</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + fmt(d.pending_review||0) + '</div><div class="lbl">В очереди</div></div></div>';
+    var reviews = d.recent_reviews||[];
+    if (reviews.length>0) { h += '<div class="card"><h3>✅ Проверки</h3>'; for (var i=0;i<Math.min(reviews.length,15);i++) { var r=reviews[i]; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(r.maker||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(r.platform||'') + '</div></div><span class="badge ' + (r.result==='approved'?'green':r.result==='rejected'?'red':'orange') + '">' + esc(r.result||'—') + '</span></div>'; } h += '</div>'; }
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- OPS CENTER (P3) ----------
+async function loadOpsCenter(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var d = {}; try { d = await api('/admin/ops')||{}; } catch(e2) { d={}; }
+    var h = back;
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val green">' + (d.api_uptime||'99.9') + '%</div><div class="lbl">Uptime</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + (d.api_latency||'—') + '</div><div class="lbl">Латенция</div></div>';
+    h += '<div class="kpi"><div class="val">' + fmt(d.requests_today||0) + '</div><div class="lbl">Запросов</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + (d.errors_today||0) + '</div><div class="lbl">Ошибок</div></div></div>';
+    var services = d.services||[{name:'API',status:'ok'},{name:'PostgreSQL',status:'ok'},{name:'Redis',status:'ok'},{name:'Bot',status:'ok'}];
+    h += '<div class="card"><h3>🎛️ Сервисы</h3>';
+    for (var i=0;i<services.length;i++) { var s=services[i]; h += '<div class="row"><span class="lbl">' + esc(s.name) + '</span><span class="badge ' + (s.status==='ok'?'green':'red') + '">' + esc(s.status) + '</span></div>'; }
+    h += '</div>'; pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+}
+
+// ---------- SETTINGS (P3) ----------
+function loadSettingsPage(pg, back) {
+  var h = back;
+  h += '<div class="card"><h3>⚙️ Настройки</h3>';
+  h += '<div class="row"><span class="lbl">Версия</span><span class="val">v3.0</span></div>';
+  h += '<div class="row"><span class="lbl">Платформа</span><span class="val">Telegram WebApp</span></div>';
+  h += '<div class="row"><span class="lbl">API</span><span class="val" style="color:var(--green)">api.shikardos.team</span></div>';
+  h += '<div class="row"><span class="lbl">Тема</span><span class="val">' + (isDark ? '🌙 Тёмная' : '☀️ Светлая') + '</span></div>';
+  h += '</div>';
+  h += '<div class="note-box">💡 Расширенные настройки в shikardos.team/cabinet.</div>';
+  pg.innerHTML = h;
+}
+
 // ===== INIT =====
 async function init() {
   try {
@@ -1354,8 +1655,6 @@ async function init() {
     var profile = res[0];
     var shares = res[1];
     U = {profile: profile, shares: shares};
-
-    // Header
     $('hd-avatar').textContent = (profile.full_name || '?')[0].toUpperCase();
     $('hd-name').textContent = profile.full_name || 'Участник';
     var roleLabel = ROLE_NAMES[profile.role] || profile.role;
@@ -1366,14 +1665,10 @@ async function init() {
     if (profile.role === 'founder') roleLabel = 'Founder & CEO';
     $('hd-role').textContent = roleLabel;
     $('hd-dot').classList.add(profile.status === 'active' ? 'ok' : 'bad');
-
-    // Build pages
     buildHome(profile, shares);
     buildShares(shares);
-
     $('app-loading').style.display = 'none';
     $('app').style.display = 'block';
-
     if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
   } catch(err) {
     $('app-loading').style.display = 'none';
