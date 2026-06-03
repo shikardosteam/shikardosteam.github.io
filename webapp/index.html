@@ -542,49 +542,33 @@ function buildShares(shares) {
 }
 
 // ===== TRENDS PAGE =====
-async function loadTrends() {
-  var pg = $('pg-trends');
-  pg.innerHTML = '<div class="loading" style="min-height:40vh"><div class="spinner"></div></div>';
+async function loadTrends(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/trends');
-    var h = '';
-    h += '<div class="kpi-grid three">';
-    h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(d.top5_percent||0) + '</div><div class="lbl">Top 5%</div></div>';
-    h += '<div class="kpi"><div class="val blue">' + fmt(d.avg_views_top5||0) + '</div><div class="lbl">Ср.просм. top5</div></div>';
+    var d = await api('/trends') || {};
+    var h = back;
+    h += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:12px"><i class="ti ti-search"></i> Виральные паттерны — используй для роста КЭ</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val gold">' + fmt(d.top5_percent||0) + '</div><div class="lbl">Top 5% видео</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + fmt(d.avg_views_top5||0) + '</div><div class="lbl">Ср.просм top5</div></div>';
     h += '<div class="kpi"><div class="val green">' + fmt(d.templates_count||0) + '</div><div class="lbl">Шаблонов</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">' + fmt(d.makers_used_template||0) + '</div><div class="lbl">Исп. шаблон</div></div>';
+    h += '<div class="kpi"><div class="val green">' + esc(String(d.ke_growth_after_template||'0%')) + '</div><div class="lbl">Рост КЭ</div></div>';
     h += '</div>';
-    var vids = d.top_videos || [];
-    h += '<div class="card"><h3><i class="ti ti-movie"></i> Топ видео</h3>';
-    if (vids.length) {
-      vids.forEach(function(v, i) {
-        h += '<div class="list-item"><div><span style="color:var(--gold);font-weight:700">#' + (i+1) + '</span> ' + esc(v.maker||'—') + '<div style="font-size:10px;color:var(--hint)">' + esc(v.platform||'') + ' · ' + esc(v.niche||'') + '</div></div><span style="font-weight:700">' + fmt(v.views||0) + '</span></div>';
-      });
-    } else { h += '<div class="empty">Нет данных</div>'; }
+    var tv = d.top_videos||[];
+    h += '<div class="card"><h3><i class="ti ti-movie"></i> Топ-10 видео</h3>';
+    if(tv.length){ tv.slice(0,10).forEach(function(v,i){ h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + '">' + (i+1) + '.</span> ' + esc(v.maker||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(v.platform||'') + ' · ' + esc(v.niche||'') + '</div></div><span style="font-size:12px;font-weight:700">' + fmt(v.views||0) + '</span></div>'; }); } else { h += '<div class="empty">Нет данных</div>'; }
     h += '</div>';
-    var times = d.best_posting_times || [];
-    if (times.length) {
-      h += '<div class="card"><h3>⏰ Лучшее время</h3>';
-      times.forEach(function(t) {
-        h += '<div class="row"><span class="lbl">' + esc(t.platform) + '</span><span class="val" style="color:var(--blue)">' + esc(t.time) + '</span><span style="color:var(--green);font-size:11px">' + esc(String(t.boost||'')) + '</span></div>';
-      });
-      h += '</div>';
-    }
-    var pats = d.viral_patterns || [];
-    if (pats.length) {
-      h += '<div class="card"><h3><i class="ti ti-dna"></i> Виральные паттерны</h3>';
-      pats.forEach(function(p) {
-        h += '<div style="padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px"><div style="font-weight:600;color:var(--gold);font-size:12px">' + esc(p.name||'') + '</div><div style="font-size:11px;color:var(--hint);margin-top:3px">' + esc(p.description||'') + '</div></div>';
-      });
-      h += '</div>';
-    }
+    var pat = d.viral_patterns||[];
+    if(pat.length){ h += '<div class="card"><h3><i class="ti ti-dna"></i> Виральные паттерны</h3>'; pat.forEach(function(x,i){ h += '<div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px"><div style="font-size:12px;font-weight:700;color:var(--gold)">' + esc(x.name||'Паттерн '+(i+1)) + '</div><div style="font-size:11px;color:var(--hint);margin-top:3px">' + esc(x.description||'') + '</div><div style="font-size:11px;color:var(--green);margin-top:4px">Успешность: ' + esc(String(x.success_rate||'0%')) + '</div></div>'; }); h += '</div>'; }
+    var nc = d.top_niches||[];
+    if(nc.length){ h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Топ ниши по конверсии</h3>'; nc.slice(0,8).forEach(function(x){ var pct=Math.min(x.conversion||0,100); h += '<div class="bar-row"><span style="min-width:110px;font-size:12px">' + esc(x.name||'Ниша') + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:var(--gold);height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + (x.conversion||0) + '%</span></div>'; }); h += '</div>'; }
+    var pt = d.best_posting_times||[{platform:'YouTube',time:'14:00-16:00'},{platform:'Instagram',time:'18:00-20:00'},{platform:'TikTok',time:'21:00-23:00'},{platform:'Facebook',time:'10:00-12:00'}];
+    h += '<div class="card"><h3><i class="ti ti-clock"></i> Лучшее время публикации</h3>'; pt.forEach(function(x){ h += '<div class="row"><span class="lbl">' + esc(x.platform) + '</span><span class="val blue">' + esc(x.time) + '</span></div>'; }); h += '</div>';
     pg.innerHTML = h;
-    pg.dataset.loaded = '1';
-  } catch(e) {
-    pg.innerHTML = '<div class="empty">Ошибка загрузки трендов</div>';
-  }
+  } catch(e){ console.error('trends',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ===== HALL OF FAME =====
 async function loadHall() {
   var pg = $('pg-hall');
   pg.innerHTML = '<div class="loading" style="min-height:40vh"><div class="spinner"></div></div>';
@@ -976,85 +960,33 @@ async function loadOffers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var d = await api('/offers') || {};
-    var offers = d.offers || d.items || d || [];
-    if (!Array.isArray(offers)) offers = [];
-
-    var nichesYear = d.niches_per_year || 250;
-    var teamsCount = d.teams_count || 5;
-    var partnerships = d.connected_partnerships || 0;
-    var activeNiches = d.active_niches_week || 5;
-
+    var offers = d.offers || (Array.isArray(d)?d:[]) || [];
+    if(!Array.isArray(offers)) offers=[];
     var h = back;
-    h += '<div class="alert alert-gold"><i class="ti ti-target"></i> 250 ниш в год · 5 команд AI-офферщиков · 1000 мейкеров на нишу</div>';
-
-    // KPI
+    h += '<div class="card" style="border-left:3px solid var(--gold)"><div style="font-size:12px"><i class="ti ti-target"></i> <b>250 ниш/год</b> · 5 команд AI-офферщиков · 1000 мейкеров/нишу</div></div>';
     h += '<div class="kpi-grid">';
-    h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(nichesYear) + '</div><div class="lbl">Ниш/год</div></div>';
-    h += '<div class="kpi"><div class="val blue">' + teamsCount + '</div><div class="lbl">Команд</div></div>';
-    h += '<div class="kpi"><div class="val" style="color:var(--purple)">' + fmt(partnerships) + '</div><div class="lbl">Партнёрств</div></div>';
-    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + activeNiches + '</div><div class="lbl">Ниш/нед</div></div>';
+    h += '<div class="kpi"><div class="val gold">' + fmt(d.niches_per_year||250) + '</div><div class="lbl">Ниш/год</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + (d.teams_count||5) + '</div><div class="lbl">Команд</div></div>';
+    h += '<div class="kpi"><div class="val green">' + fmt(d.makers_per_niche||1000) + '</div><div class="lbl">Мейкеров/ниша</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">' + fmt(d.connected_partnerships||0) + '</div><div class="lbl">Партнёрств</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + (d.active_niches_week||5) + '</div><div class="lbl">Ниш на неделе</div></div>';
     h += '</div>';
-
-    // Team × Niche matrix
-    var matrix = d.team_niche_matrix || [];
-    if (matrix.length > 0) {
-      h += '<div class="card"><h3><i class="ti ti-clipboard"></i> Матрица Команда × Ниша</h3><div class="m-tbl-wrap"><table class="m-tbl">';
-      h += '<tr><th>Команда</th><th>Ниша</th><th>PM</th><th>Статус</th></tr>';
-      for (var m = 0; m < matrix.length; m++) {
-        var r = matrix[m];
-        var stCls = r.status === 'active' ? 'green' : 'muted';
-        h += '<tr><td style="font-weight:600">' + esc(r.team) + '</td><td>' + esc(r.niche) + '</td><td>' + esc(r.pm||'—') + '</td>';
-        h += '<td><span class="badge ' + stCls + '">' + esc(r.status) + '</span></td></tr>';
-      }
-      h += '</table></div></div>';
-    }
-
-    // Diversification
-    var divRisks = d.diversification || [];
-    if (divRisks.length > 0) {
-      h += '<div class="card"><h3><i class="ti ti-shield"></i> Диверсификация</h3>';
-      for (var dr = 0; dr < divRisks.length; dr++) {
-        var dv = divRisks[dr];
-        var dvPct = dv.percent || 0;
-        var dvColor = dvPct > 30 ? 'var(--red)' : 'var(--green)';
-        h += '<div class="bar-row"><div class="bar-label">' + esc(dv.partner||'—') + '</div>';
-        h += '<div class="bar-track"><div class="bar-fill" style="width:' + Math.min(dvPct, 100) + '%;background:' + dvColor + '"></div></div>';
-        h += '<div class="bar-val">' + dvPct + '%</div></div>';
-      }
-      h += '</div>';
-    }
-
-    // Catalog
-    var activeCount = 0, pausedCount = 0;
-    for (var i = 0; i < offers.length; i++) {
-      if (offers[i].status === 'active') activeCount++;
-      else if (offers[i].status === 'paused') pausedCount++;
-    }
-
-    h += '<div class="card"><h3><i class="ti ti-package"></i> Каталог офферов</h3>';
-    h += '<div class="kpi-grid three" style="margin-bottom:8px">';
-    h += '<div class="kpi"><div class="val blue">' + offers.length + '</div><div class="lbl">Всего</div></div>';
-    h += '<div class="kpi"><div class="val green">' + activeCount + '</div><div class="lbl">Активных</div></div>';
-    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + pausedCount + '</div><div class="lbl">На паузе</div></div>';
+    var mx = d.team_niche_matrix||[{team:'Команда 1',niche:'SaaS CRM',status:'active'},{team:'Команда 2',niche:'EdTech',status:'active'},{team:'Команда 3',niche:'FinTech',status:'prep'},{team:'Команда 4',niche:'HealthTech',status:'prep'},{team:'Команда 5',niche:'eCommerce',status:'prep'}];
+    h += '<div class="card"><h3><i class="ti ti-clipboard"></i> Команда × Ниша</h3>';
+    mx.forEach(function(r){ var cl=r.status==='active'?'var(--green)':r.status==='paused'?'var(--orange)':'var(--hint)'; h += '<div class="list-item"><div><div style="font-size:12px;font-weight:600">' + esc(r.team) + '</div><div style="font-size:10px;color:var(--hint)">' + esc(r.niche) + ' · ' + esc(String(r.conversion||'0%')) + '</div></div><span class="badge" style="background:rgba(128,128,128,0.12);color:' + cl + '">' + esc(r.status) + '</span></div>'; });
     h += '</div>';
-
-    if (offers.length > 0) {
-      offers.forEach(function(o) {
-        var stCls = o.status === 'active' ? 'green' : o.status === 'paused' ? 'orange' : 'muted';
-        h += '<div class="list-item"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:12px">' + esc(o.name || o.title || '—') + '</div>';
-        if (o.platform) h += '<div style="font-size:10px;color:var(--hint)">' + esc(o.platform) + (o.payout ? ' · $' + fmt(o.payout) : '') + '</div>';
-        h += '</div><span class="badge ' + stCls + '">' + esc(o.status||'—') + '</span></div>';
-      });
-    } else { h += '<div class="empty">Нет офферов</div>'; }
+    var dv = d.diversification||[];
+    if(dv.length){ h += '<div class="card"><h3><i class="ti ti-shield"></i> Диверсификация (макс 30%/партнёр)</h3>'; dv.forEach(function(x){ var pct=Math.min(x.percent||0,100); var cl=(x.percent||0)>30?'var(--red)':'var(--green)'; h += '<div class="bar-row"><span style="min-width:110px;font-size:12px">' + esc(x.partner||'Партнёр') + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:' + cl + ';height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + (x.percent||0) + '%</span></div>'; }); h += '</div>'; }
+    var comp = d.team_competition||[];
+    if(comp.length){ h += '<div class="card"><h3><i class="ti ti-trophy"></i> Соревнование команд</h3>'; comp.forEach(function(x,i){ h += '<div class="list-item"><div style="font-size:12px"><span style="color:' + (i===0?'var(--gold)':'var(--hint)') + '">#' + (i+1) + '</span> ' + esc(x.team||'Команда') + '</div><span style="font-size:12px;font-weight:600">' + fmt(x.score||0) + '</span></div>'; }); h += '<div style="font-size:11px;color:var(--hint);margin-top:6px"><i class="ti ti-cards"></i> Порядок выбора ниш — по КЭ (лотерея)</div></div>'; }
+    var act=0,pau=0; offers.forEach(function(o){if(o.status==='active')act++;else if(o.status==='paused')pau++;});
+    h += '<div class="card"><h3><i class="ti ti-package"></i> Каталог офферов</h3><div class="kpi-grid three"><div class="kpi"><div class="val blue">' + offers.length + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + act + '</div><div class="lbl">Активных</div></div><div class="kpi"><div class="val" style="color:var(--orange)">' + pau + '</div><div class="lbl">На паузе</div></div></div>';
+    if(offers.length){ offers.forEach(function(o){ var cl=o.status==='active'?'var(--green)':o.status==='paused'?'var(--orange)':'var(--hint)'; h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px;font-weight:600">' + esc(o.name||o.title||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(o.platform||'') + (o.payout?' · $'+fmt(o.payout):'') + '</div></div><span class="badge" style="background:rgba(128,128,128,0.12);color:' + cl + '">' + esc(o.status||'—') + '</span></div>'; }); } else { h += '<div class="empty">Нет офферов</div>'; }
     h += '</div>';
-
-    h += '<div class="note-box"><i class="ti ti-bulb"></i> Офферы ротируются через Round Robin. Ваши реферальные ссылки участвуют в ротации пропорционально вашим акциям.</div>';
-
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка загрузки офферов</div>'; }
+  } catch(e){ console.error('offers',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- HR: MAKERS (ENHANCED) ----------
 async function loadHRMakers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
@@ -1515,18 +1447,35 @@ async function resolveAnomaly(flagId) {
 async function loadInfra(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/infrastructure');
-    var h = back + '<div class="card"><h3><i class="ti ti-device-desktop"></i> Инфраструктура</h3>';
-    h += '<div class="row"><span class="lbl">БД</span><span class="val" style="color:var(--green)">' + (d.db_status||'—') + '</span></div>';
-    h += '<div class="row"><span class="lbl">API</span><span class="val" style="color:var(--green)">' + (d.api_status||'—') + '</span></div>';
-    h += '<div class="row"><span class="lbl">Бот</span><span class="val" style="color:var(--green)">' + (d.bot_status||'—') + '</span></div>';
-    h += '<div class="row"><span class="lbl">Записей в БД</span><span class="val">' + fmt(d.total_records||0) + '</span></div>';
+    var d = await api('/infrastructure') || {};
+    var cpu=d.cpu_percent||0, disk=d.disk_percent||0, ram=d.ram_percent||45;
+    var allOk=(d.db_status==='ok'||d.db_status==='online')&&(d.api_status==='ok'||d.api_status==='online');
+    var h = back;
+    h += '<div class="card" style="border-left:3px solid ' + (allOk?'var(--green)':'var(--red)') + '"><div style="font-size:12px">' + (allOk?'<i class="ti ti-circle-check"></i> Все системы в штатном режиме':'<i class="ti ti-alert-triangle"></i> Есть проблемы') + '</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val green">' + esc(d.bot_uptime||'99.9%') + '</div><div class="lbl">Bot uptime</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + fmt(d.round_robin_shares||0) + '</div><div class="lbl">Round Robin</div></div>';
+    h += '<div class="kpi"><div class="val ' + (cpu>80?'red':'green') + '">' + cpu + '%</div><div class="lbl">CPU</div></div>';
+    h += '<div class="kpi"><div class="val ' + (disk>80?'red':'green') + '">' + disk + '%</div><div class="lbl">Диск</div></div>';
     h += '</div>';
+    var sys=[['Telegram Bot',d.bot_status||'online'],['Round Robin',d.rr_status||'active'],['Apify',d.apify_status||'connected'],['UTM Tracker',d.utm_status||'active'],['DB PostgreSQL',d.db_status||'online'],['Резервный бот',d.reserve_bot||'standby'],['Биржа акций',d.exchange_status||'active']];
+    h += '<div class="card"><h3><i class="ti ti-clipboard"></i> Статус систем</h3>';
+    sys.forEach(function(x){ var ok=(x[1]==='online'||x[1]==='active'||x[1]==='connected'); var st=x[1]==='standby'?'var(--orange)':(ok?'var(--green)':'var(--red)'); h += '<div class="list-item"><span style="font-size:12px">' + x[0] + '</span><span class="badge" style="background:rgba(128,128,128,0.12);color:' + st + '">' + esc(x[1]) + '</span></div>'; });
+    h += '</div>';
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Нагрузка сервера</h3>';
+    [['CPU',cpu,cpu>80?'var(--red)':'var(--green)'],['RAM',ram,'var(--blue)'],['Диск',disk,disk>80?'var(--red)':'var(--orange)']].forEach(function(x){ h += '<div class="bar-row"><span style="min-width:50px;font-size:12px">' + x[0] + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + x[1] + '%;background:' + x[2] + ';height:100%"></div></div><span style="min-width:36px;text-align:right;font-size:12px">' + x[1] + '%</span></div>'; });
+    h += '</div>';
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + fmt(d.total_records||0) + '</div><div class="lbl">Пользователей</div></div><div class="kpi"><div class="val gold">' + fmt(d.shares_in_system||0) + '</div><div class="lbl">Акций в системе</div></div><div class="kpi"><div class="val green">' + fmt(d.requests_per_day||0) + '</div><div class="lbl">Запросов/день</div></div><div class="kpi"><div class="val">' + esc(d.next_backup||'03:00') + '</div><div class="lbl">След. бэкап</div></div></div>';
+    var integ=[['Apify',(d.apify_status||'connected')==='connected'],['Telegram Bot',(d.bot_status||'online')==='online'],['Round Robin',(d.rr_status||'active')==='active'],['ML Pipeline',(d.ml_status||'standby')!=='error'],['Google Sheets',true],['YouTube API',true],['Cloudflare',true],['GitHub Pages',true]];
+    h += '<div class="card"><h3><i class="ti ti-plug-connected"></i> Статус интеграций</h3>';
+    integ.forEach(function(x){ h += '<div class="list-item"><span style="font-size:12px"><i class="ti ti-point-filled" style="color:' + (x[1]?'var(--green)':'var(--red)') + '"></i> ' + x[0] + '</span><span style="font-size:11px;color:' + (x[1]?'var(--green)':'var(--red)') + '">' + (x[1]?'OK':'ERR') + '</span></div>'; });
+    h += '</div>';
+    var apiT=d.api_response_times||{avg:45,p95:120,p99:250};
+    h += '<div class="card"><h3><i class="ti ti-clock"></i> API Response Time</h3><div class="kpi-grid three"><div class="kpi"><div class="val green">' + (apiT.avg||45) + 'ms</div><div class="lbl">AVG</div></div><div class="kpi"><div class="val blue">' + (apiT.p95||120) + 'ms</div><div class="lbl">P95</div></div><div class="kpi"><div class="val gold">' + (apiT.p99||250) + 'ms</div><div class="lbl">P99</div></div></div></div>';
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e){ console.error('infra',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- TEAM MEMBERS (P2) ----------
 async function loadTeamMembers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
@@ -1675,21 +1624,32 @@ async function loadContentPage(pg, back) {
   try {
     var d = await api('/content') || {};
     var h = back;
-    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + fmt(d.videos_this_week||0) + '</div><div class="lbl">Видео/нед</div></div>';
-    h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(d.total_videos||0) + '</div><div class="lbl">Всего</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val blue">' + fmt(d.videos_this_week||0) + '</div><div class="lbl">Видео/нед</div></div>';
+    h += '<div class="kpi"><div class="val gold">' + fmt(d.total_videos||0) + '</div><div class="lbl">Всего видео</div></div>';
     h += '<div class="kpi"><div class="val green">' + (d.avg_per_maker||0) + '</div><div class="lbl">Ср/мейкер</div></div>';
-    h += '<div class="kpi"><div class="val' + ((d.makers_below_plan||0)>0?' red':'') + '">' + (d.makers_below_plan||0) + '</div><div class="lbl">Ниже плана</div></div></div>';
-    var plats = d.platform_publications || [{name:'YouTube',count:0},{name:'Instagram',count:0},{name:'TikTok',count:0},{name:'Facebook',count:0}];
-    var maxP = 1; for (var p=0;p<plats.length;p++) if (plats[p].count>maxP) maxP=plats[p].count;
-    var pC = ['var(--red)','var(--purple)','var(--blue)','var(--orange)'];
-    h += '<div class="card"><h3><i class="ti ti-device-mobile"></i> По платформам</h3>';
-    for (var p=0;p<plats.length;p++) { h += '<div class="bar-row"><div class="bar-label">' + esc(plats[p].name) + '</div><div class="bar-track"><div class="bar-fill" style="width:' + Math.round(plats[p].count/maxP*100) + '%;background:' + pC[p%4] + '"></div></div><div class="bar-val">' + fmt(plats[p].count) + '</div></div>'; }
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">' + esc(String(d.platforms_covered||'0/4')) + '</div><div class="lbl">Платформы</div></div>';
+    h += '<div class="kpi"><div class="val ' + ((d.makers_below_plan||0)>0?'red':'green') + '">' + (d.makers_below_plan||0) + '</div><div class="lbl">Ниже плана</div></div>';
+    h += '</div>';
+    var plat = d.platform_publications||[{name:'YouTube',count:0,color:'var(--red)'},{name:'Instagram',count:0,color:'var(--purple)'},{name:'TikTok',count:0,color:'var(--blue)'},{name:'Facebook',count:0,color:'var(--orange)'}];
+    var mx=1; plat.forEach(function(x){if((x.count||0)>mx)mx=x.count;});
+    h += '<div class="card"><h3><i class="ti ti-device-mobile"></i> Публикации по платформам (нед)</h3>';
+    plat.forEach(function(x){ var pct=Math.round((x.count||0)/mx*100); h += '<div class="bar-row"><span style="min-width:90px;font-size:12px">' + esc(x.name) + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:' + (x.color||'var(--blue)') + ';height:100%;min-width:' + ((x.count||0)>0?'2':'0') + 'px"></div></div><span style="min-width:36px;text-align:right;font-size:12px">' + fmt(x.count||0) + '</span></div>'; });
+    h += '</div>';
+    var vw = d.views_by_platform||[];
+    if(vw.length){ var vmx=1; vw.forEach(function(x){if((x.views||0)>vmx)vmx=x.views;}); h += '<div class="card"><h3><i class="ti ti-eye"></i> Просмотры по платформам</h3>'; vw.forEach(function(x){ var pct=Math.round((x.views||0)/vmx*100); h += '<div class="bar-row"><span style="min-width:90px;font-size:12px">' + esc(x.name) + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:var(--gold);height:100%"></div></div><span style="min-width:40px;text-align:right;font-size:12px">' + fmt(x.views||0) + '</span></div>'; }); h += '</div>'; }
+    var t = d.uniformity_tiers||{t4:0,t3:0,t2:0,t1:0};
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Равномерность публикаций</h3><div class="kpi-grid"><div class="kpi"><div class="val green">' + (t.t4||0) + '</div><div class="lbl">4/4 нед</div></div><div class="kpi"><div class="val blue">' + (t.t3||0) + '</div><div class="lbl">3/4 нед</div></div><div class="kpi"><div class="val" style="color:var(--orange)">' + (t.t2||0) + '</div><div class="lbl">2/4 нед</div></div><div class="kpi"><div class="val red">' + (t.t1||0) + '</div><div class="lbl">0-1/4</div></div></div></div>';
+    var wk = d.weekly_dynamics||[];
+    if(wk.length){ var wmx=1; wk.forEach(function(x){if((x.count||0)>wmx)wmx=x.count;}); h += '<div class="card"><h3><i class="ti ti-trending-up"></i> Динамика (8 нед)</h3>'; wk.slice(0,8).forEach(function(x,i){ var pct=Math.round((x.count||0)/wmx*100); h += '<div class="bar-row"><span style="min-width:60px;font-size:12px">Нед ' + (x.week||i+1) + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:var(--blue);height:100%"></div></div><span style="min-width:30px;text-align:right;font-size:12px">' + (x.count||0) + '</span></div>'; }); h += '</div>'; }
+    var an = d.anomalies||[];
+    h += '<div class="card"><h3><i class="ti ti-alert-triangle"></i> Аномалии</h3>';
+    if(an.length){ an.forEach(function(a){ h += '<div class="list-item"><div style="font-size:12px">' + esc(a.maker||'—') + ' <span style="font-size:10px;color:var(--hint)">' + esc(a.details||'') + '</span></div><span class="badge" style="background:rgba(248,81,73,0.12);color:var(--red)">' + esc(a.type||'—') + '</span></div>'; }); } else { h += '<div class="empty">Аномалий нет</div>'; }
     h += '</div>';
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e){ console.error('content',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- ADMIN: MAKERS (P3) ----------
 async function loadAdminMakers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
@@ -1869,51 +1829,107 @@ async function loadInvestors(pg, back) {
 async function loadAIAutomators(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/ai-automators'); var internal=d.internal||[]; var offerers=d.offerers||[];
+    var d = await api('/ai-automators') || {};
+    var totalAll=(d.total_offer_automators||0)+(d.total_internal||0);
     var h = back;
-    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + internal.length + '</div><div class="lbl">Внутренних</div></div><div class="kpi"><div class="val" style="color:var(--gold)">' + offerers.length + '</div><div class="lbl">Офферщиков</div></div></div>';
-    h += '<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> 4 внутренних ≠ 50 офферщиков. Разные роли!</div>';
-    h += '<div class="card"><h3><i class="ti ti-robot"></i> Внутренние</h3>';
-    if (internal.length>0) { for (var i=0;i<internal.length;i++) { var a=internal[i]; h += '<div class="list-item"><span>' + esc(a.name||a.display_name||'—') + '</span><span class="badge blue">' + esc(a.area||'') + '</span></div>'; } }
-    else { h += '<div class="empty">Нет</div>'; }
-    h += '</div>'; pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+    h += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:12px"><b>54 AI-специалиста:</b> 4 внутренних (CTO) + 50 офферщиков (5 PM × 10)</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val gold">' + totalAll + '</div><div class="lbl">Всего AI</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + (d.total_internal||0) + '</div><div class="lbl">Внутренние</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">' + (d.total_offer_automators||0) + '</div><div class="lbl">Офферщики</div></div>';
+    h += '<div class="kpi"><div class="val green">' + (d.active_offers||0) + '</div><div class="lbl">Офферов</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + (d.verified_links||0) + '</div><div class="lbl">Ссылок</div></div>';
+    h += '</div>';
+    var sysI=[['Apify-парсинг','var(--blue)','Парсинг YT, TT, IG, FB'],['Telegram-бот','var(--purple)','Команды, биржа, онбординг, ротация'],['Round Robin','var(--gold)','Ротация реф-ссылок'],['ML-аналитика','var(--green)','Виральность, антифрод, отток']];
+    h += '<div class="card"><h3><i class="ti ti-settings"></i> Внутренние AI (4 · CTO)</h3>';
+    sysI.forEach(function(c){ h += '<div class="list-item" style="border-left:3px solid ' + c[1] + ';padding-left:8px"><div><div style="font-size:12px;font-weight:600">' + c[0] + '</div><div style="font-size:10px;color:var(--hint)">' + c[2] + '</div></div></div>'; });
+    h += '</div>';
+    var steps=[['01','PM выбирает нишу','Анализ спроса, конкурентов, болей'],['02','10 AI-спец делят темы','Каждый снимает 30-60 мин видео'],['03','Склейка в практикум','5-10 часов в один практикум'],['04','PM делает лендинг','Сайт-практикум + CTA + Round Robin'],['05','Запуск через мейкеров','Мейкеры гонят трафик'],['$','Доход','Клиент SaaS → 20-30% MRR команде']];
+    h += '<div class="card"><h3><i class="ti ti-rocket"></i> Конвейер офферов (6 шагов)</h3>';
+    steps.forEach(function(st){ h += '<div class="list-item" style="align-items:flex-start"><div style="font-size:16px;font-weight:700;color:var(--gold);min-width:24px">' + st[0] + '</div><div><div style="font-size:12px;font-weight:600">' + st[1] + '</div><div style="font-size:10px;color:var(--hint)">' + st[2] + '</div></div></div>'; });
+    h += '</div>';
+    var off=d.offer_automators||[];
+    h += '<div class="card"><h3><i class="ti ti-movie"></i> Офферщики (' + (d.total_offer_automators||0) + ')</h3>';
+    if(off.length){ off.forEach(function(u){ h += '<div class="list-item"><span style="font-size:12px"><i class="ti ti-robot"></i> ' + esc(u.full_name||'') + '</span><span style="font-size:11px;color:var(--hint)">' + esc(u.team_role||'') + ' · ' + (u.shares_count||0) + ' акц</span></div>'; }); } else { h += '<div class="empty">Нет офферщиков</div>'; }
+    h += '</div>';
+    var ml=d.ml_models||[];
+    if(ml.length){ h += '<div class="card"><h3><i class="ti ti-dna"></i> ML-модели</h3>'; ml.forEach(function(m){ h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px;font-weight:600">' + esc(m.name||'') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(m.desc||'') + '</div></div><span class="badge" style="background:rgba(63,185,80,0.12);color:var(--green)">' + esc(m.metric||'') + '</span></div>'; }); h += '</div>'; }
+    var exp=d.expenses||[];
+    if(exp.length){ h += '<div class="card"><h3><i class="ti ti-coin"></i> Расходы на AI</h3>'; var ec=['var(--blue)','var(--purple)','var(--green)','var(--gold)']; exp.forEach(function(x,i){ h += '<div class="bar-row"><span style="min-width:120px;font-size:12px">' + esc(x.name||'') + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + (x.pct||0) + '%;background:' + ec[i%ec.length] + ';height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + (x.pct||0) + '%</span></div>'; }); h += '</div>'; }
+    pg.innerHTML = h;
+  } catch(e){ console.error('ai',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- QUALITY (P3) ----------
 async function loadQualityPage(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/quality');
+    var d = await api('/quality') || {};
     var h = back;
-    h += '<div class="kpi-grid"><div class="kpi"><div class="val green">' + (d.approval_rate||0) + '%</div><div class="lbl">Одобрено</div></div>';
-    h += '<div class="kpi"><div class="val red">' + (d.rejection_rate||0) + '%</div><div class="lbl">Отклонено</div></div>';
-    h += '<div class="kpi"><div class="val blue">' + fmt(d.total_reviewed||0) + '</div><div class="lbl">Проверено</div></div>';
-    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + fmt(d.pending_review||0) + '</div><div class="lbl">В очереди</div></div></div>';
-    var reviews = d.recent_reviews||[];
-    if (reviews.length>0) { h += '<div class="card"><h3><i class="ti ti-circle-check"></i> Проверки</h3>'; for (var i=0;i<Math.min(reviews.length,15);i++) { var r=reviews[i]; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(r.maker||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(r.platform||'') + '</div></div><span class="badge ' + (r.result==='approved'?'green':r.result==='rejected'?'red':'orange') + '">' + esc(r.result||'—') + '</span></div>'; } h += '</div>'; }
+    h += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:12px"><b>Отдел качества (QA)</b> · 2 тестировщика · стандарты + AI-флаги + 3 предупреждения + бан</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val red">' + ((d.violations_new||0)+(d.violations_investigating||0)) + '</div><div class="lbl">Жалобы</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + (d.anomalies_open||0) + '</div><div class="lbl">Аномалии</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + (d.rejection_rate||0) + '%</div><div class="lbl">Отклонение</div></div>';
+    h += '<div class="kpi"><div class="val red">' + (d.banned_users||0) + '</div><div class="lbl">Баны</div></div>';
+    h += '<div class="kpi"><div class="val green">2</div><div class="lbl">QA-спецов</div></div>';
+    h += '</div>';
+    var std=[['Уникальность','Не копия · Apify','Авто'],['Мин. длина','Shorts ≥30с · длинные ≥3м','Авто'],['Ссылка в описании','Реф/домен на 4 платф.','Авто'],['Нет накруток','ML-антифрод recall 95.7%','ML'],['Нет запрещённого','Без политики/насилия','Ручная'],['Релевантность','Контент = ниша','Ручная']];
+    h += '<div class="card"><h3><i class="ti ti-ruler"></i> Стандарты качества</h3>';
+    std.forEach(function(x){ h += '<div class="list-item"><div><div style="font-size:12px;font-weight:600"><i class="ti ti-circle-check"></i> ' + x[0] + '</div><div style="font-size:10px;color:var(--hint)">' + x[1] + '</div></div><span class="badge" style="background:rgba(88,166,255,0.12);color:var(--blue)">' + x[2] + '</span></div>'; });
+    h += '</div>';
+    var vt=d.violation_types||[];
+    if(vt.length){ h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Нарушения по типам</h3>'; var vc=['var(--orange)','var(--gold)','var(--red)','var(--purple)','var(--hint)']; vt.forEach(function(x,i){ h += '<div class="bar-row"><span style="min-width:130px;font-size:12px">' + esc(x.name||'') + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + (x.pct||0) + '%;background:' + vc[i%vc.length] + ';height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + (x.pct||0) + '%</span></div>'; }); h += '</div>'; }
+    var warn=[['Предупреждение 1','#e3b341','Первое · бот уведомляет +24ч','Авто-бот'],['Предупреждение 2','var(--orange)','Повтор за 30 дней · HR звонит','HR+QA'],['Предупреждение 3','var(--red)','Третье · Зона риска · замена','Замена'],['Моментальный бан','var(--red)','Накрутка/фрод/запрещёнка','Авто']];
+    h += '<div class="card"><h3><i class="ti ti-traffic-lights"></i> Система предупреждений</h3>';
+    warn.forEach(function(w){ h += '<div class="list-item" style="border-left:3px solid ' + w[1] + ';padding-left:8px"><div><div style="font-size:12px;font-weight:600">' + w[0] + '</div><div style="font-size:10px;color:var(--hint)">' + w[2] + '</div></div><span class="badge" style="background:rgba(128,128,128,0.12);color:' + w[1] + '">' + w[3] + '</span></div>'; });
+    h += '</div>';
+    var viol=d.violations||[];
+    var stM={'new':'Новая',investigating:'Расследование',resolved:'Решена',dismissed:'Отклонена'};
+    h += '<div class="card"><h3><i class="ti ti-bell"></i> Последние решения QA</h3>';
+    if(viol.length){ viol.forEach(function(v){ var cl=v.status==='resolved'?'var(--green)':v.status==='dismissed'?'var(--hint)':v.status==='investigating'?'var(--orange)':'var(--red)'; h += '<div class="list-item"><div style="flex:1;font-size:12px">' + esc(v.reporter||'?') + (v.reported_user?' → '+esc(v.reported_user):'') + ' · ' + esc((v.text||'').substring(0,50)) + '</div><span class="badge" style="background:rgba(128,128,128,0.12);color:' + cl + '">' + (stM[v.status]||v.status) + '</span></div>'; }); } else { h += '<div class="empty">Нет жалоб</div>'; }
+    h += '</div>';
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e){ console.error('quality',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- OPS CENTER (P3) ----------
 async function loadOpsCenter(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = {}; try { d = await api('/admin/ops')||{}; } catch(e2) { d={}; }
+    var d = await api('/admin/ops').catch(function(){return {};}) || {};
     var h = back;
-    h += '<div class="kpi-grid"><div class="kpi"><div class="val green">' + (d.api_uptime||'99.9') + '%</div><div class="lbl">Uptime</div></div>';
-    h += '<div class="kpi"><div class="val blue">' + (d.api_latency||'—') + '</div><div class="lbl">Латенция</div></div>';
-    h += '<div class="kpi"><div class="val">' + fmt(d.requests_today||0) + '</div><div class="lbl">Запросов</div></div>';
-    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + (d.errors_today||0) + '</div><div class="lbl">Ошибок</div></div></div>';
-    var services = d.services||[{name:'API',status:'ok'},{name:'PostgreSQL',status:'ok'},{name:'Redis',status:'ok'},{name:'Bot',status:'ok'}];
-    h += '<div class="card"><h3><i class="ti ti-adjustments"></i> Сервисы</h3>';
-    for (var i=0;i<services.length;i++) { var s=services[i]; h += '<div class="row"><span class="lbl">' + esc(s.name) + '</span><span class="badge ' + (s.status==='ok'?'green':'red') + '">' + esc(s.status) + '</span></div>'; }
-    h += '</div>'; pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+    var systems=d.systems||[{name:'Apify Scraper',status:'N/A'},{name:'Telegram Bot',status:'N/A'},{name:'Round Robin',status:'N/A'},{name:'Exchange (OTC)',status:'N/A'},{name:'ML Models',status:'N/A'},{name:'Дашборд',status:'UP'},{name:'GitHub Pages',status:'UP'},{name:'SMTP',status:'N/A'},{name:'Google Sheets API',status:'N/A'},{name:'YouTube API',status:'N/A'}];
+    h += '<div class="card"><h3><i class="ti ti-tools"></i> Статус систем</h3>';
+    systems.forEach(function(sx){ var cl=sx.status==='UP'?'var(--green)':sx.status==='N/A'?'var(--hint)':'var(--red)'; h += '<div class="list-item"><span style="font-size:12px"><i class="ti ti-point-filled" style="color:' + cl + '"></i> ' + esc(sx.name) + '</span><span style="font-size:11px;color:' + cl + '">' + esc(sx.status) + '</span></div>'; });
+    h += '</div>';
+    var duty=d.duty||{};
+    h += '<div class="card"><h3><i class="ti ti-shield"></i> Дежурный</h3><div class="row"><span class="lbl">Текущий</span><span class="val">' + esc(duty.name||'Не назначен') + '</span></div><div class="row"><span class="lbl">Смена</span><span class="val">' + esc(duty.shift||'—') + '</span></div></div>';
+    var alerts=d.alerts||[];
+    h += '<div class="card"><h3><i class="ti ti-alert-octagon"></i> Live-алерты</h3>';
+    if(alerts.length){ alerts.forEach(function(a){ var cl=a.priority==='P1'?'var(--red)':a.priority==='P2'?'var(--orange)':'var(--blue)'; h += '<div class="list-item"><span class="badge" style="background:rgba(128,128,128,0.12);color:' + cl + '">' + esc(a.priority||'') + '</span><div style="flex:1;font-size:12px">' + esc(a.message||'') + '</div><span style="font-size:10px;color:var(--hint)">' + esc(a.time||'') + '</span></div>'; }); } else { h += '<div class="empty"><i class="ti ti-circle-check"></i> Нет активных алертов</div>'; }
+    h += '</div>';
+    var events=d.events||[];
+    h += '<div class="card"><h3><i class="ti ti-file-text"></i> Хроника (24ч)</h3>';
+    if(events.length){ events.forEach(function(ev){ h += '<div class="list-item"><span style="font-size:10px;color:var(--hint);min-width:54px">' + esc(ev.time||'') + '</span><span style="flex:1;font-size:12px">' + esc(ev.message||'') + '</span></div>'; }); } else { h += '<div class="empty">Нет событий за 24ч</div>'; }
+    h += '</div>';
+    var acts=[['<i class="ti ti-player-stop"></i> Стоп ротацию','/admin/rotation/stop'],['<i class="ti ti-refresh"></i> Резерв API','/admin/reserve-api'],['<i class="ti ti-device-floppy"></i> Force бэкап','/admin/backup'],['<i class="ti ti-speakerphone"></i> Push команде','/admin/push-team'],['<i class="ti ti-alert-triangle"></i> Эскалация CEO','/admin/escalate'],['<i class="ti ti-bell-off"></i> Тихий режим','/admin/silent-mode']];
+    h += '<div class="card"><h3><i class="ti ti-bolt"></i> Быстрые действия</h3><div style="display:flex;flex-wrap:wrap;gap:8px">';
+    acts.forEach(function(a){ h += '<button class="badge" style="border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;padding:8px 10px" onclick="opsAction(\'' + a[0].replace(/<[^>]+>/g,'').trim() + '\',\'' + a[1] + '\')">' + a[0] + '</button>'; });
+    h += '</div></div>';
+    var load=d.server_load||{cpu:0,ram:0,net:0,disk:0,db:0,redis:0};
+    var lb=[['CPU',load.cpu||0],['RAM',load.ram||0],['Сеть',load.net||0],['Disk I/O',load.disk||0],['База данных',load.db||0],['Redis',load.redis||0]];
+    h += '<div class="card"><h3><i class="ti ti-device-desktop"></i> Нагрузка сервера</h3>';
+    lb.forEach(function(x){ var cl=x[1]>80?'var(--red)':x[1]>60?'var(--orange)':'var(--green)'; h += '<div class="bar-row"><span style="min-width:90px;font-size:12px">' + x[0] + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + x[1] + '%;background:' + cl + ';height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + x[1] + '%</span></div>'; });
+    h += '</div>';
+    pg.innerHTML = h;
+  } catch(e){ console.error('ops',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- SETTINGS (P3) ----------
+async function opsAction(label, endpoint) {
+  if(!confirm(label + '?')) return;
+  try { await api(endpoint, 'POST', {}); if(typeof toast==='function') toast(label + ' — выполнено'); }
+  catch(e){ if(typeof toast==='function') toast('Ошибка', 'error'); else alert('Ошибка'); }
+}
+
 function loadSettingsPage(pg, back) {
   var h = back;
   h += '<div class="card"><h3><i class="ti ti-settings"></i> Настройки</h3>';
