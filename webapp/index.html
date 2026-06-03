@@ -1693,83 +1693,148 @@ async function loadContentPage(pg, back) {
 async function loadAdminMakers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/admin/makers'); var makers = d.makers||d||[]; if (!Array.isArray(makers)) makers=[];
-    var total=makers.length,active=0,frozen=0;
-    for (var i=0;i<makers.length;i++){if(makers[i].status==='active')active++;if(makers[i].shares_frozen)frozen++;}
+    var d = await api('/admin/stats').catch(function(){return {};}) || {};
+    var top = []; try { var rr = await api('/admin/users?role=maker&limit=10&sort=views'); top=(rr&&rr.users)||[]; } catch(e){}
+    var makers=d.makers_total||0, active=d.makers_active||0, risk=d.makers_risk||0, frozen=d.frozen_count||0;
     var h = back;
-    h += '<div class="kpi-grid three"><div class="kpi"><div class="val blue">' + total + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + active + '</div><div class="lbl">Акт.</div></div><div class="kpi"><div class="val red">' + frozen + '</div><div class="lbl">Замор.</div></div></div>';
-    h += '<div class="card"><h3><i class="ti ti-users"></i> Мейкеры</h3>';
-    if (makers.length>0) { h += '<div class="m-tbl-wrap"><table class="m-tbl"><tr><th>Имя</th><th>Ст.</th><th>Видео</th><th>Акц.</th></tr>'; for (var j=0;j<makers.length;j++) { var m=makers[j]; h += '<tr><td>' + esc(m.display_name||m.username||'—') + '</td><td><span class="badge ' + (m.shares_frozen?'red':'green') + '">' + (m.shares_frozen?'<i class="ti ti-snowflake"></i>':'<i class="ti ti-point-filled" style="color:var(--green)"></i>') + '</span></td><td>' + fmt(m.videos_count||0) + '</td><td>' + fmt(m.shares||0) + '</td></tr>'; } h += '</table></div>'; }
-    else { h += '<div class="empty">Нет</div>'; }
-    h += '</div>'; pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+    h += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:12px"><i class="ti ti-users"></i> <b>' + fmt(makers) + ' мейкеров</b> · план 3 видео/нед × 4 платформы = 12/нед</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val gold">' + fmt(makers) + '</div><div class="lbl">Всего</div></div>';
+    h += '<div class="kpi"><div class="val green">' + fmt(active) + '</div><div class="lbl">Активны (+план)</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + fmt(risk) + '</div><div class="lbl">Зона риска</div></div>';
+    h += '<div class="kpi"><div class="val red">' + fmt(frozen) + '</div><div class="lbl">Заморожено</div></div>';
+    h += '<div class="kpi"><div class="val blue">$' + (makers?Math.round((d.total_income||0)/makers).toLocaleString():0) + '</div><div class="lbl">Ср.доход/мес</div></div>';
+    h += '</div>';
+    var prod=[['<i class="ti ti-flame"></i> Звёзды (15+)',d.productivity_stars||0,'var(--gold)'],['<i class="ti ti-barbell"></i> Стабильные (12-14)',d.productivity_stable||0,'var(--green)'],['<i class="ti ti-alert-triangle"></i> Отстают (9-11)',d.productivity_lagging||0,'var(--orange)'],['<i class="ti ti-lifebuoy"></i> Критично (<9)',d.productivity_critical||0,'var(--red)'],['Тишина (0)',d.productivity_silent||0,'var(--hint)']];
+    var pmax=1; prod.forEach(function(x){if(x[1]>pmax)pmax=x[1];});
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> По продуктивности (нед)</h3>';
+    prod.forEach(function(x){ var pct=Math.round(x[1]/pmax*100); h += '<div class="bar-row"><span style="min-width:140px;font-size:11px">' + x[0] + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:' + x[2] + ';height:100%;min-width:' + (x[1]>0?'2':'0') + 'px"></div></div><span style="min-width:36px;text-align:right;font-size:12px">' + fmt(x[1]) + '</span></div>'; });
+    h += '<div style="font-size:11px;color:var(--hint);margin-top:8px">Норма: 12 видео/нед (3×4 платформы)</div></div>';
+    h += '<div class="card"><h3><i class="ti ti-trophy"></i> Топ-10 мейкеров недели</h3>';
+    if(top.length){ top.slice(0,10).forEach(function(m,i){ h += '<div class="list-item"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + ';font-weight:700">' + (i+1) + '.</span> ' + esc(m.display_name||m.username||'—') + '</div><span style="font-size:11px"><span style="color:var(--hint)">' + (m.videos_count||0) + ' вид</span> · <span style="color:var(--green)">' + fmt(m.total_views||0) + '</span></span></div>'; }); } else { h += '<div class="empty">Нет данных</div>'; }
+    h += '</div>';
+    var plat=[['YouTube',d.platform_youtube||0,'var(--red)'],['TikTok',d.platform_tiktok||0,'var(--text)'],['Instagram',d.platform_instagram||0,'var(--purple)'],['Facebook',d.platform_facebook||0,'var(--blue)']];
+    var plmax=1; plat.forEach(function(x){if(x[1]>plmax)plmax=x[1];});
+    h += '<div class="card"><h3><i class="ti ti-device-mobile"></i> Активность по платформам</h3>';
+    plat.forEach(function(x){ var pct=Math.round(x[1]/plmax*100); h += '<div class="bar-row"><span style="min-width:90px;font-size:12px">' + x[0] + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:' + x[2] + ';height:100%;min-width:' + (x[1]>0?'2':'0') + 'px"></div></div><span style="min-width:36px;text-align:right;font-size:12px">' + fmt(x[1]) + '</span></div>'; });
+    h += '</div>';
+    var dist=d.makers_shares_distributed||0;
+    h += '<div class="card"><h3><i class="ti ti-coin"></i> Акции мейкеров (пул 70 000)</h3><div class="row"><span class="lbl">Распределено</span><span class="val gold">' + fmt(dist) + '</span></div><div class="row"><span class="lbl">Осталось</span><span class="val">' + fmt(70000-dist) + '</span></div><div class="prog" style="margin-top:6px"><div class="fill" style="width:' + (dist/70000*100).toFixed(1) + '%;background:var(--gold)"></div></div></div>';
+    pg.innerHTML = h;
+  } catch(e){ console.error('adminMakers',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- ADMIN: HR (P3) ----------
 async function loadAdminHR(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/admin/hr'); var hrs = d.hr_managers||d||[]; if (!Array.isArray(hrs)) hrs=[];
+    var d = await api('/admin/stats').catch(function(){return {};}) || {};
+    var list=[]; try{ var rr=await api('/admin/users?role=hr&limit=50&sort=performance'); list=(rr&&rr.users)||[]; }catch(e){}
     var h = back;
-    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + hrs.length + '</div><div class="lbl">HR менеджеров</div></div><div class="kpi"><div class="val green">' + fmt(d.total_makers_managed||0) + '</div><div class="lbl">Мейкеров</div></div></div>';
-    h += '<div class="card"><h3><i class="ti ti-user"></i>‍<i class="ti ti-briefcase"></i> HR</h3>';
-    if (hrs.length>0) { for (var i=0;i<hrs.length;i++) { var hr=hrs[i]; h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(hr.display_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">Мейкеров: ' + (hr.makers_count||0) + '</div></div><span class="badge gold">' + fmt(hr.shares||0) + '</span></div>'; } }
-    else { h += '<div class="empty">Нет HR</div>'; }
-    h += '</div>'; pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+    h += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:12px"><i class="ti ti-heart-handshake"></i> <b>' + fmt(d.hr_total||0) + ' HR-менеджеров</b> · по 100 мейкеров · KPI: % активных, видео/нед, отток</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val gold">' + fmt(d.hr_total||0) + '</div><div class="lbl">Всего HR</div></div>';
+    h += '<div class="kpi"><div class="val green">' + (d.hr_top_performers||0) + '</div><div class="lbl">Топ-перформеры</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + (d.hr_avg_active_pct||0) + '%</div><div class="lbl">Ср. % активных</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + (d.hr_under_watch||0) + '</div><div class="lbl">Под наблюдением</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">$' + fmt(d.hr_avg_salary||0) + '</div><div class="lbl">Ср. зарплата</div></div>';
+    h += '</div>';
+    h += '<div class="card"><h3><i class="ti ti-trophy"></i> Рейтинг HR (по % активных)</h3>';
+    if(list.length){ list.forEach(function(x,i){ var pct=x.active_pct||0; var col=pct>=90?'var(--green)':pct>=75?'var(--orange)':'var(--red)'; h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + '">' + (i+1) + '.</span> ' + esc(x.display_name||x.username||'—') + '</div><div style="font-size:10px;color:var(--hint)">группа ' + (x.group_size||0) + ' · ' + (x.avg_videos_week||0).toFixed(1) + ' вид/нед</div></div><span style="font-size:13px;font-weight:700;color:' + col + '">' + pct + '%</span></div>'; }); } else { h += '<div class="empty">Нет HR-менеджеров</div>'; }
+    h += '</div>';
+    var bk=[['<i class="ti ti-star"></i> Звёзды (95%+)',d.hr_stars||0,'var(--gold)'],['<i class="ti ti-diamond"></i> Топ (90-94)',d.hr_top||0,'var(--green)'],['<i class="ti ti-circle-check"></i> Норма (85-89)',d.hr_normal||0,'var(--blue)'],['<i class="ti ti-alert-triangle"></i> Слабые (75-84)',d.hr_weak||0,'var(--orange)'],['<i class="ti ti-lifebuoy"></i> PIP (65-74)',d.hr_pip||0,'var(--red)'],['<i class="ti ti-x"></i> Замена (<65)',d.hr_replace||0,'var(--hint)']];
+    var tot=d.hr_total||1;
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> HR по эффективности</h3>';
+    bk.forEach(function(x){ var pct=Math.max(Math.round(x[1]/tot*100),2); h += '<div class="bar-row"><span style="min-width:140px;font-size:11px">' + x[0] + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:' + x[2] + ';height:100%"></div></div><span style="min-width:26px;text-align:right;font-size:12px">' + x[1] + '</span></div>'; });
+    h += '<div style="font-size:10px;color:var(--hint);margin-top:8px">Бонусы: >95%=+$1500-1800 · 90-94%=+$800-1200 · 85-89% базовая · <85% PIP · <65% замена</div></div>';
+    var fn=[['Отклики',d.hr_applications||0,'var(--blue)'],['Скрининг',d.hr_screened||0,'var(--purple)'],['Собеседование',d.hr_interviewed||0,'var(--orange)'],['Тестовое',d.hr_test||0,'var(--green)'],['Наняты',d.hr_hired||0,'var(--gold)']];
+    var fmax=fn[0][1]||1;
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Воронка найма HR</h3>';
+    fn.forEach(function(x){ var pct=Math.round(x[1]/fmax*100); h += '<div class="bar-row"><span style="min-width:110px;font-size:12px">' + x[0] + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:' + x[2] + ';height:100%;min-width:' + (x[1]>0?'2':'0') + 'px"></div></div><span style="min-width:30px;text-align:right;font-size:12px">' + fmt(x[1]) + '</span></div>'; });
+    h += '</div>';
+    pg.innerHTML = h;
+  } catch(e){ console.error('adminHR',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- ADMIN: SHARES (P3) ----------
 async function loadAdminShares(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/admin/shares');
+    var d = await api('/admin/stats').catch(function(){return {};}) || {};
+    var top=[]; try{ var rr=await api('/shares/top?limit=15'); top=(rr&&rr.top)||[]; }catch(e){}
+    var TOT=100000, inRot=d.shares_in_rotation||0, distr=d.shares_distributed||0, free=TOT-distr;
     var h = back;
-    h += '<div class="kpi-grid"><div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(d.total_issued||0) + '</div><div class="lbl">Выдано</div></div>';
-    h += '<div class="kpi"><div class="val green">' + fmt(d.in_rotation||0) + '</div><div class="lbl">В ротации</div></div>';
-    h += '<div class="kpi"><div class="val red">' + fmt(d.frozen||0) + '</div><div class="lbl">Замор.</div></div></div>';
-    var dist = d.distribution||{}; var dK = Object.keys(dist);
-    if (dK.length>0) { h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Распределение</h3>'; for (var i=0;i<dK.length;i++) h += '<div class="row"><span class="lbl">' + esc(dK[i]) + '</span><span class="val">' + fmt(dist[dK[i]]) + '</span></div>'; h += '</div>'; }
-    var txns = d.recent_transactions||[];
-    if (txns.length>0) { h += '<div class="card"><h3><i class="ti ti-file-text"></i> Транзакции</h3>'; for (var t=0;t<Math.min(txns.length,15);t++) { var tx=txns[t]; var sign=tx.amount>0?'+':''; var color=tx.amount>0?'var(--green)':'var(--red)'; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(tx.user||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(tx.reason||'') + '</div></div><span style="color:' + color + ';font-weight:700">' + sign + tx.amount + '</span></div>'; } h += '</div>'; }
+    h += '<div class="card" style="border-left:3px solid var(--gold)"><div style="font-size:12px"><i class="ti ti-diamond"></i> <b>100 000 акций · 6 категорий</b> · $5K→$80K · доход 1 акц $127→$2 036/мес · капитализация $8B</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val gold">100K</div><div class="lbl">Всего акций</div></div>';
+    h += '<div class="kpi"><div class="val green">' + fmt(inRot) + '</div><div class="lbl">В ротации</div></div>';
+    h += '<div class="kpi"><div class="val blue">$5 000</div><div class="lbl">Цена Г1</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">$127</div><div class="lbl">Доход 1 акц/мес</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">$' + fmt(inRot*5000) + '</div><div class="lbl">Капитализация</div></div>';
+    h += '</div>';
+    var cat=[['<i class="ti ti-movie"></i>','Мейкеры','70%',70000,d.shares_makers||0,'var(--gold)'],['<i class="ti ti-building"></i>','Управл. команда','17.5%',17500,d.shares_team||0,'var(--blue)'],['<i class="ti ti-building-bank"></i>','Фонд развития','5%',5000,d.shares_fund||0,'var(--hint)'],['<i class="ti ti-coin"></i>','Инвесторы','5%',5000,d.shares_investors||0,'var(--green)'],['<i class="ti ti-speakerphone"></i>','Блогеры','1.5%',1500,d.shares_bloggers||0,'var(--orange)'],['<i class="ti ti-school"></i>','Адвизоры','1%',1000,d.shares_advisors||0,'var(--purple)']];
+    h += '<div class="card"><h3><i class="ti ti-chart-pie"></i> Распределение 100 000 по 6 категориям</h3>';
+    cat.forEach(function(c){ h += '<div class="list-item" style="border-left:3px solid ' + c[5] + ';padding-left:8px"><div style="font-size:12px;font-weight:600">' + c[0] + ' ' + c[1] + ' · ' + c[2] + '</div><div style="text-align:right"><div style="font-size:14px;font-weight:700;color:' + c[5] + '">' + fmt(c[3]) + '</div><div style="font-size:10px;color:var(--green)">' + fmt(c[4]) + ' распр.</div></div></div>'; });
+    h += '</div>';
+    var fin=[['2026·Г1','$5K','$127','$152.5M','$500M'],['2027·Г2','$10K','$254','$305M','$1B'],['2028·Г3','$20K','$508','$610M','$2B'],['2029·Г4','$40K','$1018','$1.22B','$4B'],['2030·Г5','$80K','$2036','$2.44B','$8B']];
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Финмодель по годам</h3>';
+    fin.forEach(function(f){ h += '<div class="list-item"><div style="font-size:12px;font-weight:600">' + f[0] + '</div><div style="font-size:11px;text-align:right"><span style="color:var(--green)">' + f[1] + '</span> · ' + f[2] + '/мес · <span style="color:var(--gold)">кап. ' + f[4] + '</span></div></div>'; });
+    h += '<div style="font-size:11px;color:var(--hint);margin-top:6px">Доход 1 акции удваивается каждый год.</div></div>';
+    h += '<div class="card"><h3><i class="ti ti-trophy"></i> Топ-15 держателей</h3>';
+    if(top.length){ top.forEach(function(x,i){ h += '<div class="list-item"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + '">' + (i+1) + '.</span> ' + esc(x.name||x.display_name||x.username||'—') + ' <span style="font-size:10px;color:var(--hint)">' + (x.category||'') + '</span></div><span style="font-size:12px;color:var(--gold);font-weight:700">' + fmt(x.shares||0) + ' акц</span></div>'; }); } else { h += '<div class="empty">Нет данных</div>'; }
+    h += '</div>';
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e){ console.error('adminShares',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- ADMIN: KE (P3) ----------
 async function loadAdminKE(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/admin/ke');
+    var d = await api('/admin/stats').catch(function(){return {};}) || {};
+    var top=[]; try{ var rr=await api('/admin/users?role=maker&limit=15&sort=ke'); top=(rr&&rr.users)||[]; }catch(e){}
+    var tiers=[['+5','<i class="ti ti-flame"></i> Топ 20%',d.ke_tier5||0,'var(--gold)'],['+4','<i class="ti ti-barbell"></i> Хорошо',d.ke_tier4||0,'var(--blue)'],['+3','<i class="ti ti-circle-check"></i> Средне',d.ke_tier3||0,'var(--green)'],['+2','<i class="ti ti-alert-triangle"></i> Минимум',d.ke_tier2||0,'var(--purple)'],['+1','<i class="ti ti-sparkles"></i> Старт',d.ke_tier1||0,'var(--hint)']];
     var h = back;
-    h += '<div class="kpi-grid three"><div class="kpi"><div class="val" style="color:var(--gold)">' + ((d.avg_score||0).toFixed?(d.avg_score||0).toFixed(2):'0') + '</div><div class="lbl">Ср. КЭ</div></div>';
-    h += '<div class="kpi"><div class="val blue">' + (d.calculated_count||0) + '</div><div class="lbl">Рассчитано</div></div>';
-    h += '<div class="kpi"><div class="val">' + daysUntilNewYear() + '</div><div class="lbl">До пересчёта</div></div></div>';
-    var tiers = d.tier_distribution||{};
-    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> По тирам</h3>';
-    for (var t=1;t<=5;t++) h += '<div class="row"><span class="lbl">Тир ' + t + ' (+' + (6-t) + '/год)</span><span class="val">' + (tiers['tier_'+t]||tiers[t]||0) + '</span></div>';
+    h += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:12px"><i class="ti ti-bolt"></i> <b>Коэффициент Эффективности</b> · 5 тиров +5..+1 акц/год · Просмотры 40% + Engagement 40% + Равномерность 20% · пересчёт 31 дек</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val gold">5</div><div class="lbl">Тиров</div></div>';
+    h += '<div class="kpi"><div class="val green">' + fmt(d.ke_tier5||0) + '</div><div class="lbl">Топ-20% (+5)</div></div>';
+    h += '<div class="kpi"><div class="val blue">15 000</div><div class="lbl">Акций/год</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">40/40/20</div><div class="lbl">Веса</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">31 дек</div><div class="lbl">Пересчёт</div></div>';
     h += '</div>';
-    var top = d.top_performers||[];
-    if (top.length>0) { h += '<div class="card"><h3><i class="ti ti-trophy"></i> Топ КЭ</h3>'; for (var i=0;i<top.length;i++) { var tp=top[i]; h += '<div class="lb-row"><div class="lb-rank ' + (i<3?['g','s','b'][i]:'') + '">' + (i+1) + '</div><div class="lb-name">' + esc(tp.display_name||'—') + '</div><div class="lb-val">' + (tp.score||0).toFixed(2) + '</div></div>'; } h += '</div>'; }
+    h += '<div class="card"><h3><i class="ti ti-target"></i> 5 тиров · по 1 000 мейкеров</h3>';
+    tiers.forEach(function(t){ var pct=Math.min(Math.round(t[2]/1000*100),100); h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:' + t[3] + ';font-weight:700">' + t[0] + ' ' + t[1] + '</span><span>' + fmt(t[2]) + ' / 1000</span></div><div style="background:var(--border);height:8px;border-radius:4px;overflow:hidden"><div style="width:' + pct + '%;background:' + t[3] + ';height:100%"></div></div></div>'; });
+    h += '<div style="font-size:11px;color:var(--hint);margin-top:6px">ИТОГО 5K+4K+3K+2K+1K = 15 000 акц/год · за 4 года = 60 000 + 10 000 = 70 000 (70%)</div></div>';
+    var steps=[['01','Просмотры (40%)','Сумма 4 платформ через Apify','var(--gold)'],['02','Engagement (40%)','Лайки + целевые комменты ×3 + репосты ×3','var(--blue)'],['03','Равномерность (20%)','4/4 нед = 100%','var(--green)'],['04','Ранжирование','Топ-1000 → +5, далее +4/+3/+2/+1','var(--purple)'],['05','Зачисление 31 дек','Акции не сгорают при снижении КЭ','var(--gold)']];
+    h += '<div class="card"><h3><i class="ti ti-calculator"></i> Формула КЭ</h3>';
+    steps.forEach(function(st){ h += '<div class="list-item" style="align-items:flex-start"><div style="font-size:16px;font-weight:700;color:' + st[3] + ';min-width:26px">' + st[0] + '</div><div><div style="font-size:12px;font-weight:600">' + st[1] + '</div><div style="font-size:10px;color:var(--hint)">' + st[2] + '</div></div></div>'; });
+    h += '</div>';
+    h += '<div class="card"><h3><i class="ti ti-trophy"></i> Топ-15 по КЭ</h3>';
+    if(top.length){ top.slice(0,15).forEach(function(m,i){ h += '<div class="list-item"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + '">' + (i+1) + '.</span> ' + esc(m.display_name||m.username||'—') + '</div><span style="font-size:12px;color:var(--gold);font-weight:700">' + (m.ke_score||0).toFixed(1) + '</span></div>'; }); } else { h += '<div class="empty">Нет данных</div>'; }
+    h += '</div>';
+    h += '<div class="card"><h3><i class="ti ti-target"></i> Прогноз начислений · 31 дек 2026</h3>';
+    tiers.forEach(function(t){ h += '<div class="row"><span class="lbl">' + t[0] + ' акц × 1 000</span><span class="val" style="color:' + t[3] + '">' + fmt(parseInt(t[0])*1000) + ' акц</span></div>'; });
+    h += '<div class="row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:8px"><span class="lbl" style="color:var(--gold);font-weight:700">ИТОГО</span><span class="val gold" style="font-weight:700">15 000</span></div></div>';
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e){ console.error('adminKE',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- ADMIN: USERS (P3) ----------
 async function loadAdminUsers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/admin/overview');
+    var o = await api('/admin/overview').catch(function(){return {};}) || {};
+    var byRole = o.users_by_role || o.roles || {};
+    var users = o.recent_users || o.users || [];
     var h = back;
-    h += '<div class="kpi-grid"><div class="kpi"><div class="val">' + fmt(d.total_users||0) + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + fmt(d.active_users||0) + '</div><div class="lbl">Активных</div></div></div>';
-    var byRole = d.users_by_role||d.role_counts||{}; var rK = Object.keys(byRole);
-    if (rK.length>0) { h += '<div class="card"><h3><i class="ti ti-user"></i> По ролям</h3>'; for (var r=0;r<rK.length;r++) h += '<div class="row"><span class="lbl">' + (ROLE_NAMES[rK[r]]||rK[r]) + '</span><span class="val">' + byRole[rK[r]] + '</span></div>'; h += '</div>'; }
-    h += '<div class="note-box"><i class="ti ti-bulb"></i> Управление через Telegram-бот (/admin).</div>';
+    h += '<div class="kpi-grid"><div class="kpi"><div class="val gold">' + fmt(o.total_users||0) + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + fmt(o.active_users||0) + '</div><div class="lbl">Активных</div></div></div>';
+    var rk=Object.keys(byRole);
+    if(rk.length){ h += '<div class="card"><h3><i class="ti ti-users"></i> По ролям</h3>'; rk.forEach(function(k){ h += '<div class="row"><span class="lbl">' + (ROLE_NAMES[k]||k) + '</span><span class="val">' + fmt(byRole[k]) + '</span></div>'; }); h += '</div>'; }
+    h += '<div class="card"><h3><i class="ti ti-clock"></i> Последние пользователи</h3>';
+    if(Array.isArray(users)&&users.length){ users.forEach(function(u){ var st=u.status==='active'?'var(--green)':u.shares_frozen?'var(--red)':'var(--hint)'; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(u.display_name||u.username||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + (ROLE_NAMES[u.role]||u.role||'—') + ' · ' + fmtDate(u.created_at||u.joined_at) + '</div></div><span style="font-size:11px"><i class="ti ti-point-filled" style="color:' + st + '"></i> ' + fmt(u.shares||0) + ' акц</span></div>'; }); } else { h += '<div class="empty">Нет данных (детальное управление — через бота /admin)</div>'; }
+    h += '</div>';
+    h += '<div class="card"><div style="font-size:11px;color:var(--hint)"><i class="ti ti-bulb"></i> Полное управление пользователями — через Telegram-бот (/admin)</div></div>';
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e){ console.error('adminUsers',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- BLOGGERS (P3) ----------
 async function loadBloggers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
