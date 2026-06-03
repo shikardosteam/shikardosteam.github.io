@@ -6,23 +6,26 @@
 <title>Shikardos Team — Личный кабинет</title>
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script async src="https://telegram.org/js/telegram-widget.js?22"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
-  --bg: #0d1117;
-  --card: #161b22;
-  --border: #30363d;
-  --text: #e6edf3;
-  --muted: #8b949e;
+  --bg: #0c0c0f;
+  --card: #15151b;
+  --card2: #1c1c24;
+  --border: #262630;
+  --text: #f4f2ec;
+  --muted: #8a8a93;
   --gold: #d4a843;
+  --gold2: #f0c75e;
   --gold-dim: rgba(212,168,67,0.12);
   --green: #3fb950;
   --red: #f85149;
   --blue: #58a6ff;
-  --orange: #d29922;
+  --orange: #d6a528;
   --purple: #bc8cff;
   --sidebar-w: 240px;
 }
@@ -72,7 +75,7 @@ h3 { font-size:18px; }
 .auth-input::placeholder { color:var(--muted); }
 .auth-btn {
   width:100%; padding:12px; font-size:14px; font-weight:700;
-  background:var(--gold); color:#0d1117; border:none;
+  background:var(--gold); color:#0c0c0f; border:none;
   border-radius:8px; cursor:pointer; letter-spacing:1px;
   text-transform:uppercase; font-family:'Manrope',sans-serif;
   transition:opacity 0.2s; margin-top:12px;
@@ -244,7 +247,7 @@ h3 { font-size:18px; }
 .badge-green { background:rgba(63,185,80,0.12); color:var(--green); }
 .badge-red { background:rgba(248,81,73,0.12); color:var(--red); }
 .badge-blue { background:rgba(88,166,255,0.12); color:var(--blue); }
-.badge-orange { background:rgba(210,153,34,0.12); color:var(--orange); }
+.badge-orange { background:rgba(214,165,40,0.12); color:var(--orange); }
 .badge-muted { background:rgba(139,148,158,0.12); color:var(--muted); }
 
 /* Chart containers */
@@ -265,7 +268,7 @@ h3 { font-size:18px; }
   flex:1; letter-spacing:2px;
 }
 .copy-btn {
-  background:var(--gold); color:#0d1117; border:none;
+  background:var(--gold); color:#0c0c0f; border:none;
   padding:6px 14px; border-radius:6px; cursor:pointer;
   font-size:12px; font-weight:700; font-family:'Manrope',sans-serif;
 }
@@ -305,7 +308,7 @@ h3 { font-size:18px; }
 /* ===== ALERTS ===== */
 .alert{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:8px}
 .alert.danger{background:rgba(248,81,73,0.1);border-left:3px solid var(--red)}
-.alert.warn{background:rgba(210,153,34,0.1);border-left:3px solid var(--orange)}
+.alert.warn{background:rgba(214,165,40,0.1);border-left:3px solid var(--orange)}
 .alert.success{background:rgba(63,185,80,0.1);border-left:3px solid var(--green)}
 .alert.info{background:rgba(88,166,255,0.1);border-left:3px solid var(--blue)}
 .alert-danger { background: rgba(231,76,60,0.15); border-left: 4px solid #e74c3c; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; }
@@ -353,7 +356,7 @@ h3 { font-size:18px; }
 .note-box.info{border-left-color:var(--blue);background:rgba(88,166,255,.08)}
 
 .alert-info{background:rgba(88,166,255,.08);border-left-color:var(--blue)}
-.alert-warn{background:rgba(210,153,34,.08);border-left-color:#d29922}
+.alert-warn{background:rgba(214,165,40,.08);border-left-color:#d6a528}
 .form-input{width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:inherit}
 .form-input:focus{outline:none;border-color:var(--gold)}
 .btn{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s}
@@ -750,7 +753,7 @@ function exportSnapshot() {
   if (!page) { showToast('Нет контента для скриншота', 'warn'); return; }
   showToast('Создаю скриншот...', 'ok');
   html2canvas(page, {
-    backgroundColor: '#0d1117',
+    backgroundColor: '#0c0c0f',
     scale: 2,
     useCORS: true,
     logging: false
@@ -979,11 +982,11 @@ function buildNavSections() {
   sections.push({
     label: 'Основное',
     items: [
-      { id:'home', icon:'🏠', name:'Главная' },
-      { id:'shares', icon:'📊', name:'Мои акции' },
-      { id:'profile', icon:'👤', name:'Профиль' },
-        { id:'trends', icon:'📈', name:'Тренды' },
-        { id:'hall-of-fame', icon:'🏆', name:'Зал славы' }
+      { id:'home', icon:'<i class="ti ti-home"></i>', name:'Главная' },
+      { id:'shares', icon:'<i class="ti ti-chart-bar"></i>', name:'Мои акции' },
+      { id:'profile', icon:'<i class="ti ti-user"></i>', name:'Профиль' },
+        { id:'trends', icon:'<i class="ti ti-trending-up"></i>', name:'Тренды' },
+        { id:'hall-of-fame', icon:'<i class="ti ti-trophy"></i>', name:'Зал славы' }
     ]
   });
 
@@ -992,9 +995,9 @@ function buildNavSections() {
     sections.push({
       label: 'Мейкер',
       items: [
-        { id:'videos', icon:'📹', name:'Видео' },
-        { id:'ke', icon:'📈', name:'КЭ' },
-        { id:'offers', icon:'🔗', name:'SaaS офферы' }
+        { id:'videos', icon:'<i class="ti ti-video"></i>', name:'Видео' },
+        { id:'ke', icon:'<i class="ti ti-trending-up"></i>', name:'КЭ' },
+        { id:'offers', icon:'<i class="ti ti-link"></i>', name:'SaaS офферы' }
       ]
     });
   }
@@ -1004,8 +1007,8 @@ function buildNavSections() {
     sections.push({
       label: 'HR',
       items: [
-        { id:'hr-makers', icon:'👥', name:'Мои мейкеры' },
-        { id:'hr-review', icon:'✅', name:'Проверка контента' }
+        { id:'hr-makers', icon:'<i class="ti ti-users"></i>', name:'Мои мейкеры' },
+        { id:'hr-review', icon:'<i class="ti ti-circle-check"></i>', name:'Проверка контента' }
       ]
     });
   }
@@ -1015,8 +1018,8 @@ function buildNavSections() {
     sections.push({
       label: 'Инвестор',
       items: [
-        { id:'portfolio', icon:'💰', name:'Портфель' },
-        { id:'calculator', icon:'📊', name:'Калькулятор' }
+        { id:'portfolio', icon:'<i class="ti ti-coin"></i>', name:'Портфель' },
+        { id:'calculator', icon:'<i class="ti ti-chart-bar"></i>', name:'Калькулятор' }
       ]
     });
   }
@@ -1026,7 +1029,7 @@ function buildNavSections() {
     sections.push({
       label: 'Блогер',
       items: [
-        { id:'publications', icon:'📝', name:'Публикации' }
+        { id:'publications', icon:'<i class="ti ti-edit"></i>', name:'Публикации' }
       ]
     });
   }
@@ -1036,11 +1039,11 @@ function buildNavSections() {
     sections.push({
       label: 'Команда',
       items: [
-        { id:'tasks', icon:'📋', name:'Задачи' },
-          { id:'kaizen', icon:'💡', name:'Кайдзен' },
-          { id:'team-members', icon:'🏢', name:'Команда' },
-          { id:'team-pulse', icon:'📈', name:'Пульс команды' },
-          { id:'pain-points', icon:'🔍', name:'Боли и потребности' }
+        { id:'tasks', icon:'<i class="ti ti-clipboard"></i>', name:'Задачи' },
+          { id:'kaizen', icon:'<i class="ti ti-bulb"></i>', name:'Кайдзен' },
+          { id:'team-members', icon:'<i class="ti ti-building"></i>', name:'Команда' },
+          { id:'team-pulse', icon:'<i class="ti ti-trending-up"></i>', name:'Пульс команды' },
+          { id:'pain-points', icon:'<i class="ti ti-search"></i>', name:'Боли и потребности' }
       ]
     });
   }
@@ -1291,11 +1294,11 @@ function renderForecastChart(shares) {
     options: {
       responsive: true,
       plugins: {
-        legend: { labels: { color:'#8b949e', font:{ family:'Manrope' } } }
+        legend: { labels: { color:'#8a8a93', font:{ family:'Manrope' } } }
       },
       scales: {
-        x: { ticks:{ color:'#8b949e' }, grid:{ color:'rgba(48,54,61,0.5)' } },
-        y: { ticks:{ color:'#8b949e', callback: v => '$' + v.toLocaleString() }, grid:{ color:'rgba(48,54,61,0.5)' } }
+        x: { ticks:{ color:'#8a8a93' }, grid:{ color:'rgba(48,54,61,0.5)' } },
+        y: { ticks:{ color:'#8a8a93', callback: v => '$' + v.toLocaleString() }, grid:{ color:'rgba(48,54,61,0.5)' } }
       }
     }
   });
@@ -1361,9 +1364,9 @@ async function loadShares() {
     type: 'bar',
     data: {
       labels: ['\u0413\u043e\u04341','\u0413\u043e\u04342','\u0413\u043e\u04343','\u0413\u043e\u04344','\u0413\u043e\u04345'],
-      datasets: [{ label: '$/\u043c\u0435\u0441', data: mults.map(function(m){return balance*m;}), backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d29922','#bc8cff'], borderRadius: 4 }]
+      datasets: [{ label: '$/\u043c\u0435\u0441', data: mults.map(function(m){return balance*m;}), backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d6a528','#bc8cff'], borderRadius: 4 }]
     },
-    options: { responsive: true, plugins:{ legend:{ display:false } }, scales: { x:{ ticks:{ color:'#8b949e' }, grid:{ display:false } }, y:{ ticks:{ color:'#8b949e', callback: function(v){return '$'+v.toLocaleString();} }, grid:{ color:'rgba(48,54,61,0.5)' } } } }
+    options: { responsive: true, plugins:{ legend:{ display:false } }, scales: { x:{ ticks:{ color:'#8a8a93' }, grid:{ display:false } }, y:{ ticks:{ color:'#8a8a93', callback: function(v){return '$'+v.toLocaleString();} }, grid:{ color:'rgba(48,54,61,0.5)' } } } }
   });
 }
 
@@ -1467,7 +1470,7 @@ async function saveProfile() {
   var res = await api('/profile', 'PUT', { display_name: name, email: email });
   if (res && !res.error) {
     msg.style.color = 'var(--green)';
-    msg.textContent = '✓ Сохранено';
+    msg.innerHTML = '<i class="ti ti-check"></i> Сохранено';
     if (name) { currentUser.display_name = name; currentUser.full_name = name; }
     if (email) currentUser.email = email;
     setTimeout(function() { cancelProfileEdit(); loadProfile(); }, 1000);
@@ -1548,13 +1551,13 @@ async function loadVideos() {
 
   if (platLabels.length > 0) {
     if (charts['platforms']) charts['platforms'].destroy();
-    var colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff'];
+    var colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d6a528','#bc8cff'];
     var platCounts = [];
     for (var c = 0; c < platLabels.length; c++) platCounts.push(platforms[platLabels[c]].count);
     charts['platforms'] = new Chart(document.getElementById('chart-platforms'), {
       type: 'doughnut',
       data: { labels: platLabels, datasets: [{ data: platCounts, backgroundColor: platLabels.map(function(_,i) { return colors[i % colors.length]; }), borderWidth: 0 }] },
-      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8b949e', font:{ family:'Manrope' }, padding:12 } } } }
+      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8a8a93', font:{ family:'Manrope' }, padding:12 } } } }
     });
   }
 }
@@ -1577,8 +1580,8 @@ async function loadKE() {
     {name:'Tier 1',bonus:'+5 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'1-1000',color:'var(--gold)'},
     {name:'Tier 2',bonus:'+4 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'1001-2000',color:'#3fb950'},
     {name:'Tier 3',bonus:'+3 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'2001-3000',color:'#58a6ff'},
-    {name:'Tier 4',bonus:'+2 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'3001-4000',color:'#d29922'},
-    {name:'Tier 5',bonus:'+1 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'4001-5000',color:'#8b949e'}
+    {name:'Tier 4',bonus:'+2 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'3001-4000',color:'#d6a528'},
+    {name:'Tier 5',bonus:'+1 \u0430\u043a\u0446/\u0433\u043e\u0434',range:'4001-5000',color:'#8a8a93'}
   ];
   var tiersHtml = '<div class="tier-grid">';
   for (var t = 0; t < tierData.length; t++) {
@@ -1625,11 +1628,11 @@ async function loadKE() {
 
   if (breakdownItems.length > 0) {
     if (charts['ke']) charts['ke'].destroy();
-    var colors = ['#d4a843','#3fb950','#58a6ff','#f85149','#d29922','#bc8cff'];
+    var colors = ['#d4a843','#3fb950','#58a6ff','#f85149','#d6a528','#bc8cff'];
     charts['ke'] = new Chart(document.getElementById('chart-ke'), {
       type: 'doughnut',
       data: { labels: breakdownItems.map(function(x){return x[0];}), datasets: [{ data: breakdownItems.map(function(x){return x[1];}), backgroundColor: breakdownItems.map(function(_,i){return colors[i%colors.length];}), borderWidth: 0 }] },
-      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8b949e', font:{ family:'Manrope' }, padding:12 } } } }
+      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8a8a93', font:{ family:'Manrope' }, padding:12 } } } }
     });
   }
 }
@@ -1656,11 +1659,11 @@ async function loadContent() {
     var belowPlan = d.makers_below_plan || 0;
 
     var kpiRow = '<div class="kpi-row">' +
-      '<div class="kpi-card"><div class="stat-label">🎬 Видео/неделя</div><div class="stat-value blue">' + fmtNum(vidsWeek) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">📹 Всего видео</div><div class="stat-value gold">' + fmtNum(totalVids) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">📊 Ср. на мейкера</div><div class="stat-value green">' + avgPerMaker + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">🌍 Платформы</div><div class="stat-value purple">' + esc(String(platformsCov)) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">⚠️ Ниже плана</div><div class="stat-value ' + (belowPlan > 0 ? 'red' : 'green') + '">' + belowPlan + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-movie"></i> Видео/неделя</div><div class="stat-value blue">' + fmtNum(vidsWeek) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-video"></i> Всего видео</div><div class="stat-value gold">' + fmtNum(totalVids) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-chart-bar"></i> Ср. на мейкера</div><div class="stat-value green">' + avgPerMaker + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-world"></i> Платформы</div><div class="stat-value purple">' + esc(String(platformsCov)) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-alert-triangle"></i> Ниже плана</div><div class="stat-value ' + (belowPlan > 0 ? 'red' : 'green') + '">' + belowPlan + '</div></div>' +
       '</div>';
 
     var platforms = d.platform_publications || [
@@ -1679,7 +1682,7 @@ async function loadContent() {
         '<div class="bar-track"><div class="bar-fill" style="width:' + pPct + '%;background:' + (pl.color || 'var(--blue)') + '"></div></div>' +
         '<div class="bar-value">' + fmtNum(pl.count) + '</div></div>';
     }
-    var pubCard = '<div class="content-card"><h3>📱 Публикации по платформам (неделя)</h3><div class="bar-chart">' + pubBars + '</div></div>';
+    var pubCard = '<div class="content-card"><h3><i class="ti ti-device-mobile"></i> Публикации по платформам (неделя)</h3><div class="bar-chart">' + pubBars + '</div></div>';
 
     var viewsData = d.views_by_platform || [
       { name: 'YouTube', views: 0 },
@@ -1697,14 +1700,14 @@ async function loadContent() {
         '<div class="bar-track"><div class="bar-fill" style="width:' + vPct + '%;background:var(--gold)"></div></div>' +
         '<div class="bar-value">' + fmtNum(vd.views) + '</div></div>';
     }
-    var viewCard = '<div class="content-card"><h3>👁️ Просмотры по платформам</h3><div class="bar-chart">' + viewBars + '</div></div>';
+    var viewCard = '<div class="content-card"><h3><i class="ti ti-eye"></i> Просмотры по платформам</h3><div class="bar-chart">' + viewBars + '</div></div>';
 
     var tiers = d.uniformity_tiers || null;
     var tiersEmpty = !tiers || ((tiers.t4||0)+(tiers.t3||0)+(tiers.t2||0)+(tiers.t1||0)) === 0;
     if (!tiers) tiers = { t4: 0, t3: 0, t2: 0, t1: 0 };
     var totalMakers = (tiers.t4 || 0) + (tiers.t3 || 0) + (tiers.t2 || 0) + (tiers.t1 || 0);
     var uniPct = totalMakers > 0 ? Math.round(((tiers.t4 || 0) / totalMakers) * 100) : 0;
-    var uniCard = '<div class="content-card"><h3>📊 Равномерность публикаций</h3>' +
+    var uniCard = '<div class="content-card"><h3><i class="ti ti-chart-bar"></i> Равномерность публикаций</h3>' +
       '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">' +
       '<div style="padding:12px;background:var(--bg);border-radius:8px;text-align:center"><div style="font-size:24px;color:var(--green);font-weight:700">' + (tiers.t4 || 0) + '</div><div style="font-size:11px;color:var(--muted)">4/4 нед.</div></div>' +
       '<div style="padding:12px;background:var(--bg);border-radius:8px;text-align:center"><div style="font-size:24px;color:var(--blue);font-weight:700">' + (tiers.t3 || 0) + '</div><div style="font-size:11px;color:var(--muted)">3/4 нед.</div></div>' +
@@ -1727,7 +1730,7 @@ async function loadContent() {
         '<div class="bar-value">' + (wk.count || 0) + '</div></div>';
     }
     if (!dynBars) dynBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
-    var dynCard = '<div class="content-card"><h3>📈 Динамика публикаций (8 недель)</h3><div class="bar-chart">' + dynBars + '</div></div>';
+    var dynCard = '<div class="content-card"><h3><i class="ti ti-trending-up"></i> Динамика публикаций (8 недель)</h3><div class="bar-chart">' + dynBars + '</div></div>';
 
     var anomalies = d.anomalies || [];
     var anoRows = '';
@@ -1739,16 +1742,16 @@ async function loadContent() {
         '<td>' + esc(an.details || '—') + '</td>' +
         '<td>' + (an.days || 0) + ' дн.</td></tr>';
     }
-    if (!anoRows) anoRows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Аномалий не обнаружено ✅</td></tr>';
-    var anoTable = '<div class="content-card"><h3>⚠️ Аномалии</h3>' +
+    if (!anoRows) anoRows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Аномалий не обнаружено <i class="ti ti-circle-check"></i></td></tr>';
+    var anoTable = '<div class="content-card"><h3><i class="ti ti-alert-triangle"></i> Аномалии</h3>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
       '<thead><tr><th>Мейкер</th><th>Тип</th><th>Детали</th><th>Дней</th></tr></thead>' +
       '<tbody>' + anoRows + '</tbody></table></div></div>';
 
-    page.innerHTML = '<div class="section-title">🎬 Контент</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-movie"></i> Контент</div>' +
       kpiRow + '<div class="grid-2">' + pubCard + viewCard + '</div>' + uniCard + dynCard + anoTable;
   } catch(e) {
-    page.innerHTML = '<div class="section-title">🎬 Контент</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-movie"></i> Контент</div>' +
       '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
   }
 }
@@ -1768,11 +1771,11 @@ async function loadOffers() {
     var activeNiches = d.active_niches_week || 5;
 
     var kpiRow = '<div class="kpi-row">' +
-      '<div class="kpi-card"><div class="stat-label">🎯 Ниш/год</div><div class="stat-value gold">' + fmtNum(nichesYear) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">👥 Команд</div><div class="stat-value blue">' + teamsCount + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">📢 Мейкеров/ниша</div><div class="stat-value green">' + fmtNum(makersPerNiche) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">🤝 Партнёрств</div><div class="stat-value purple">' + fmtNum(partnerships) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">🔥 Ниш на неделе</div><div class="stat-value orange">' + activeNiches + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-target"></i> Ниш/год</div><div class="stat-value gold">' + fmtNum(nichesYear) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-users"></i> Команд</div><div class="stat-value blue">' + teamsCount + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-speakerphone"></i> Мейкеров/ниша</div><div class="stat-value green">' + fmtNum(makersPerNiche) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-heart-handshake"></i> Партнёрств</div><div class="stat-value purple">' + fmtNum(partnerships) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-flame"></i> Ниш на неделе</div><div class="stat-value orange">' + activeNiches + '</div></div>' +
       '</div>';
 
     var matrix = d.team_niche_matrix || [
@@ -1796,7 +1799,7 @@ async function loadOffers() {
         '<td>' + esc(String(r.conversion)) + '</td>' +
         '<td><span class="badge badge-' + stCls + '">' + esc(r.status) + '</span></td></tr>';
     }
-    var matrixTable = '<div class="content-card"><h3>📋 Матрица Команда × Ниша</h3>' +
+    var matrixTable = '<div class="content-card"><h3><i class="ti ti-clipboard"></i> Матрица Команда × Ниша</h3>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
       '<thead><tr><th>Команда</th><th>Ниша</th><th>PM</th><th>Мейкеры</th><th>Сайт-оффер</th><th>Ключевое</th><th>Конверсия</th><th>Статус</th></tr></thead>' +
       '<tbody>' + mRows + '</tbody></table></div></div>';
@@ -1812,7 +1815,7 @@ async function loadOffers() {
         '<div class="bar-value">' + dvPct + '%</div></div>';
     }
     if (!divBars) divBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
-    var divCard = '<div class="content-card"><h3>🛡️ Диверсификация (не более 30% на партнёра)</h3><div class="bar-chart">' + divBars + '</div></div>';
+    var divCard = '<div class="content-card"><h3><i class="ti ti-shield"></i> Диверсификация (не более 30% на партнёра)</h3><div class="bar-chart">' + divBars + '</div></div>';
 
     var competition = d.team_competition || [];
     var compHtml = '';
@@ -1825,9 +1828,9 @@ async function loadOffers() {
         '<div class="badge badge-' + (c === 0 ? 'gold' : 'blue') + '">' + esc(String(tc.normalized || '0')) + '</div></div>';
     }
     if (!compHtml) compHtml = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
-    var compCard = '<div class="content-card"><h3>🏆 Соревнование команд</h3>' + compHtml +
+    var compCard = '<div class="content-card"><h3><i class="ti ti-trophy"></i> Соревнование команд</h3>' + compHtml +
       '<div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted)">' +
-      '🎰 Порядок выбора ниш определяется по КЭ (лотерея)</div></div>';
+      '<i class="ti ti-cards"></i> Порядок выбора ниш определяется по КЭ (лотерея)</div></div>';
 
     // Existing catalog logic
     var activeCount = 0, pausedCount = 0, totalPayout = 0;
@@ -1848,7 +1851,7 @@ async function loadOffers() {
     } else {
       catRows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Нет офферов</td></tr>';
     }
-    var catalog = '<div class="content-card"><h3>📦 Каталог офферов</h3>' +
+    var catalog = '<div class="content-card"><h3><i class="ti ti-package"></i> Каталог офферов</h3>' +
       '<div class="kpi-row" style="margin-bottom:12px">' +
       '<div class="kpi-card"><div class="stat-label">Всего</div><div class="stat-value blue">' + offers.length + '</div></div>' +
       '<div class="kpi-card"><div class="stat-label">Активных</div><div class="stat-value green">' + activeCount + '</div></div>' +
@@ -1858,12 +1861,12 @@ async function loadOffers() {
       '<thead><tr><th>Оффер</th><th>Платформа</th><th>Статус</th><th>Выплата</th><th>Ротация</th></tr></thead>' +
       '<tbody>' + catRows + '</tbody></table></div></div>';
 
-    page.innerHTML = '<div class="section-title">💼 Офферы и ниши</div>' +
-      '<div class="alert alert-gold">🎯 250 ниш в год · 5 команд AI-офферщиков · 1000 мейкеров на нишу</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-briefcase"></i> Офферы и ниши</div>' +
+      '<div class="alert alert-gold"><i class="ti ti-target"></i> 250 ниш в год · 5 команд AI-офферщиков · 1000 мейкеров на нишу</div>' +
       kpiRow + matrixTable + '<div class="grid-2">' + divCard + compCard + '</div>' + catalog +
-      '<div class="note-box">💡 Офферы ротируются через Round Robin. Ваши реферальные ссылки участвуют в ротации пропорционально вашим акциям.</div>';
+      '<div class="note-box"><i class="ti ti-bulb"></i> Офферы ротируются через Round Robin. Ваши реферальные ссылки участвуют в ротации пропорционально вашим акциям.</div>';
   } catch(e) {
-    page.innerHTML = '<div class="section-title">💼 Офферы</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-briefcase"></i> Офферы</div>' +
       '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
   }
 }
@@ -2004,7 +2007,7 @@ async function loadPortfolio() {
         borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,0.1)',
         borderWidth: 2, tension: 0.3, fill: true, pointBackgroundColor: '#3fb950', pointRadius: 5 }]
     },
-    options: { responsive:true, plugins:{legend:{labels:{color:'#8b949e',font:{family:'Manrope'}}}}, scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(48,54,61,0.5)'}}} }
+    options: { responsive:true, plugins:{legend:{labels:{color:'#8a8a93',font:{family:'Manrope'}}}}, scales:{x:{ticks:{color:'#8a8a93'},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8a8a93',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(48,54,61,0.5)'}}} }
   });
 
   if (charts['portfolio-price']) charts['portfolio-price'].destroy();
@@ -2013,9 +2016,9 @@ async function loadPortfolio() {
     data: {
       labels: ['\u0413\u043e\u04341','\u0413\u043e\u04342','\u0413\u043e\u04343','\u0413\u043e\u04344','\u0413\u043e\u04345'],
       datasets: [{ label: '\u0426\u0435\u043d\u0430 \u0430\u043a\u0446\u0438\u0438 ($)', data: prices,
-        backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d29922','#bc8cff'], borderRadius: 4 }]
+        backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d6a528','#bc8cff'], borderRadius: 4 }]
     },
-    options: { responsive:true, plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#8b949e'},grid:{display:false}},y:{ticks:{color:'#8b949e',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(48,54,61,0.5)'}}} }
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#8a8a93'},grid:{display:false}},y:{ticks:{color:'#8a8a93',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(48,54,61,0.5)'}}} }
   });
 }
 
@@ -2067,7 +2070,7 @@ function loadCalculator() {
         datasets: [{
           label: 'Доход / мес ($)',
           data: multipliers.map(m => n * m),
-          backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d29922','#bc8cff'],
+          backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d6a528','#bc8cff'],
           borderRadius: 6
         }]
       },
@@ -2075,8 +2078,8 @@ function loadCalculator() {
         responsive: true,
         plugins:{ legend:{ display:false } },
         scales: {
-          x:{ ticks:{ color:'#8b949e' }, grid:{ display:false } },
-          y:{ ticks:{ color:'#8b949e', callback: v=>'$'+v.toLocaleString() }, grid:{ color:'rgba(48,54,61,0.5)' } }
+          x:{ ticks:{ color:'#8a8a93' }, grid:{ display:false } },
+          y:{ ticks:{ color:'#8a8a93', callback: v=>'$'+v.toLocaleString() }, grid:{ color:'rgba(48,54,61,0.5)' } }
         }
       }
     });
@@ -2234,13 +2237,13 @@ async function loadAdminOverview() {
 
   if (roleKeys.length > 0) {
     if (charts['admin-roles']) charts['admin-roles'].destroy();
-    var colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff','#8b949e'];
+    var colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d6a528','#bc8cff','#8a8a93'];
     var roleValues = [];
     for (var rv = 0; rv < roleKeys.length; rv++) roleValues.push(byRole[roleKeys[rv]]);
     charts['admin-roles'] = new Chart(document.getElementById('chart-admin-roles'), {
       type: 'doughnut',
       data: { labels: roleKeys.map(function(k){return getRoleLabel(k);}), datasets: [{ data: roleValues, backgroundColor: roleKeys.map(function(_,i){return colors[i%colors.length];}), borderWidth: 0 }] },
-      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8b949e', font:{ family:'Manrope' }, padding:10 } } } }
+      options: { responsive: true, plugins:{ legend:{ position:'bottom', labels:{ color:'#8a8a93', font:{ family:'Manrope' }, padding:10 } } } }
     });
   }
 }
@@ -2368,11 +2371,11 @@ async function loadTrends() {
     var keGrowth = d.ke_growth_after_template || '0%';
 
     var kpiRow = '<div class="kpi-row">' +
-      '<div class="kpi-card"><div class="stat-label">🎯 Top 5% видео</div><div class="stat-value gold">' + fmtNum(topPct) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">📊 Ср. просмотры top 5%</div><div class="stat-value blue">' + fmtNum(avgViewsTop) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">📖 Шаблонов в базе</div><div class="stat-value green">' + fmtNum(templatesKB) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">👥 Исп. шаблон</div><div class="stat-value purple">' + fmtNum(makersUsedTpl) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">📈 Рост КЭ</div><div class="stat-value green">' + esc(String(keGrowth)) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-target"></i> Top 5% видео</div><div class="stat-value gold">' + fmtNum(topPct) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-chart-bar"></i> Ср. просмотры top 5%</div><div class="stat-value blue">' + fmtNum(avgViewsTop) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-book-2"></i> Шаблонов в базе</div><div class="stat-value green">' + fmtNum(templatesKB) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-users"></i> Исп. шаблон</div><div class="stat-value purple">' + fmtNum(makersUsedTpl) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-trending-up"></i> Рост КЭ</div><div class="stat-value green">' + esc(String(keGrowth)) + '</div></div>' +
       '</div>';
 
     var topVideos = d.top_videos || [];
@@ -2388,7 +2391,7 @@ async function loadTrends() {
         '<td>' + fmtNum(v.utm_clicks || 0) + '</td></tr>';
     }
     if (!tvRows) tvRows = '<tr><td colspan="6" style="text-align:center;color:var(--muted)">Нет данных</td></tr>';
-    var topTable = '<div class="content-card"><h3>🎬 Top-10 видео</h3>' +
+    var topTable = '<div class="content-card"><h3><i class="ti ti-movie"></i> Top-10 видео</h3>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
       '<thead><tr><th>#</th><th>Мейкер</th><th>Платформа</th><th>Ниша</th><th>Просмотры</th><th>UTM клики</th></tr></thead>' +
       '<tbody>' + tvRows + '</tbody></table></div></div>';
@@ -2404,7 +2407,7 @@ async function loadTrends() {
         '</div>';
     }
     if (!patHtml) patHtml = '<div style="color:var(--muted);text-align:center;padding:20px">Паттерны анализируются...</div>';
-    var patternsCard = '<div class="content-card"><h3>🧬 Виральные паттерны</h3>' + patHtml + '</div>';
+    var patternsCard = '<div class="content-card"><h3><i class="ti ti-dna"></i> Виральные паттерны</h3>' + patHtml + '</div>';
 
     var niches = d.top_niches || [];
     var nicheBars = '';
@@ -2416,7 +2419,7 @@ async function loadTrends() {
         '<div class="bar-value">' + ncPct + '%</div></div>';
     }
     if (!nicheBars) nicheBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
-    var nicheCard = '<div class="content-card"><h3>📊 Топ ниши по конверсии</h3><div class="bar-chart">' + nicheBars + '</div></div>';
+    var nicheCard = '<div class="content-card"><h3><i class="ti ti-chart-bar"></i> Топ ниши по конверсии</h3><div class="bar-chart">' + nicheBars + '</div></div>';
 
     var postTimes = d.best_posting_times || [
       { platform: 'YouTube', time: '14:00-16:00', boost: '—' },
@@ -2433,11 +2436,11 @@ async function loadTrends() {
     }
     var timeGrid = '<div class="content-card"><h3>⏰ Лучшее время публикации</h3><div class="kpi-row">' + timeCards + '</div></div>';
 
-    page.innerHTML = '<div class="section-title">📈 Тренды</div>' +
-      '<div class="alert alert-blue">🔍 Обнаружены виральные паттерны — используйте для роста КЭ</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-trending-up"></i> Тренды</div>' +
+      '<div class="alert alert-blue"><i class="ti ti-search"></i> Обнаружены виральные паттерны — используйте для роста КЭ</div>' +
       kpiRow + topTable + '<div class="grid-2">' + patternsCard + nicheCard + '</div>' + timeGrid;
   } catch(e) {
-    page.innerHTML = '<div class="section-title">📈 Тренды</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-trending-up"></i> Тренды</div>' +
       '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
   }
 }
@@ -2452,7 +2455,7 @@ async function loadHallOfFame() {
     var topShares = d.top_shares || [];
     var sH = '';
     topShares.forEach(function(u) {
-      var medal = u.rank <= 3 ? ['🥇','🥈','🥉'][u.rank-1] : '#' + u.rank;
+      var medal = u.rank <= 3 ? ['<i class="ti ti-medal"></i>','<i class="ti ti-medal"></i>','<i class="ti ti-medal"></i>'][u.rank-1] : '#' + u.rank;
       var me = u.is_me ? ' style="color:var(--gold);font-weight:700"' : '';
       sH += '<div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--border)"' + me + '>' +
         '<span style="font-size:12px">' + medal + ' ' + esc(u.full_name || '—') + '</span>' +
@@ -2470,7 +2473,7 @@ async function loadHallOfFame() {
     });
     if (!vH) vH = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет данных</div>';
 
-    var myR = d.my_rank ? '⭐ Ваше место: #' + d.my_rank : '';
+    var myR = d.my_rank ? '<i class="ti ti-star"></i> Ваше место: #' + d.my_rank : '';
 
     // 4 status cards (static content from project rules)
     var statusCards = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">' +
@@ -2482,20 +2485,20 @@ async function loadHallOfFame() {
 
     // Roadmap (static project milestones)
     var roadmapHtml = '<div style="display:flex;flex-direction:column;gap:1px">' +
-      buildMilestone('15 МАЯ 2026', '🚀 Запуск проекта', 'Сайт, бот, дашборд, база знаний — всё собрано с нуля. Старт найма команды.', 'var(--gold)', true) +
-      buildMilestone('ГОД 1 · Q1', '📱 Бот MVP + найм ядра команды', 'Telegram-бот. Найм COO + BA + первые C-Level. Открытие инвест-раунда.', 'var(--gold)', false) +
-      buildMilestone('ГОД 1 · Q2', '👥 Набор HR-менеджеров + первые мейкеры', '50 HR формируют группы мейкеров. AI-офферщики готовят ниши.', 'var(--gold)', false) +
-      buildMilestone('ГОД 1 · Q3', '🤖 AI-офферы + масштабирование', 'Первые ниши живут. Мейкеры публикуют видео на 4 платформах.', 'var(--gold)', false) +
-      buildMilestone('ГОД 1 · Q4', '🎯 5 000 мейкеров + первый пересчёт КЭ', '31 декабря — первый годовой пересчёт КЭ: 15 000 акций по 5 тирам.', 'var(--gold)', false) +
+      buildMilestone('15 МАЯ 2026', '<i class="ti ti-rocket"></i> Запуск проекта', 'Сайт, бот, дашборд, база знаний — всё собрано с нуля. Старт найма команды.', 'var(--gold)', true) +
+      buildMilestone('ГОД 1 · Q1', '<i class="ti ti-device-mobile"></i> Бот MVP + найм ядра команды', 'Telegram-бот. Найм COO + BA + первые C-Level. Открытие инвест-раунда.', 'var(--gold)', false) +
+      buildMilestone('ГОД 1 · Q2', '<i class="ti ti-users"></i> Набор HR-менеджеров + первые мейкеры', '50 HR формируют группы мейкеров. AI-офферщики готовят ниши.', 'var(--gold)', false) +
+      buildMilestone('ГОД 1 · Q3', '<i class="ti ti-robot"></i> AI-офферы + масштабирование', 'Первые ниши живут. Мейкеры публикуют видео на 4 платформах.', 'var(--gold)', false) +
+      buildMilestone('ГОД 1 · Q4', '<i class="ti ti-target"></i> 5 000 мейкеров + первый пересчёт КЭ', '31 декабря — первый годовой пересчёт КЭ: 15 000 акций по 5 тирам.', 'var(--gold)', false) +
     '</div>' +
     '<div style="margin-top:12px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--muted);line-height:1.6">' +
-      '💡 <strong>Год 2-5:</strong> Мейкеры нанимают подрядчиков. Капитализация $328M → $1.12B → $3.14B → $8B. Цена акции $10K → $80K.</div>';
+      '<i class="ti ti-bulb"></i> <strong>Год 2-5:</strong> Мейкеры нанимают подрядчиков. Капитализация $328M → $1.12B → $3.14B → $8B. Цена акции $10K → $80K.</div>';
 
     // Assemble
     page.innerHTML =
-      '<div class="section-title">🏆 Зал славы</div>' +
+      '<div class="section-title"><i class="ti ti-trophy"></i> Зал славы</div>' +
       '<div class="alert" style="margin-bottom:16px;background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.3);border-radius:6px;padding:12px 16px">' +
-        '<strong style="color:var(--gold)">💎 Зал Славы</strong> · те, кто оставил след в истории Shikardos Team · Founding 100, рекордсмены, лучшие за квартал/год</div>' +
+        '<strong style="color:var(--gold)"><i class="ti ti-diamond"></i> Зал Славы</strong> · те, кто оставил след в истории Shikardos Team · Founding 100, рекордсмены, лучшие за квартал/год</div>' +
       (myR ? '<div class="alert alert-info" style="margin-bottom:16px">' + myR + '</div>' : '') +
 
       // 5 KPI
@@ -2509,27 +2512,27 @@ async function loadHallOfFame() {
 
       // 4 Status cards
       '<div class="content-card">' +
-        '<h3>🎖️ 4 статуса первых 100 участников <span style="font-size:12px;color:var(--muted);font-weight:400">по 25 человек</span></h3>' +
+        '<h3><i class="ti ti-medal"></i> 4 статуса первых 100 участников <span style="font-size:12px;color:var(--muted);font-weight:400">по 25 человек</span></h3>' +
         statusCards +
         '<div style="margin-top:14px;padding:12px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:11px;color:var(--text)">' +
-          '💎 <strong>Бонус Founding 100:</strong> +10 бонусных акций каждому за 5 лет = 1 000 акций общего пула.</div>' +
+          '<i class="ti ti-diamond"></i> <strong>Бонус Founding 100:</strong> +10 бонусных акций каждому за 5 лет = 1 000 акций общего пула.</div>' +
       '</div>' +
 
       // Row: Top by shares + Top by videos
       '<div class="grid-2">' +
-        '<div class="content-card"><h3>💰 ТОП по акциям</h3>' + sH + '</div>' +
-        '<div class="content-card"><h3>🎬 ТОП по видео за неделю</h3>' + vH + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-coin"></i> ТОП по акциям</h3>' + sH + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-movie"></i> ТОП по видео за неделю</h3>' + vH + '</div>' +
       '</div>' +
 
       // Roadmap
       '<div class="content-card">' +
-        '<h3>📜 Дорожная карта Shikardos Team</h3>' +
+        '<h3><i class="ti ti-file-text"></i> Дорожная карта Shikardos Team</h3>' +
         roadmapHtml +
       '</div>';
 
   } catch(e) {
     console.error('Hall of fame error:', e);
-    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">🏆</div>Ошибка загрузки зала славы</div>';
+    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px"><i class="ti ti-trophy"></i></div>Ошибка загрузки зала славы</div>';
   }
 }
 
@@ -2545,7 +2548,7 @@ function buildMilestone(date, title, desc, color, isDone) {
     '<div style="min-width:90px;font-family:\'Bebas Neue\',sans-serif;font-size:13px;color:' + color + '">' + date + '</div>' +
     '<div style="flex:1"><div style="font-size:12px;color:var(--text);font-weight:700">' + title + '</div>' +
     '<div style="font-size:10px;color:var(--muted)">' + desc + '</div></div>' +
-    (isDone ? '<span class="badge badge-green">✅ DONE</span>' : '') +
+    (isDone ? '<span class="badge badge-green"><i class="ti ti-circle-check"></i> DONE</span>' : '') +
   '</div>';
 }
 
@@ -2562,13 +2565,13 @@ async function loadKaizen() {
     var rejected = d.rejected || 0;
     var effect = d.effect || '+$0';
 
-    var stM = {'new':'🟢 Новое','reviewed':'🔍 На рассм.','approved':'✅ Одобрено','rejected':'❌ Отклонено','implemented':'🚀 Внедрено'};
+    var stM = {'new':'<i class="ti ti-point-filled" style="color:var(--green)"></i> Новое','reviewed':'<i class="ti ti-search"></i> На рассм.','approved':'<i class="ti ti-circle-check"></i> Одобрено','rejected':'<i class="ti ti-x"></i> Отклонено','implemented':'<i class="ti ti-rocket"></i> Внедрено'};
     var catM = {process:'Процесс',content:'Контент',tech:'Технология',other:'Другое'};
 
     // Funnel bars
     var inWork = d.in_work || 0;
     var funnelPcts = [100, total > 0 ? Math.round(reviewed/total*100) : 0, total > 0 ? Math.round(approved/total*100) : 0, total > 0 ? Math.round(implemented/total*100) : 0, total > 0 ? Math.round(inWork/total*100) : 0, total > 0 ? Math.round(rejected/total*100) : 0];
-    var funnelLabels = ['📥 Подано','👀 Рассмотрено','✅ Одобрено','🚀 Внедрено','⏳ В работе','❌ Отклонено'];
+    var funnelLabels = ['<i class="ti ti-download"></i> Подано','<i class="ti ti-eye"></i> Рассмотрено','<i class="ti ti-circle-check"></i> Одобрено','<i class="ti ti-rocket"></i> Внедрено','⏳ В работе','<i class="ti ti-x"></i> Отклонено'];
     var funnelVals = [total, reviewed, approved, implemented, inWork, rejected];
     var funnelColors = ['var(--blue)','var(--purple)','var(--green)','var(--gold)','var(--orange)','var(--muted)'];
     var funnelH = '';
@@ -2629,7 +2632,7 @@ async function loadKaizen() {
         '<span class="badge" style="font-size:9px;">' + catLabel + '</span></div>';
     });
 
-    page.innerHTML = '<h2 class="section-title">💡 Кайдзен</h2>' +
+    page.innerHTML = '<h2 class="section-title"><i class="ti ti-bulb"></i> Кайдзен</h2>' +
       '<div class="alert" style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.15);padding:14px;margin-bottom:16px;">' +
       '<strong style="color:var(--gold);">Кайдзен</strong> · система непрерывных улучшений · любой член команды подаёт идею через Telegram-бот · лучшие идеи внедряются · вознаграждение акциями из <strong style="color:var(--gold);">Фонда развития (5%)</strong>' +
       '</div>' +
@@ -2641,15 +2644,15 @@ async function loadKaizen() {
       '<div class="kpi-card" style="border-top-color:var(--orange)"><div class="kpi-label">ЭФФЕКТ / МЕС</div><div class="kpi-value" style="color:var(--orange)">' + effect + '</div></div>' +
       '</div>' +
       '<div class="grid-2">' +
-      '<div class="content-card"><div class="card-header">🔄 Воронка Кайдзен-предложений</div><div style="padding:12px;">' + funnelH + '</div>' +
-      '<div style="margin-top:8px;padding:10px;background:rgba(156,111,214,0.08);border-left:3px solid var(--purple);font-size:11px;color:var(--text);">💡 Акции за внедрённые идеи выдаются из <strong style="color:var(--gold);">Фонда развития (5% · 5 000 акций)</strong></div></div>' +
-      '<div class="content-card"><div class="card-header">🏆 Топ-10 внедрённых идей</div><div style="padding:0;">' + topH + '</div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-refresh"></i> Воронка Кайдзен-предложений</div><div style="padding:12px;">' + funnelH + '</div>' +
+      '<div style="margin-top:8px;padding:10px;background:rgba(156,111,214,0.08);border-left:3px solid var(--purple);font-size:11px;color:var(--text);"><i class="ti ti-bulb"></i> Акции за внедрённые идеи выдаются из <strong style="color:var(--gold);">Фонда развития (5% · 5 000 акций)</strong></div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-trophy"></i> Топ-10 внедрённых идей</div><div style="padding:0;">' + topH + '</div></div>' +
       '</div>' +
       '<div class="grid-2">' +
-      '<div class="content-card"><div class="card-header">📂 Идеи по категориям</div><div style="padding:12px;">' + catBars + '</div></div>' +
-      '<div class="content-card"><div class="card-header">🌟 Топ-авторы Кайдзен</div><div style="padding:0;">' + authH + '</div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-folder"></i> Идеи по категориям</div><div style="padding:12px;">' + catBars + '</div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-star"></i> Топ-авторы Кайдзен</div><div style="padding:0;">' + authH + '</div></div>' +
       '</div>' +
-      '<div class="content-card"><div class="card-header">🔔 Последние предложения <span class="badge badge-green">live</span></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-bell"></i> Последние предложения <span class="badge badge-green">live</span></div>' +
       (liveH || '<div style="text-align:center;padding:40px;color:var(--muted);">Нет предложений</div>') +
       '</div>';
   } catch(e) { page.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Ошибка загрузки</div>'; }
@@ -2667,7 +2670,7 @@ async function loadTeamMembers() {
     const managers = d.managers || 0;
 
     // --- KPI ---
-    var h = '<h2>🏢 Управляющая команда</h2>' +
+    var h = '<h2><i class="ti ti-building"></i> Управляющая команда</h2>' +
       '<div class="kpi-row">' +
       '<div class="kpi-card blue"><div class="kpi-label">ВСЕГО</div><div class="kpi-value">' + total + '</div></div>' +
       '<div class="kpi-card green"><div class="kpi-label">АКТИВНЫХ</div><div class="kpi-value">' + active + '</div></div>' +
@@ -2711,7 +2714,7 @@ async function loadTeamMembers() {
         var v = vestData[vi];
         vRows += '<tr><td>' + v.y + '</td><td>' + v.shares + '</td><td>' + v.ipm + '</td><td>' + v.ipy + '</td><td>' + v.cap + '</td></tr>';
       }
-      h += '<div class="card"><div class="card-header">👑 Founder Vesting Plan</div>' +
+      h += '<div class="card"><div class="card-header"><i class="ti ti-crown"></i> Founder Vesting Plan</div>' +
         '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
         '<th>Год</th><th>Акции</th><th>Доход/мес</th><th>Доход/год</th><th>Капитал</th>' +
         '</tr></thead><tbody>' + vRows + '</tbody></table></div></div>';
@@ -2723,7 +2726,7 @@ async function loadTeamMembers() {
     for (var ci = 0; ci < cRoles.length; ci++) {
       cRows += '<tr><td>' + cRoles[ci] + '</td><td style="color:var(--muted)">Назначается</td><td>$3 000–$8 000</td><td>200–500</td></tr>';
     }
-    h += '<div class="card"><div class="card-header">💼 C-Level команда</div>' +
+    h += '<div class="card"><div class="card-header"><i class="ti ti-briefcase"></i> C-Level команда</div>' +
       '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
       '<th>Роль</th><th>Имя</th><th>ЗП эквив.</th><th>Акции (5л)</th>' +
       '</tr></thead><tbody>' + cRows + '</tbody></table></div></div>';
@@ -2743,7 +2746,7 @@ async function loadTeamMembers() {
         '<div class="bar-track"><div class="bar-fill" style="width:' + inc.pct + '%;background:var(--gold)"></div></div>' +
         '<span class="bar-value">' + inc.val + '</span></div>';
     }
-    h += '<div class="card"><div class="card-header">📈 Доход команды по годам</div>' + incBars + '</div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-trending-up"></i> Доход команды по годам</div>' + incBars + '</div>';
 
     // --- Share distribution ---
     var shareData = [
@@ -2761,7 +2764,7 @@ async function loadTeamMembers() {
     for (var si = 0; si < shareData.length; si++) {
       shRows += '<div class="list-row"><span>' + shareData[si].name + '</span><span class="badge badge-gold">' + shareData[si].val + '</span></div>';
     }
-    h += '<div class="card"><div class="card-header">📊 Распределение акций (17 500 всего)</div>' + shRows + '</div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-chart-bar"></i> Распределение акций (17 500 всего)</div>' + shRows + '</div>';
 
     // --- Geography ---
     var geoData = d.geography || [];
@@ -2772,18 +2775,18 @@ async function loadTeamMembers() {
         '<div class="bar-track"><div class="bar-fill" style="width:' + g.pct + '%;background:var(--blue)"></div></div>' +
         '<span class="bar-value">' + g.pct + '%</span></div>';
     }
-    h += '<div class="card"><div class="card-header">🌍 География</div>' + geoBars + '</div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-world"></i> География</div>' + geoBars + '</div>';
 
     // --- Strategic initiatives ---
-    h += '<div class="card"><div class="card-header">🚀 Стратегические инициативы</div>' +
-      '<div class="list-row"><span>💡 728 видео за 12 месяцев</span><span class="badge badge-blue">В работе</span></div>' +
-      '<div class="list-row"><span>🎯 Реферальная программа Round Robin</span><span class="badge badge-green">Активна</span></div>' +
-      '<div class="list-row"><span>💰 Биржа акций (OTC)</span><span class="badge badge-gold">MVP</span></div>' +
-      '<div class="list-row"><span>🤖 AI-автоматизация (Apify + ML)</span><span class="badge badge-purple">Разработка</span></div>' +
-      '<div class="list-row"><span>📲 Telegram WebApp + Cabinet</span><span class="badge badge-green">Live</span></div></div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-rocket"></i> Стратегические инициативы</div>' +
+      '<div class="list-row"><span><i class="ti ti-bulb"></i> 728 видео за 12 месяцев</span><span class="badge badge-blue">В работе</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-target"></i> Реферальная программа Round Robin</span><span class="badge badge-green">Активна</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-coin"></i> Биржа акций (OTC)</span><span class="badge badge-gold">MVP</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-robot"></i> AI-автоматизация (Apify + ML)</span><span class="badge badge-purple">Разработка</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-device-mobile"></i> Telegram WebApp + Cabinet</span><span class="badge badge-green">Live</span></div></div>';
 
     // --- Referral program ---
-    h += '<div class="card"><div class="card-header">🔗 Реферальная программа</div>' +
+    h += '<div class="card"><div class="card-header"><i class="ti ti-link"></i> Реферальная программа</div>' +
       '<div class="list-row"><span>Механика</span><span>Round Robin ротация</span></div>' +
       '<div class="list-row"><span>Вес участника</span><span>100–300 блогеров/год</span></div>' +
       '<div class="list-row"><span>Фонд развития</span><span>Вес 1 000/год</span></div>' +
@@ -2793,16 +2796,16 @@ async function loadTeamMembers() {
     // --- Members list ---
     var mH = '';
     (d.members || []).forEach(function(m) {
-      var st = m.shares_frozen ? '❄️' : '🟢';
+      var st = m.shares_frozen ? '<i class="ti ti-snowflake"></i>' : '<i class="ti ti-point-filled" style="color:var(--green)"></i>';
       mH += '<div class="list-row"><span>' + st + ' ' + m.full_name + '</span><span style="font-size:11px;color:var(--muted)">' + (m.team_role || '—').toUpperCase() + ' • ' + m.shares_count + ' акц.</span></div>';
     });
     if (mH) {
-      h += '<div class="card"><div class="card-header">👥 Состав команды</div>' + mH + '</div>';
+      h += '<div class="card"><div class="card-header"><i class="ti ti-users"></i> Состав команды</div>' + mH + '</div>';
     }
 
     page.innerHTML = h;
   } catch(e) {
-    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏢</div><div class="empty-state-text">Ошибка загрузки команды</div></div>';
+    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ti ti-building"></i></div><div class="empty-state-text">Ошибка загрузки команды</div></div>';
   }
 }
 
@@ -2826,7 +2829,7 @@ async function loadRiskZone() {
 
     // Alert
     var alertHtml = '<div class="alert alert-danger" style="margin-bottom:16px">' +
-      '<strong>⚠️ Зона риска</strong> · автоматический мониторинг через Apify · ' +
+      '<strong><i class="ti ti-alert-triangle"></i> Зона риска</strong> · автоматический мониторинг через Apify · ' +
       'триггер замены: &lt;6 видео/нед 3 недели подряд · ' +
       'очередь ожидания: ' + fmtNum(waitlistCount) + ' человек</div>';
 
@@ -2853,7 +2856,7 @@ async function loadRiskZone() {
         criticalHtml += '<div style="background:var(--bg);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
           '<div><div style="font-size:12px;color:var(--text)">' + esc(u.full_name || u.username || '—') + '</div>' +
           '<div style="font-size:10px;color:var(--muted)">' + fmtNum(u.penalty_shares || 0) + ' штраф · ' + fmtNum(u.shares_count || 0) + ' акц.</div></div>' +
-          '<span class="badge ' + badgeClass + '">❄️ -' + (u.penalty_shares || 0) + '</span></div>';
+          '<span class="badge ' + badgeClass + '"><i class="ti ti-snowflake"></i> -' + (u.penalty_shares || 0) + '</span></div>';
       }
     } else {
       criticalHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет критичных мейкеров</div>';
@@ -2864,7 +2867,7 @@ async function loadRiskZone() {
     var anomHtml = '';
     var sevColors = {yellow:'#EF9F27',orange:'#D85A30',red:'#E24B4A'};
     var sevLabels = {yellow:'Жёлтый',orange:'Оранжевый',red:'Красный'};
-    var typeLabels = {views_spike:'📈 Спайк просмотров',low_engagement:'📉 Низкий ER',mass_upload:'⚡ Масс-заливка',inactive_14d:'💤 Неактивен',views_drop:'📉 Падение просм.',foreign_link:'🔗 Чужая ссылка'};
+    var typeLabels = {views_spike:'<i class="ti ti-trending-up"></i> Спайк просмотров',low_engagement:'<i class="ti ti-trending-down"></i> Низкий ER',mass_upload:'<i class="ti ti-bolt"></i> Масс-заливка',inactive_14d:'<i class="ti ti-zzz"></i> Неактивен',views_drop:'<i class="ti ti-trending-down"></i> Падение просм.',foreign_link:'<i class="ti ti-link"></i> Чужая ссылка'};
 
     for (var a = 0; a < Math.min(anomItems.length, 5); a++) {
       var an = anomItems[a];
@@ -2876,7 +2879,7 @@ async function loadRiskZone() {
         '<div style="font-size:10px;color:var(--muted)">' + (typeLabels[an.anomaly_type] || an.anomaly_type) + ' · ' + esc((an.description||'').substring(0,80)) + '</div></div>' +
         '<div style="display:flex;gap:4px;align-items:center">' +
         '<span class="badge ' + badgeCls + '">' + badgeTxt + '</span>' +
-        '<button onclick="resolveAnomaly(' + an.id + ')" style="font-size:10px;padding:2px 6px;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text)">✅</button>' +
+        '<button onclick="resolveAnomaly(' + an.id + ')" style="font-size:10px;padding:2px 6px;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text)"><i class="ti ti-circle-check"></i></button>' +
         '</div></div>';
     }
     if (anomItems.length > 5) {
@@ -2924,54 +2927,54 @@ async function loadRiskZone() {
         '<div style="font-size:10px;color:var(--muted)">Скинул ссылки → разморозка, доход восстанавливается (минус списанные)</div></div></div>' +
     '</div>' +
     '<div style="margin-top:12px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text)">' +
-      '⚠️ <strong>Исключение:</strong> документально подтверждённая мед. экстренная ситуация. <strong>Механика одинакова для всех</strong> — мейкеры, менеджеры, команда.</div>';
+      '<i class="ti ti-alert-triangle"></i> <strong>Исключение:</strong> документально подтверждённая мед. экстренная ситуация. <strong>Механика одинакова для всех</strong> — мейкеры, менеджеры, команда.</div>';
 
     // Bugs list
     var bugsHtml = '';
-    var bSt = {'new':'🟢 Новый','in_progress':'⏳ В работе','resolved':'✅ Решён','dismissed':'✖️ Отклонён'};
+    var bSt = {'new':'<i class="ti ti-point-filled" style="color:var(--green)"></i> Новый','in_progress':'⏳ В работе','resolved':'<i class="ti ti-circle-check"></i> Решён','dismissed':'<i class="ti ti-x"></i> Отклонён'};
     (bugs || []).forEach(function(b) {
       bugsHtml += '<div style="background:var(--bg);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
-        '<div style="flex:1"><span style="font-size:12px;color:var(--text)">' + esc((b.text||'').substring(0,80)) + '</span>' + (b.escalated ? ' 🚨' : '') + '</div>' +
+        '<div style="flex:1"><span style="font-size:12px;color:var(--text)">' + esc((b.text||'').substring(0,80)) + '</span>' + (b.escalated ? ' <i class="ti ti-alert-octagon"></i>' : '') + '</div>' +
         '<span style="font-size:11px;white-space:nowrap">' + (bSt[b.status] || b.status) + '</span></div>';
     });
     if (!bugsHtml) bugsHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет багов</div>';
 
     // Assemble full page
     page.innerHTML =
-      '<div class="section-title">⚠️ Зона риска</div>' +
+      '<div class="section-title"><i class="ti ti-alert-triangle"></i> Зона риска</div>' +
       alertHtml +
       kpiHtml +
 
       // Row 1: Degradation funnel + Top-10 critical
       '<div class="grid-2">' +
         '<div class="content-card">' +
-          '<h3>📉 Воронка деградации мейкеров</h3>' +
+          '<h3><i class="ti ti-trending-down"></i> Воронка деградации мейкеров</h3>' +
           '<div style="display:flex;flex-direction:column;gap:10px">' +
-            buildFunnelBar('🟢 Норма (12+ вид/нед)', 'var(--green)', d.stats_normal || 0, d.stats_total || 1) +
-            buildFunnelBar('🟡 Внимание (9-11)', '#f0c040', d.stats_attention || 0, d.stats_total || 1) +
-            buildFunnelBar('🟠 Предупреждение (6-8)', 'var(--orange)', d.stats_warning || 0, d.stats_total || 1) +
-            buildFunnelBar('🔴 Критично (1-5)', 'var(--red)', d.stats_critical || 0, d.stats_total || 1) +
-            buildFunnelBar('⚫ Тишина (0)', 'var(--muted)', d.stats_silence || 0, d.stats_total || 1) +
+            buildFunnelBar('<i class="ti ti-point-filled" style="color:var(--green)"></i> Норма (12+ вид/нед)', 'var(--green)', d.stats_normal || 0, d.stats_total || 1) +
+            buildFunnelBar('<i class="ti ti-point-filled" style="color:#e3b341"></i> Внимание (9-11)', '#f0c040', d.stats_attention || 0, d.stats_total || 1) +
+            buildFunnelBar('<i class="ti ti-point-filled" style="color:var(--orange)"></i> Предупреждение (6-8)', 'var(--orange)', d.stats_warning || 0, d.stats_total || 1) +
+            buildFunnelBar('<i class="ti ti-point-filled" style="color:var(--red)"></i> Критично (1-5)', 'var(--red)', d.stats_critical || 0, d.stats_total || 1) +
+            buildFunnelBar('<i class="ti ti-point-filled" style="color:var(--muted)"></i> Тишина (0)', 'var(--muted)', d.stats_silence || 0, d.stats_total || 1) +
           '</div>' +
           '<div style="margin-top:14px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text)">' +
-            '💡 <strong>Автотриггер:</strong> Apify парсит все 4 платформы еженедельно. Если мейкер &lt;6 видео/нед 3 недели подряд — автоматически статус "Замена".</div>' +
+            '<i class="ti ti-bulb"></i> <strong>Автотриггер:</strong> Apify парсит все 4 платформы еженедельно. Если мейкер &lt;6 видео/нед 3 недели подряд — автоматически статус "Замена".</div>' +
         '</div>' +
         '<div class="content-card">' +
-          '<h3>🔴 Топ-10 критичных · срочная замена</h3>' +
+          '<h3><i class="ti ti-point-filled" style="color:var(--red)"></i> Топ-10 критичных · срочная замена</h3>' +
           criticalHtml +
           '<div style="margin-top:10px;padding:10px;background:rgba(248,81,73,0.1);border-left:3px solid var(--red);font-size:11px;color:var(--red)">' +
-            '⚠️ ' + fmtNum(penaltyUsers) + ' кандидатов → HR-Директор → процедура замены. Очередь: ' + fmtNum(waitlistCount) + ' человек.</div>' +
+            '<i class="ti ti-alert-triangle"></i> ' + fmtNum(penaltyUsers) + ' кандидатов → HR-Директор → процедура замены. Очередь: ' + fmtNum(waitlistCount) + ' человек.</div>' +
         '</div>' +
       '</div>' +
 
       // Row 2: Bugs + AI anomalies
       '<div class="grid-2">' +
         '<div class="content-card">' +
-          '<h3>🐛 Баги <span style="font-size:12px;color:var(--muted);font-weight:400">(' + bugsTotal + ')</span></h3>' +
+          '<h3><i class="ti ti-bug"></i> Баги <span style="font-size:12px;color:var(--muted);font-weight:400">(' + bugsTotal + ')</span></h3>' +
           bugsHtml +
         '</div>' +
         '<div class="content-card">' +
-          '<h3>🤖 AI-флаги накруток <span style="font-size:12px;color:var(--muted);font-weight:400">Apify + ML · ' + fmtNum(anom.total || 0) + ' кейсов</span></h3>' +
+          '<h3><i class="ti ti-robot"></i> AI-флаги накруток <span style="font-size:12px;color:var(--muted);font-weight:400">Apify + ML · ' + fmtNum(anom.total || 0) + ' кейсов</span></h3>' +
           anomHtml +
           (typeBarsHtml ? '<div style="margin-top:12px">' + typeBarsHtml + '</div>' : '') +
         '</div>' +
@@ -2980,26 +2983,26 @@ async function loadRiskZone() {
       // Row 3: Frozen list + Penalty procedure
       '<div class="grid-2">' +
         '<div class="content-card">' +
-          '<h3>❄️ Замороженные <span style="font-size:12px;color:var(--muted);font-weight:400">(' + frozenCount + ')</span></h3>' +
+          '<h3><i class="ti ti-snowflake"></i> Замороженные <span style="font-size:12px;color:var(--muted);font-weight:400">(' + frozenCount + ')</span></h3>' +
           (function(){
             var fHtml = '';
             (frozen || []).forEach(function(u) {
               fHtml += '<div style="background:var(--bg);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
-                '<span style="font-size:12px">❄️ ' + esc(u.full_name || '—') + '</span>' +
+                '<span style="font-size:12px"><i class="ti ti-snowflake"></i> ' + esc(u.full_name || '—') + '</span>' +
                 '<span style="font-size:11px;color:var(--red)">-' + (u.penalty_shares||0) + ' штраф · ' + (u.shares_count||0) + ' акц.</span></div>';
             });
             return fHtml || '<div style="padding:20px;text-align:center;color:var(--muted)">Нет замороженных</div>';
           })() +
         '</div>' +
         '<div class="content-card">' +
-          '<h3>📋 Процедура списания <span style="font-size:12px;color:var(--muted);font-weight:400">-1 акция/мес</span></h3>' +
+          '<h3><i class="ti ti-clipboard"></i> Процедура списания <span style="font-size:12px;color:var(--muted);font-weight:400">-1 акция/мес</span></h3>' +
           penaltyHtml +
         '</div>' +
       '</div>';
 
   } catch(e) {
     console.error('Risk zone error:', e);
-    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">⚠️</div>Ошибка загрузки зоны риска</div>';
+    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px"><i class="ti ti-alert-triangle"></i></div>Ошибка загрузки зоны риска</div>';
   }
 }
 
@@ -3024,30 +3027,30 @@ async function loadContests() {
   var page = document.getElementById('page-contests');
   try {
     var d = await api('/contests');
-    var stM = {draft:'📝 Черновик',active:'🟢 Активный',voting:'🗳️ Голосование',finished:'✅ Завершён',cancelled:'❌ Отменён'};
+    var stM = {draft:'<i class="ti ti-edit"></i> Черновик',active:'<i class="ti ti-point-filled" style="color:var(--green)"></i> Активный',voting:'<i class="ti ti-checkbox"></i> Голосование',finished:'<i class="ti ti-circle-check"></i> Завершён',cancelled:'<i class="ti ti-x"></i> Отменён'};
     var tpM = {hr_manager:'HR',ai_automator:'AI',project_manager:'PM',pr:'PR',targeting:'Таргет',affiliate:'Affiliate',seo:'SEO',copywriter:'Копирайтер'};
 
     // Principle blocks
     var principleH = '<div class="grid-2" style="gap:12px;">' +
       '<div style="display:flex;flex-direction:column;gap:1px;">' +
       '<div style="background:var(--card);padding:14px;border-left:3px solid var(--gold);border-bottom:1px solid var(--border);">' +
-      '<div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;">🎯 Только цифры из дашборда</div>' +
+      '<div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;"><i class="ti ti-target"></i> Только цифры из дашборда</div>' +
       '<div style="font-size:10px;color:var(--muted);line-height:1.6;">Никакой субъективности. У каждого своя зона ответственности.</div></div>' +
       '<div style="background:var(--card);padding:14px;border-left:3px solid var(--green);border-bottom:1px solid var(--border);">' +
-      '<div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;">🏆 Беспроигрышная система</div>' +
+      '<div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;"><i class="ti ti-trophy"></i> Беспроигрышная система</div>' +
       '<div style="font-size:10px;color:var(--muted);line-height:1.6;">Каждый участник получает акции. Топы получают больше.</div></div>' +
       '<div style="background:var(--card);padding:14px;border-left:3px solid var(--blue);border-bottom:1px solid var(--border);">' +
-      '<div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;">📈 Бонус топ-менеджменту со 2 года</div>' +
+      '<div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;"><i class="ti ti-trending-up"></i> Бонус топ-менеджменту со 2 года</div>' +
       '<div style="font-size:10px;color:var(--muted);line-height:1.6;">Если показатели отстающих выросли на 10-100% — руководитель получает бонусные акции.</div></div></div>' +
       '<div style="display:flex;flex-direction:column;gap:1px;">' +
       '<div style="background:var(--card);padding:14px;border-left:3px solid var(--purple);border-bottom:1px solid var(--border);">' +
-      '<div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;">📊 KPI по ролям</div>' +
+      '<div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;"><i class="ti ti-chart-bar"></i> KPI по ролям</div>' +
       '<div style="font-size:10px;color:var(--muted);line-height:1.6;">' +
       '<strong style="color:var(--text);">HR мейкеров</strong> — совокупный доход его 100 мейкеров<br>' +
       '<strong style="color:var(--text);">HR блогеров</strong> — охват + конверсия<br>' +
       '<strong style="color:var(--text);">PM, AI</strong> — KPI проектов</div></div>' +
       '<div style="background:rgba(212,168,67,0.08);padding:14px;border:1px solid rgba(212,168,67,0.2);">' +
-      '<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px;">💎 Источник акций</div>' +
+      '<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px;"><i class="ti ti-diamond"></i> Источник акций</div>' +
       '<div style="font-size:10px;color:var(--text);line-height:1.6;">Конкурсные акции — из <strong>пула управляющей команды (17.5%)</strong>. Отдельно от ЗП-вестинга.</div></div></div></div>';
 
     // Role contest cards
@@ -3099,13 +3102,13 @@ async function loadContests() {
     // Current ranking from d.items
     var rankH = '';
     (d.items || []).forEach(function(c, idx) {
-      var my = c.my_entry ? ' ✅ Участвую' : '';
+      var my = c.my_entry ? ' <i class="ti ti-circle-check"></i> Участвую' : '';
       rankH += '<div style="background:var(--card);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">' +
         '<div><strong>' + esc(c.title || '') + '</strong>' + my + '<br><span style="font-size:11px;color:var(--muted);">' + (tpM[c.contest_type]||c.contest_type||'') + ' • ' + (c.prize_shares||0) + ' акц.</span></div>' +
         '<span style="font-size:11px;">' + (stM[c.status]||c.status||'') + '</span></div>';
     });
 
-    page.innerHTML = '<h2 class="section-title">🏅 Конкурсы</h2>' +
+    page.innerHTML = '<h2 class="section-title"><i class="ti ti-medal"></i> Конкурсы</h2>' +
       '<div class="alert" style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.15);padding:14px;margin-bottom:16px;">' +
       '<strong style="color:var(--gold);">Конкурсы · Ежегодно по итогам года</strong> · 2 400 акций/год из <strong style="color:var(--gold);">пула команды (15%)</strong> · беспроигрышная система' +
       '</div>' +
@@ -3116,15 +3119,15 @@ async function loadContests() {
       '<div class="kpi-card" style="border-top-color:var(--purple)"><div class="kpi-label">УЧАСТНИКОВ</div><div class="kpi-value" style="color:var(--purple)">160</div></div>' +
       '<div class="kpi-card" style="border-top-color:var(--orange)"><div class="kpi-label">ПРИНЦИП</div><div class="kpi-value" style="color:var(--orange)">Беспроигр.</div></div>' +
       '</div>' +
-      '<div class="content-card"><div class="card-header">⚙️ Как работает конкурс</div><div style="padding:12px;">' + principleH + '</div></div>' +
-      '<div class="content-card"><div class="card-header">🏆 Правила конкурсов по ролям</div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-settings"></i> Как работает конкурс</div><div style="padding:12px;">' + principleH + '</div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-trophy"></i> Правила конкурсов по ролям</div>' +
       '<div class="grid-2" style="padding:12px;">' + rcH + '</div>' +
       '<div style="padding:0 12px 12px;"><div style="background:var(--card);padding:16px;border-bottom:1px solid var(--border);">' +
       '<div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:12px;">5 ПОДРАЗДЕЛЕНИЙ × 5 ЧЕЛОВЕК</div>' + deptH + '</div></div></div>' +
       '<div class="grid-2">' +
-      '<div class="content-card"><div class="card-header">📊 Итоговая математика</div><div style="padding:0;">' + mathH + '</div>' +
-      '<div style="margin:12px;padding:10px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);font-size:11px;color:var(--text);">💎 Конкурсные акции — бонус <strong>сверх</strong> ЗП-вестинга.</div></div>' +
-      '<div class="content-card"><div class="card-header">📄 Текущие конкурсы</div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-chart-bar"></i> Итоговая математика</div><div style="padding:0;">' + mathH + '</div>' +
+      '<div style="margin:12px;padding:10px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);font-size:11px;color:var(--text);"><i class="ti ti-diamond"></i> Конкурсные акции — бонус <strong>сверх</strong> ЗП-вестинга.</div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-file"></i> Текущие конкурсы</div>' +
       (rankH || '<div style="text-align:center;padding:40px;color:var(--muted);">Нет конкурсов</div>') +
       '</div></div>';
   } catch(e) { page.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Ошибка загрузки</div>'; }
@@ -3142,11 +3145,11 @@ async function loadBloggers() {
     var avgIncome = d.avg_income || 0;
 
     var kpiRow = '<div class="kpi-row">' +
-      '<div class="kpi-card"><div class="stat-label">📣 Активных</div><div class="stat-value blue">' + fmtNum(activeBloggers) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">👥 Аудитория</div><div class="stat-value gold">' + fmtNum(totalAudience) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">🔗 Привели мейкеров</div><div class="stat-value green">' + fmtNum(broughtMakers) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">💰 Акций распред.</div><div class="stat-value purple">' + fmtNum(distShares) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">💵 Ср. доход</div><div class="stat-value green">$' + fmtNum(avgIncome) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-speakerphone"></i> Активных</div><div class="stat-value blue">' + fmtNum(activeBloggers) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-users"></i> Аудитория</div><div class="stat-value gold">' + fmtNum(totalAudience) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-link"></i> Привели мейкеров</div><div class="stat-value green">' + fmtNum(broughtMakers) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-coin"></i> Акций распред.</div><div class="stat-value purple">' + fmtNum(distShares) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-cash"></i> Ср. доход</div><div class="stat-value green">$' + fmtNum(avgIncome) + '</div></div>' +
       '</div>';
 
     var bloggers = d.top_bloggers || [];
@@ -3164,7 +3167,7 @@ async function loadBloggers() {
         '<td>' + esc(b.manager || '—') + '</td></tr>';
     }
     if (!bRows) bRows = '<tr><td colspan="8" style="text-align:center;color:var(--muted)">Нет данных</td></tr>';
-    var blogTable = '<div class="content-card"><h3>👑 Топ-15 блогеров</h3>' +
+    var blogTable = '<div class="content-card"><h3><i class="ti ti-crown"></i> Топ-15 блогеров</h3>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
       '<thead><tr><th>#</th><th>Имя</th><th>Платформа</th><th>Аудитория</th><th>Привели</th><th>Акции</th><th>Доход/мес</th><th>Менеджер</th></tr></thead>' +
       '<tbody>' + bRows + '</tbody></table></div></div>';
@@ -3181,7 +3184,7 @@ async function loadBloggers() {
         '<div class="bar-value">' + fmtNum(pp.count || 0) + '</div></div>';
     }
     if (!pdBars) pdBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
-    var platCard = '<div class="content-card"><h3>📱 Распределение по платформам</h3><div class="bar-chart">' + pdBars + '</div></div>';
+    var platCard = '<div class="content-card"><h3><i class="ti ti-device-mobile"></i> Распределение по платформам</h3><div class="bar-chart">' + pdBars + '</div></div>';
 
     var topics = d.topics || [];
     var maxTop = 1;
@@ -3195,13 +3198,13 @@ async function loadBloggers() {
         '<div class="bar-value">' + fmtNum(tt.count || 0) + '</div></div>';
     }
     if (!tpBars) tpBars = '<div style="color:var(--muted);text-align:center;padding:16px">Нет данных</div>';
-    var topicCard = '<div class="content-card"><h3>🎯 Тематики</h3><div class="bar-chart">' + tpBars + '</div></div>';
+    var topicCard = '<div class="content-card"><h3><i class="ti ti-target"></i> Тематики</h3><div class="bar-chart">' + tpBars + '</div></div>';
 
     var sharesPool = d.shares_pool || 1500;
     var sharesDistributed = d.shares_distributed || distShares;
     var sharesRemain = sharesPool - sharesDistributed;
     var shPct = sharesPool > 0 ? Math.round((sharesDistributed / sharesPool) * 100) : 0;
-    var sharesCard = '<div class="content-card"><h3>💰 Акции блогеров</h3>' +
+    var sharesCard = '<div class="content-card"><h3><i class="ti ti-coin"></i> Акции блогеров</h3>' +
       '<div class="kpi-row" style="margin-bottom:12px">' +
       '<div class="kpi-card"><div class="stat-label">Пул</div><div class="stat-value blue">' + fmtNum(sharesPool) + '</div></div>' +
       '<div class="kpi-card"><div class="stat-label">Распределено</div><div class="stat-value green">' + fmtNum(sharesDistributed) + '</div></div>' +
@@ -3221,16 +3224,16 @@ async function loadBloggers() {
         '<span style="color:var(--muted);font-size:12px">' + esc(ci.date || '') + '</span></div>';
     }
     if (!cpHtml) cpHtml = '<div style="color:var(--muted);text-align:center;padding:16px">Контент-план пуст</div>';
-    var cpCard = '<div class="content-card"><h3>📝 Контент-план</h3>' + cpHtml + '</div>';
+    var cpCard = '<div class="content-card"><h3><i class="ti ti-edit"></i> Контент-план</h3>' + cpHtml + '</div>';
 
     var funnel = d.acquisition_funnel || {};
     var fSteps = [
-      { label: '👁️ Просмотры', val: funnel.views || 0 },
-      { label: '🔗 Клики', val: funnel.clicks || 0 },
-      { label: '🤖 Бот', val: funnel.bot || 0 },
-      { label: '📝 Заявка', val: funnel.application || 0 },
-      { label: '✅ Прошли', val: funnel.passed || 0 },
-      { label: '🎬 Активные', val: funnel.active || 0 }
+      { label: '<i class="ti ti-eye"></i> Просмотры', val: funnel.views || 0 },
+      { label: '<i class="ti ti-link"></i> Клики', val: funnel.clicks || 0 },
+      { label: '<i class="ti ti-robot"></i> Бот', val: funnel.bot || 0 },
+      { label: '<i class="ti ti-edit"></i> Заявка', val: funnel.application || 0 },
+      { label: '<i class="ti ti-circle-check"></i> Прошли', val: funnel.passed || 0 },
+      { label: '<i class="ti ti-movie"></i> Активные', val: funnel.active || 0 }
     ];
     var maxF = 1;
     for (var f = 0; f < fSteps.length; f++) { if (fSteps[f].val > maxF) maxF = fSteps[f].val; }
@@ -3242,7 +3245,7 @@ async function loadBloggers() {
         '<div class="bar-track"><div class="bar-fill" style="width:' + fPct + '%;background:var(--gold)"></div></div>' +
         '<div class="bar-value">' + fmtNum(fs.val) + '</div></div>';
     }
-    var funnelCard = '<div class="content-card"><h3>📉 Воронка привлечения</h3><div class="bar-chart">' + fBars + '</div></div>';
+    var funnelCard = '<div class="content-card"><h3><i class="ti ti-trending-down"></i> Воронка привлечения</h3><div class="bar-chart">' + fBars + '</div></div>';
 
     var managers = d.top_managers || [];
     var mgrRows = '';
@@ -3255,7 +3258,7 @@ async function loadBloggers() {
         '<td>' + fmtNum(mgr.makers_brought || 0) + '</td></tr>';
     }
     if (!mgrRows) mgrRows = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Нет данных</td></tr>';
-    var mgrTable = '<div class="content-card"><h3>👤 Менеджеры блогеров</h3>' +
+    var mgrTable = '<div class="content-card"><h3><i class="ti ti-user"></i> Менеджеры блогеров</h3>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
       '<thead><tr><th>Менеджер</th><th>Блогеров</th><th>Аудитория</th><th>Привели</th></tr></thead>' +
       '<tbody>' + mgrRows + '</tbody></table></div></div>';
@@ -3278,11 +3281,11 @@ async function loadBloggers() {
     }
     var blogEffBlock = '<div class="content-card"><h3>\uD83D\uDCC8 \u042D\u0444\u0444\u0435\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C \u0431\u043B\u043E\u0433\u0435\u0440\u043E\u0432</h3><div class="bar-chart">' + beRows + '</div><div style="padding:8px 12px;font-size:10px;color:var(--muted)">\u041A\u043B\u0438\u043A\u0438 / \u043A\u043E\u043D\u0432\u0435\u0440\u0441\u0438\u044F</div></div>';
 
-    page.innerHTML = '<div class="section-title">📣 Блогеры</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-speakerphone"></i> Блогеры</div>' +
       kpiRow + blogTable + '<div class="grid-2">' + platCard + topicCard + '</div>' +
       sharesCard + cpCard + funnelCard + mgrTable + blogEffBlock;
   } catch(e) {
-    page.innerHTML = '<div class="section-title">📣 Блогеры</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-speakerphone"></i> Блогеры</div>' +
       '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
   }
 }
@@ -3303,14 +3306,14 @@ async function loadInfrastructure() {
     var allOk = (d.db_status === 'ok' || d.db_status === 'online') && (d.api_status === 'ok' || d.api_status === 'online');
 
     var alertHtml = '<div class="alert alert-' + (allOk ? 'green' : 'red') + '">' +
-      (allOk ? '✅ Все системы в штатном режиме' : '⚠️ Есть проблемы с системами') +
+      (allOk ? '<i class="ti ti-circle-check"></i> Все системы в штатном режиме' : '<i class="ti ti-alert-triangle"></i> Есть проблемы с системами') +
       '</div>';
 
     var infraCards = '<div class="kpi-row">' +
-      '<div class="kpi-card"><div class="stat-label">🤖 Telegram Bot</div><div class="stat-value green">uptime ' + esc(botUp) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">🔄 Round Robin</div><div class="stat-value blue">' + fmtNum(rrShares) + ' акций</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">🖥️ Основной сервер</div><div class="stat-value ' + (cpuPct > 80 ? 'red' : 'green') + '">CPU ' + cpuPct + '%</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">💾 Резервный</div><div class="stat-value ' + (diskPct > 80 ? 'red' : 'green') + '">Диск ' + diskPct + '%</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-robot"></i> Telegram Bot</div><div class="stat-value green">uptime ' + esc(botUp) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-refresh"></i> Round Robin</div><div class="stat-value blue">' + fmtNum(rrShares) + ' акций</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-device-desktop"></i> Основной сервер</div><div class="stat-value ' + (cpuPct > 80 ? 'red' : 'green') + '">CPU ' + cpuPct + '%</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-device-floppy"></i> Резервный</div><div class="stat-value ' + (diskPct > 80 ? 'red' : 'green') + '">Диск ' + diskPct + '%</div></div>' +
       '</div>';
 
     var systems = [
@@ -3332,19 +3335,19 @@ async function loadInfrastructure() {
         '<td>' + esc(s.ver) + '</td>' +
         '<td>' + esc(s.bk) + '</td></tr>';
     }
-    var sysTable = '<div class="content-card"><h3>📋 Статус систем</h3>' +
+    var sysTable = '<div class="content-card"><h3><i class="ti ti-clipboard"></i> Статус систем</h3>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
       '<thead><tr><th>Система</th><th>Статус</th><th>Версия</th><th>Бэкап</th></tr></thead>' +
       '<tbody>' + sysRows + '</tbody></table></div></div>';
 
     var statCards = '<div class="kpi-row">' +
-      '<div class="kpi-card"><div class="stat-label">👥 Пользователей</div><div class="stat-value blue">' + fmtNum(totalRec) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">📈 Акций в системе</div><div class="stat-value gold">' + fmtNum(sharesInSys) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">📨 Запросов/день</div><div class="stat-value green">' + fmtNum(reqDay) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">🕒 След. бэкап</div><div class="stat-value muted">' + esc(nextBackup) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-users"></i> Пользователей</div><div class="stat-value blue">' + fmtNum(totalRec) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-trending-up"></i> Акций в системе</div><div class="stat-value gold">' + fmtNum(sharesInSys) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-mail"></i> Запросов/день</div><div class="stat-value green">' + fmtNum(reqDay) + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label"><i class="ti ti-clock"></i> След. бэкап</div><div class="stat-value muted">' + esc(nextBackup) + '</div></div>' +
       '</div>';
 
-    var loadBar = '<div class="content-card"><h3>📊 Нагрузка сервера</h3>' +
+    var loadBar = '<div class="content-card"><h3><i class="ti ti-chart-bar"></i> Нагрузка сервера</h3>' +
       '<div class="bar-chart">' +
       '<div class="bar-row"><div class="bar-label">CPU</div><div class="bar-track"><div class="bar-fill" style="width:' + cpuPct + '%;background:' + (cpuPct > 80 ? 'var(--red)' : 'var(--green)') + '"></div></div><div class="bar-value">' + cpuPct + '%</div></div>' +
       '<div class="bar-row"><div class="bar-label">RAM</div><div class="bar-track"><div class="bar-fill" style="width:' + (d.ram_percent || 45) + '%;background:var(--blue)"></div></div><div class="bar-value">' + (d.ram_percent || 45) + '%</div></div>' +
@@ -3378,13 +3381,13 @@ async function loadInfrastructure() {
       intGrid += '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:6px">' +
         '<span style="width:8px;height:8px;border-radius:50%;background:' + (ist.ok?'var(--green)':'var(--red)') + '"></span>' +
         '<span style="font-size:12px">' + ist.name + '</span>' +
-        '<span style="margin-left:auto;font-size:11px;color:' + (ist.ok?'var(--green)':'var(--red)') + '">' + (ist.ok?'✅':'❌') + '</span></div>';
+        '<span style="margin-left:auto;font-size:11px;color:' + (ist.ok?'var(--green)':'var(--red)') + '">' + (ist.ok?'<i class="ti ti-circle-check"></i>':'<i class="ti ti-x"></i>') + '</span></div>';
     }
-    var integrationStatus = '<div class="content-card"><h3>🔌 Статус интеграций</h3>' +
+    var integrationStatus = '<div class="content-card"><h3><i class="ti ti-plug-connected"></i> Статус интеграций</h3>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px">' + intGrid + '</div></div>';
 
     var apiTimes = d.api_response_times || {avg:45,p95:120,p99:250};
-    var apiTimeChart = '<div class="content-card"><h3>⏱️ API Response Time</h3>' +
+    var apiTimeChart = '<div class="content-card"><h3>⏱ API Response Time</h3>' +
       '<div class="kpi-row">' +
       '<div class="kpi-card green"><div class="stat-label">AVG</div><div class="stat-value">' + (apiTimes.avg||45) + 'ms</div></div>' +
       '<div class="kpi-card blue"><div class="stat-label">P95</div><div class="stat-value">' + (apiTimes.p95||120) + 'ms</div></div>' +
@@ -3392,17 +3395,17 @@ async function loadInfrastructure() {
       '</div><div style="margin-top:12px"><canvas id="chart-api-time" height="120"></canvas></div></div>';
 
     var errRates = d.error_rates || {rate_5xx:0.1, rate_4xx:2.3, rate_timeout:0.05};
-    var errorTracking = '<div class="content-card"><h3>⚠️ Error Rate Tracking</h3>' +
+    var errorTracking = '<div class="content-card"><h3><i class="ti ti-alert-triangle"></i> Error Rate Tracking</h3>' +
       '<div class="kpi-row">' +
       '<div class="kpi-card ' + ((errRates.rate_5xx||0)>1?'red':'green') + '"><div class="stat-label">5xx Ошибки</div><div class="stat-value">' + (errRates.rate_5xx||0.1) + '%</div></div>' +
       '<div class="kpi-card ' + ((errRates.rate_4xx||0)>5?'orange':'blue') + '"><div class="stat-label">4xx Клиент</div><div class="stat-value">' + (errRates.rate_4xx||2.3) + '%</div></div>' +
       '<div class="kpi-card green"><div class="stat-label">Timeout</div><div class="stat-value">' + (errRates.rate_timeout||0.05) + '%</div></div>' +
       '</div></div>';
 
-    page.innerHTML = '<div class="section-title">🖥️ Инфраструктура</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-device-desktop"></i> Инфраструктура</div>' +
       alertHtml + infraCards + sysTable + statCards + loadBar + backupTable + integrationStatus + apiTimeChart + errorTracking;
   } catch(e) {
-    page.innerHTML = '<div class="section-title">🖥️ Инфраструктура</div>' +
+    page.innerHTML = '<div class="section-title"><i class="ti ti-device-desktop"></i> Инфраструктура</div>' +
       '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки инфраструктуры</div>';
   }
 }
@@ -3418,7 +3421,7 @@ async function loadAIAutomators() {
     var offH = '';
     (d.offer_automators || []).forEach(function(u) {
       offH += '<div style="background:var(--card);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">' +
-        '<span>🤖 ' + esc(u.full_name || '') + '</span>' +
+        '<span><i class="ti ti-robot"></i> ' + esc(u.full_name || '') + '</span>' +
         '<span style="font-size:11px;color:var(--muted);">' + esc(u.team_role||'') + ' • ' + (u.shares_count||0) + ' акц.</span></div>';
     });
 
@@ -3426,7 +3429,7 @@ async function loadAIAutomators() {
     var intH = '';
     (d.internal_automators || []).forEach(function(u) {
       intH += '<div style="background:var(--card);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">' +
-        '<span>⚙️ ' + esc(u.full_name || '') + '</span>' +
+        '<span><i class="ti ti-settings"></i> ' + esc(u.full_name || '') + '</span>' +
         '<span style="font-size:11px;color:var(--muted);">' + esc(u.team_role||'') + ' • ' + (u.shares_count||0) + ' акц.</span></div>';
     });
 
@@ -3453,7 +3456,7 @@ async function loadAIAutomators() {
       ['03','Склейка в практикум','5-10 часов контента в один практикум.'],
       ['04','PM делает лендинг','Сайт-практикум с CTA + Round Robin.'],
       ['05','Запуск через мейкеров','Мейкеры гонят трафик на лендинг.'],
-      ['💰','Доход','Регистрация → платящий клиент SaaS → 20-30% MRR команде.']
+      ['<i class="ti ti-coin"></i>','Доход','Регистрация → платящий клиент SaaS → 20-30% MRR команде.']
     ];
     var stepsH = '';
     for (var si = 0; si < steps.length; si++) {
@@ -3510,7 +3513,7 @@ async function loadAIAutomators() {
 
     var wo = d.weekly_offer;
 
-    page.innerHTML = '<h2 class="section-title">🤖 AI-автоматизаторы</h2>' +
+    page.innerHTML = '<h2 class="section-title"><i class="ti ti-robot"></i> AI-автоматизаторы</h2>' +
       '<div class="alert" style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.15);padding:14px;margin-bottom:16px;">' +
       '<strong style="color:var(--gold);">54 AI-специалиста:</strong> 4 внутренних автоматизатора (подчинение CTO) + 50 AI-офферщиков (5 PM × 10 чел по нишам)' +
       '</div>' +
@@ -3521,20 +3524,20 @@ async function loadAIAutomators() {
       '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">ОФФЕРОВ</div><div class="kpi-value" style="color:var(--green)">' + (d.active_offers || 0) + '</div></div>' +
       '<div class="kpi-card" style="border-top-color:var(--orange)"><div class="kpi-label">ССЫЛОК</div><div class="kpi-value" style="color:var(--orange)">' + (d.verified_links || 0) + '</div></div>' +
       '</div>' +
-      (wo ? '<div class="content-card" style="border-left:3px solid var(--gold);margin-bottom:16px;"><div class="card-header">🎯 Оффер недели: ' + esc(wo.name || '') + '</div></div>' : '') +
-      '<div class="content-card"><div class="card-header">⚙️ Внутренние AI-автоматизаторы (4 чел · CTO)</div>' +
+      (wo ? '<div class="content-card" style="border-left:3px solid var(--gold);margin-bottom:16px;"><div class="card-header"><i class="ti ti-target"></i> Оффер недели: ' + esc(wo.name || '') + '</div></div>' : '') +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-settings"></i> Внутренние AI-автоматизаторы (4 чел · CTO)</div>' +
       '<div class="grid-2" style="padding:12px;">' + intCardsH + '</div></div>' +
       '<div class="grid-2">' +
-      '<div class="content-card"><div class="card-header">🎬 Офферщики (' + (d.total_offer_automators || 0) + ')</div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-movie"></i> Офферщики (' + (d.total_offer_automators || 0) + ')</div>' +
       (offH || '<div style="text-align:center;padding:40px;color:var(--muted);">Нет офферщиков</div>') + '</div>' +
-      '<div class="content-card"><div class="card-header">⚙️ Внутренние (' + (d.total_internal || 0) + ')</div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-settings"></i> Внутренние (' + (d.total_internal || 0) + ')</div>' +
       (intH || '<div style="text-align:center;padding:40px;color:var(--muted);">Нет внутренних</div>') + '</div></div>' +
-      '<div class="content-card"><div class="card-header">🎬 Как рождается AI-оффер · 6 шагов</div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-movie"></i> Как рождается AI-оффер · 6 шагов</div>' +
       '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;padding:12px;">' + stepsH + '</div></div>' +
       '<div class="grid-2">' +
-      '<div class="content-card"><div class="card-header">⚡ Топ-5 живых автоматизаций</div><div style="padding:0;">' + autoH + '</div></div>' +
-      '<div class="content-card"><div class="card-header">🧠 ML-модели в проде</div>' + mlH + '</div></div>' +
-      '<div class="content-card"><div class="card-header">💰 Расходы AI / мес</div><div style="padding:12px;">' + expH +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-bolt"></i> Топ-5 живых автоматизаций</div><div style="padding:0;">' + autoH + '</div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-brain"></i> ML-модели в проде</div>' + mlH + '</div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-coin"></i> Расходы AI / мес</div><div style="padding:12px;">' + expH +
       '<div style="margin-top:12px;padding:10px;background:rgba(75,166,96,0.08);border-left:3px solid var(--green);font-size:11px;color:var(--text);"><strong style="color:var(--green);">Экономия рассчитывается автоматически</strong></div></div></div>';
   } catch(e) { page.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Ошибка загрузки</div>'; }
 }
@@ -3544,7 +3547,7 @@ async function loadQuality() {
   var page = document.getElementById('page-quality');
   try {
     var d = await api('/quality');
-    var stM = {new:'🟢 Новая',investigating:'🔍 Расследование',resolved:'✅ Решена',dismissed:'✖️ Отклонена'};
+    var stM = {new:'<i class="ti ti-point-filled" style="color:var(--green)"></i> Новая',investigating:'<i class="ti ti-search"></i> Расследование',resolved:'<i class="ti ti-circle-check"></i> Решена',dismissed:'<i class="ti ti-x"></i> Отклонена'};
 
     var complaints = (d.violations_new || 0) + (d.violations_investigating || 0);
     var anomalies = d.anomalies_open || 0;
@@ -3553,12 +3556,12 @@ async function loadQuality() {
 
     // Quality standards (static)
     var standards = [
-      ['✅ Уникальность','Не копия чужого · проверка через Apify','Авто','var(--green)'],
-      ['✅ Минимальная длина','Shorts ≥30 сек · длинные ≥3 мин','Авто','var(--green)'],
-      ['✅ Ссылка в описании','Реф. ссылка или домен на всех 4 платф.','Авто','var(--green)'],
-      ['✅ Нет накруток','ML-антифрод по паттернам · recall 95.7%','ML','var(--green)'],
-      ['✅ Нет запрещённого','Без политики, насилия, мошенничества','Ручная','var(--blue)'],
-      ['✅ Релевантность нише','Контент соответствует нише мейкера','Ручная','var(--blue)']
+      ['<i class="ti ti-circle-check"></i> Уникальность','Не копия чужого · проверка через Apify','Авто','var(--green)'],
+      ['<i class="ti ti-circle-check"></i> Минимальная длина','Shorts ≥30 сек · длинные ≥3 мин','Авто','var(--green)'],
+      ['<i class="ti ti-circle-check"></i> Ссылка в описании','Реф. ссылка или домен на всех 4 платф.','Авто','var(--green)'],
+      ['<i class="ti ti-circle-check"></i> Нет накруток','ML-антифрод по паттернам · recall 95.7%','ML','var(--green)'],
+      ['<i class="ti ti-circle-check"></i> Нет запрещённого','Без политики, насилия, мошенничества','Ручная','var(--blue)'],
+      ['<i class="ti ti-circle-check"></i> Релевантность нише','Контент соответствует нише мейкера','Ручная','var(--blue)']
     ];
     var stdH = '';
     for (var si = 0; si < standards.length; si++) {
@@ -3568,7 +3571,7 @@ async function loadQuality() {
         '<div><div style="font-size:11px;color:var(--text);font-weight:700;">' + st[0] + '</div><div style="font-size:10px;color:var(--muted);">' + st[1] + '</div></div>' +
         '<span class="badge ' + badgeClr + '">' + st[2] + '</span></div>';
     }
-    stdH += '<div style="margin-top:12px;padding:10px;background:var(--card);font-size:11px;color:var(--text);border-bottom:1px solid var(--border);">🤖 Авто-проверки покрывают ~93% случаев. Ручная QA = выборочно 7%.</div>';
+    stdH += '<div style="margin-top:12px;padding:10px;background:var(--card);font-size:11px;color:var(--text);border-bottom:1px solid var(--border);"><i class="ti ti-robot"></i> Авто-проверки покрывают ~93% случаев. Ручная QA = выборочно 7%.</div>';
 
     // Violations by type (from API)
     var violTypes = d.violation_types || [];
@@ -3585,10 +3588,10 @@ async function loadQuality() {
 
     // Warning system (static)
     var warnings = [
-      ['🟡 Предупреждение 1','var(--gold)','Первое нарушение · бот уведомляет мейкера + HR · 24ч на исправление','Авто-бот'],
-      ['🟠 Предупреждение 2','var(--orange)','Повторное нарушение за 30 дней · HR звонит · QA проверяет 10 видео','HR + QA'],
-      ['🔴 Предупреждение 3','var(--red)','Третье нарушение · автопередача в Зону риска · замена','Замена'],
-      ['⛔ Моментальный бан','var(--red)','Накрутка · мошенничество · запрещённый контент · акции заморожены','Авто']
+      ['<i class="ti ti-point-filled" style="color:#e3b341"></i> Предупреждение 1','var(--gold)','Первое нарушение · бот уведомляет мейкера + HR · 24ч на исправление','Авто-бот'],
+      ['<i class="ti ti-point-filled" style="color:var(--orange)"></i> Предупреждение 2','var(--orange)','Повторное нарушение за 30 дней · HR звонит · QA проверяет 10 видео','HR + QA'],
+      ['<i class="ti ti-point-filled" style="color:var(--red)"></i> Предупреждение 3','var(--red)','Третье нарушение · автопередача в Зону риска · замена','Замена'],
+      ['<i class="ti ti-ban"></i> Моментальный бан','var(--red)','Накрутка · мошенничество · запрещённый контент · акции заморожены','Авто']
     ];
     var warnH = '';
     for (var wi = 0; wi < warnings.length; wi++) {
@@ -3635,7 +3638,7 @@ async function loadQuality() {
         '<div style="flex:1;font-size:11px;color:var(--text);">' + esc(v.reporter || '?') + (v.reported_user ? ' → ' + esc(v.reported_user) : '') + ' · ' + esc((v.text || '').substring(0, 80)) + '</div></div>';
     });
 
-    page.innerHTML = '<h2 class="section-title">🔎 Отдел качества</h2>' +
+    page.innerHTML = '<h2 class="section-title"><i class="ti ti-search"></i> Отдел качества</h2>' +
       '<div class="alert" style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.15);padding:14px;margin-bottom:16px;">' +
       '<strong style="color:var(--gold);">Отдел качества (QA)</strong> · 2 QA-тестировщика · проверка контента на стандарты · анализ AI-флагов Apify · система 3 предупреждений + мгновенный бан' +
       '</div>' +
@@ -3647,12 +3650,12 @@ async function loadQuality() {
       '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">QA-СПЕЦОВ</div><div class="kpi-value" style="color:var(--green)">2</div></div>' +
       '</div>' +
       '<div class="grid-2">' +
-      '<div class="content-card"><div class="card-header">📏 Стандарты качества контента</div>' + stdH + '</div>' +
-      '<div class="content-card"><div class="card-header">📊 Нарушения по типам</div><div style="padding:12px;">' + violBars + '</div></div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-ruler"></i> Стандарты качества контента</div>' + stdH + '</div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-chart-bar"></i> Нарушения по типам</div><div style="padding:12px;">' + violBars + '</div></div></div>' +
       '<div class="grid-2">' +
-      '<div class="content-card"><div class="card-header">🚦 Система предупреждений</div>' + warnH + '</div>' +
-      '<div class="content-card"><div class="card-header">👥 Работа QA-команды (2 специалиста)</div><div style="padding:12px;">' + qaCards + '</div></div></div>' +
-      '<div class="content-card"><div class="card-header">🔔 Последние решения QA <span class="badge badge-green">live</span></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-traffic-lights"></i> Система предупреждений</div>' + warnH + '</div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-users"></i> Работа QA-команды (2 специалиста)</div><div style="padding:12px;">' + qaCards + '</div></div></div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-bell"></i> Последние решения QA <span class="badge badge-green">live</span></div>' +
       (liveH || '<div style="text-align:center;padding:40px;color:var(--muted);">Нет жалоб</div>') +
       '</div>';
   } catch(e) { page.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Ошибка загрузки</div>'; }
@@ -3683,11 +3686,11 @@ async function loadTeamPulse() {
 
     // 5 individual metrics
     var metrics = d.pulse_metrics || [
-      {name:'❤️ Общее состояние', score:0, color:'var(--green)', question:'Как ты себя чувствуешь в целом?'},
-      {name:'🔥 Мотивация', score:0, color:'var(--gold)', question:'Насколько ты вовлечён и хочешь работать?'},
-      {name:'🤝 Отношения в команде', score:0, color:'var(--blue)', question:'Комфортно ли общаться с коллегами?'},
-      {name:'🎯 Ясность задач', score:0, color:'var(--orange)', question:'Понятно ли что от тебя ожидают?'},
-      {name:'⚖️ Нагрузка', score:0, color:'#f0c040', question:'Комфортен ли объём задач?'}
+      {name:'<i class="ti ti-heart"></i> Общее состояние', score:0, color:'var(--green)', question:'Как ты себя чувствуешь в целом?'},
+      {name:'<i class="ti ti-flame"></i> Мотивация', score:0, color:'var(--gold)', question:'Насколько ты вовлечён и хочешь работать?'},
+      {name:'<i class="ti ti-heart-handshake"></i> Отношения в команде', score:0, color:'var(--blue)', question:'Комфортно ли общаться с коллегами?'},
+      {name:'<i class="ti ti-target"></i> Ясность задач', score:0, color:'var(--orange)', question:'Понятно ли что от тебя ожидают?'},
+      {name:'<i class="ti ti-scale"></i> Нагрузка', score:0, color:'#f0c040', question:'Комфортен ли объём задач?'}
     ];
 
     // Department pulse
@@ -3761,9 +3764,9 @@ async function loadTeamPulse() {
 
     // Assemble
     page.innerHTML =
-      '<div class="section-title">❤️ Пульс команды</div>' +
+      '<div class="section-title"><i class="ti ti-heart"></i> Пульс команды</div>' +
       '<div class="alert alert-info" style="margin-bottom:16px">' +
-        '<strong>❤️ Пульс команды</strong> · еженедельный анонимный опрос через Telegram-бот · 5 метрик: мотивация, нагрузка, ясность задач, отношения, общее состояние</div>' +
+        '<strong><i class="ti ti-heart"></i> Пульс команды</strong> · еженедельный анонимный опрос через Telegram-бот · 5 метрик: мотивация, нагрузка, ясность задач, отношения, общее состояние</div>' +
 
       // 5 KPI
       '<div class="kpi-row">' +
@@ -3787,42 +3790,42 @@ async function loadTeamPulse() {
 
       // Row 1: 5 pulse metrics + Role distribution
       '<div class="grid-2">' +
-        '<div class="content-card"><h3>📊 5 метрик пульса</h3>' + metricsHtml + '</div>' +
-        '<div class="content-card"><h3>👥 Распределение ролей</h3>' + rH + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-chart-bar"></i> 5 метрик пульса</h3>' + metricsHtml + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-users"></i> Распределение ролей</h3>' + rH + '</div>' +
       '</div>' +
 
       // Row 2: Department pulse + Burnout risk
       '<div class="grid-2">' +
-        '<div class="content-card"><h3>🏢 Пульс по отделам</h3>' + deptBarsHtml + '</div>' +
-        '<div class="content-card"><h3>🔥 Риск выгорания <span style="font-size:12px;color:var(--muted);font-weight:400">' + burnout.length + ' человек</span></h3>' + burnoutHtml + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-building"></i> Пульс по отделам</h3>' + deptBarsHtml + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-flame"></i> Риск выгорания <span style="font-size:12px;color:var(--muted);font-weight:400">' + burnout.length + ' человек</span></h3>' + burnoutHtml + '</div>' +
       '</div>' +
 
       // Row 3: eNPS + Anonymous quotes
       '<div class="grid-2">' +
         '<div class="content-card">' +
-          '<h3>📣 eNPS · «Порекомендуешь нашу команду друзьям?»</h3>' +
+          '<h3><i class="ti ti-speakerphone"></i> eNPS · «Порекомендуешь нашу команду друзьям?»</h3>' +
           '<div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">' +
             '<div style="text-align:center">' +
               '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:48px;color:var(--green);line-height:1">+' + pulseEnps + '</div>' +
               '<div style="font-size:10px;color:var(--muted)">eNPS</div></div>' +
             '<div style="flex:1;display:flex;flex-direction:column;gap:8px">' +
-              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--green)">😍 Промоутеры (9-10)</span><span style="color:var(--green)">' + enpsPromoters + '%</span></div>' +
+              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--green)"><i class="ti ti-mood-happy"></i> Промоутеры (9-10)</span><span style="color:var(--green)">' + enpsPromoters + '%</span></div>' +
                 '<div style="background:var(--border);height:6px;border-radius:3px;overflow:hidden"><div style="width:' + enpsPromoters + '%;background:var(--green);height:100%;border-radius:3px"></div></div></div>' +
-              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--muted)">😐 Нейтральные (7-8)</span><span style="color:var(--muted)">' + enpsNeutral + '%</span></div>' +
+              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--muted)"><i class="ti ti-mood-neutral"></i> Нейтральные (7-8)</span><span style="color:var(--muted)">' + enpsNeutral + '%</span></div>' +
                 '<div style="background:var(--border);height:6px;border-radius:3px;overflow:hidden"><div style="width:' + enpsNeutral + '%;background:var(--muted);height:100%;border-radius:3px"></div></div></div>' +
-              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--red)">😠 Критики (0-6)</span><span style="color:var(--red)">' + enpsCritics + '%</span></div>' +
+              '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px"><span style="color:var(--red)"><i class="ti ti-mood-angry"></i> Критики (0-6)</span><span style="color:var(--red)">' + enpsCritics + '%</span></div>' +
                 '<div style="background:var(--border);height:6px;border-radius:3px;overflow:hidden"><div style="width:' + enpsCritics + '%;background:var(--red);height:100%;border-radius:3px"></div></div></div>' +
             '</div>' +
           '</div>' +
           '<div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--muted)">' +
             'eNPS = % промоутеров − % критиков. Норма для tech-компании: +30 и выше.</div>' +
         '</div>' +
-        '<div class="content-card"><h3>💬 Анонимные отзывы команды</h3>' + quotesHtml + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-message"></i> Анонимные отзывы команды</h3>' + quotesHtml + '</div>' +
       '</div>';
 
   } catch(e) {
     console.error('Team pulse error:', e);
-    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">❤️</div>Ошибка загрузки пульса команды</div>';
+    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px"><i class="ti ti-heart"></i></div>Ошибка загрузки пульса команды</div>';
   }
 }
 
@@ -3832,7 +3835,7 @@ async function loadPainPoints() {
   try {
     const d = await api('/pain-points');
     const totalOpen = d.total_open || 0;
-    const typeIcons = {kaizen:'💡',violation:'🚨',bug:'🐛'};
+    const typeIcons = {kaizen:'<i class="ti ti-bulb"></i>',violation:'<i class="ti ti-alert-octagon"></i>',bug:'<i class="ti ti-bug"></i>'};
     const typeNames = {kaizen:'Кайдзен',violation:'Жалоба',bug:'Баг'};
     const catNames = {process:'Процессы',content:'Контент',tech:'Технологии',other:'Прочее'};
 
@@ -3870,16 +3873,16 @@ async function loadPainPoints() {
     // Impact/Urgency matrix
     var matrixHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px;height:260px">' +
       '<div style="background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);padding:12px;display:flex;flex-direction:column;border-radius:6px">' +
-        '<div style="font-size:9px;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">🔴 Сделать сейчас</div>' +
+        '<div style="font-size:9px;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px"><i class="ti ti-point-filled" style="color:var(--red)"></i> Сделать сейчас</div>' +
         '<div style="font-size:11px;color:var(--text);line-height:1.7">' + buildMatrixList(critical.slice(0,4)) + '</div></div>' +
       '<div style="background:rgba(212,168,67,0.06);border:1px solid rgba(212,168,67,0.2);padding:12px;display:flex;flex-direction:column;border-radius:6px">' +
-        '<div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">🟡 Запланировать</div>' +
+        '<div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px"><i class="ti ti-point-filled" style="color:#e3b341"></i> Запланировать</div>' +
         '<div style="font-size:11px;color:var(--text);line-height:1.7">' + buildMatrixList(important.slice(0,4)) + '</div></div>' +
       '<div style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.2);padding:12px;display:flex;flex-direction:column;border-radius:6px">' +
-        '<div style="font-size:9px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">🔵 Делегировать</div>' +
+        '<div style="font-size:9px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px"><i class="ti ti-point-filled" style="color:var(--blue)"></i> Делегировать</div>' +
         '<div style="font-size:11px;color:var(--text);line-height:1.7">' + buildMatrixList(important.slice(4,8)) + '</div></div>' +
       '<div style="background:var(--bg);border:1px solid var(--border);padding:12px;display:flex;flex-direction:column;border-radius:6px">' +
-        '<div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">⚫ Вернуться позже</div>' +
+        '<div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px"><i class="ti ti-point-filled" style="color:var(--muted)"></i> Вернуться позже</div>' +
         '<div style="font-size:11px;color:var(--text);line-height:1.7">' + buildMatrixList(important.slice(8,12)) + '</div></div>' +
     '</div>';
 
@@ -3887,7 +3890,7 @@ async function loadPainPoints() {
     var importantHtml = '';
     for (var ip = 0; ip < important.length; ip++) {
       var it = important[ip];
-      var tIcon = typeIcons[it.type] || '📌';
+      var tIcon = typeIcons[it.type] || '<i class="ti ti-pin"></i>';
       var catLbl = catNames[it.category] || it.category || '—';
       importantHtml += '<div style="background:var(--bg);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
         '<div style="flex:1"><div style="font-size:12px;color:var(--text)">' + tIcon + ' ' + esc((it.text || '').substring(0, 80)) + '</div>' +
@@ -3902,7 +3905,7 @@ async function loadPainPoints() {
       var rv = resolved[r];
       resolvedHtml += '<div style="background:var(--bg);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">' +
         '<div style="flex:1"><div style="font-size:12px;color:var(--text);text-decoration:line-through;opacity:0.6">' + esc((rv.text || '').substring(0, 80)) + '</div>' +
-        '<div style="font-size:10px;color:var(--green)">✅ ' + esc(rv.author || '') + '</div></div>' +
+        '<div style="font-size:10px;color:var(--green)"><i class="ti ti-circle-check"></i> ' + esc(rv.author || '') + '</div></div>' +
         '<span class="badge badge-green">Решено</span></div>';
     }
     if (!resolvedHtml) resolvedHtml = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет решённых болей</div>';
@@ -3923,9 +3926,9 @@ async function loadPainPoints() {
 
     // Assemble
     page.innerHTML =
-      '<div class="section-title">🧠 Боли и потребности</div>' +
+      '<div class="section-title"><i class="ti ti-brain"></i> Боли и потребности</div>' +
       '<div class="alert alert-info" style="margin-bottom:16px">' +
-        '<strong>🧠 Боли и потребности</strong> · агрегируем сигналы из Пульса, Кайдзена, Зоны риска и Support · приоритизируем по влиянию</div>' +
+        '<strong><i class="ti ti-brain"></i> Боли и потребности</strong> · агрегируем сигналы из Пульса, Кайдзена, Зоны риска и Support · приоритизируем по влиянию</div>' +
 
       // 5 KPI
       '<div class="kpi-row">' +
@@ -3938,22 +3941,22 @@ async function loadPainPoints() {
 
       // Row 1: Critical pains + Matrix
       '<div class="grid-2">' +
-        '<div class="content-card"><h3>🔴 Критичные боли</h3>' + criticalHtml + '</div>' +
-        '<div class="content-card"><h3>📊 Матрица болей · влияние vs срочность</h3>' + matrixHtml + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-point-filled" style="color:var(--red)"></i> Критичные боли</h3>' + criticalHtml + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-chart-bar"></i> Матрица болей · влияние vs срочность</h3>' + matrixHtml + '</div>' +
       '</div>' +
 
       // Row 2: Important pains + Resolved
       '<div class="grid-2">' +
-        '<div class="content-card"><h3>🟠 Важные боли <span style="font-size:12px;color:var(--muted);font-weight:400">' + important.length + ' шт</span></h3>' + importantHtml + '</div>' +
-        '<div class="content-card"><h3>✅ Решено <span style="font-size:12px;color:var(--muted);font-weight:400">' + resolved.length + ' закрытых</span></h3>' + resolvedHtml + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-point-filled" style="color:var(--orange)"></i> Важные боли <span style="font-size:12px;color:var(--muted);font-weight:400">' + important.length + ' шт</span></h3>' + importantHtml + '</div>' +
+        '<div class="content-card"><h3><i class="ti ti-circle-check"></i> Решено <span style="font-size:12px;color:var(--muted);font-weight:400">' + resolved.length + ' закрытых</span></h3>' + resolvedHtml + '</div>' +
       '</div>' +
 
       // Kaizen by category
-      (catBarsHtml ? '<div class="content-card"><h3>📊 Кайдзен по категориям</h3>' + catBarsHtml + '</div>' : '');
+      (catBarsHtml ? '<div class="content-card"><h3><i class="ti ti-chart-bar"></i> Кайдзен по категориям</h3>' + catBarsHtml + '</div>' : '');
 
   } catch(e) {
     console.error('Pain points error:', e);
-    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">🧠</div>Ошибка загрузки болей</div>';
+    page.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px"><i class="ti ti-brain"></i></div>Ошибка загрузки болей</div>';
   }
 }
 
@@ -3974,7 +3977,7 @@ async function loadOpsCenter() {
     var d = {};
     try { d = await api('/admin/ops') || {}; } catch(e) { d = {}; }
 
-    var h = '<h2>📡 Операционный центр</h2>';
+    var h = '<h2><i class="ti ti-antenna"></i> Операционный центр</h2>';
 
     // --- System status ---
     var systems = d.systems || [
@@ -3996,21 +3999,21 @@ async function loadOpsCenter() {
       var sIcon = s.status === 'UP' ? '\uD83D\uDFE2' : (s.status === 'N/A' ? '\u26AA' : '\uD83D\uDD34');
       sysRows += '<div class="list-row"><span>' + sIcon + ' ' + s.name + '</span><span style="color:' + sColor + ';font-weight:600">' + s.status + '</span></div>';
     }
-    h += '<div class="card"><div class="card-header">🛠️ Статус систем</div>' + sysRows + '</div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-tools"></i> Статус систем</div>' + sysRows + '</div>';
 
     // --- Duty officer ---
     var duty = d.duty || {};
     var dutyName = duty.name || 'Не назначен';
     var dutyShift = duty.shift || '—';
-    h += '<div class="card"><div class="card-header">🛡️ Дежурный</div>' +
+    h += '<div class="card"><div class="card-header"><i class="ti ti-shield"></i> Дежурный</div>' +
       '<div class="list-row"><span>Текущий дежурный</span><span>' + dutyName + '</span></div>' +
       '<div class="list-row"><span>Смена</span><span>' + dutyShift + '</span></div></div>';
 
     // --- Duty schedule ---
-    h += '<div class="card"><div class="card-header">🕒 График дежурств</div>' +
-      '<div class="list-row"><span>🌅 Утро (06:00–14:00)</span><span style="color:var(--muted)">По расписанию</span></div>' +
-      '<div class="list-row"><span>☀️ День (14:00–22:00)</span><span style="color:var(--muted)">По расписанию</span></div>' +
-      '<div class="list-row"><span>🌙 Ночь (22:00–06:00)</span><span style="color:var(--muted)">По расписанию</span></div></div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-clock"></i> График дежурств</div>' +
+      '<div class="list-row"><span><i class="ti ti-sunrise"></i> Утро (06:00–14:00)</span><span style="color:var(--muted)">По расписанию</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-sun"></i> День (14:00–22:00)</span><span style="color:var(--muted)">По расписанию</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-moon"></i> Ночь (22:00–06:00)</span><span style="color:var(--muted)">По расписанию</span></div></div>';
 
     // --- Live alerts ---
     var alerts = d.alerts || [];
@@ -4024,9 +4027,9 @@ async function loadOpsCenter() {
           a.message + ' <span style="color:var(--muted);font-size:11px">' + (a.time || '') + '</span></div>';
       }
     } else {
-      alertH = '<div class="empty-state" style="padding:20px"><div class="empty-state-icon">✅</div><div class="empty-state-text">Нет активных алертов</div></div>';
+      alertH = '<div class="empty-state" style="padding:20px"><div class="empty-state-icon"><i class="ti ti-circle-check"></i></div><div class="empty-state-text">Нет активных алертов</div></div>';
     }
-    h += '<div class="card"><div class="card-header">🚨 Live-алерты</div>' + alertH + '</div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-alert-octagon"></i> Live-алерты</div>' + alertH + '</div>';
 
     // --- Event chronicle ---
     var events = d.events || [];
@@ -4037,9 +4040,9 @@ async function loadOpsCenter() {
         evH += '<div class="list-row"><span style="color:var(--muted);font-size:11px;min-width:60px">' + (ev.time || '') + '</span><span>' + ev.message + '</span></div>';
       }
     } else {
-      evH = '<div class="empty-state" style="padding:20px"><div class="empty-state-icon">📜</div><div class="empty-state-text">Нет событий за 24ч</div></div>';
+      evH = '<div class="empty-state" style="padding:20px"><div class="empty-state-icon"><i class="ti ti-file-text"></i></div><div class="empty-state-text">Нет событий за 24ч</div></div>';
     }
-    h += '<div class="card"><div class="card-header">📜 Хроника событий (24ч)</div>' + evH + '</div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-file-text"></i> Хроника событий (24ч)</div>' + evH + '</div>';
 
     // --- Quick actions ---
     var actions = [
@@ -4057,7 +4060,7 @@ async function loadOpsCenter() {
       var act = actions[qi];
       actBtns += '<button style="padding:8px 12px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px" onclick="opsAction(\'' + act.label + '\', \'' + (act.endpoint || '/admin/action') + '\')">' + act.icon + ' ' + act.label + '</button>';
     }
-    h += '<div class="card"><div class="card-header">⚡ Быстрые действия</div>' +
+    h += '<div class="card"><div class="card-header"><i class="ti ti-bolt"></i> Быстрые действия</div>' +
       '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px">' + actBtns + '</div></div>';
 
     // --- Server load ---
@@ -4078,25 +4081,25 @@ async function loadOpsCenter() {
         '<div class="bar-track"><div class="bar-fill" style="width:' + lb.val + '%;background:' + lColor + '"></div></div>' +
         '<span class="bar-value">' + lb.val + '%</span></div>';
     }
-    h += '<div class="card"><div class="card-header">🖥️ Нагрузка сервера</div>' + lBars + '</div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-device-desktop"></i> Нагрузка сервера</div>' + lBars + '</div>';
 
     // --- Team health ---
     var health = d.team_health || {online:0, hr_work:0, pub_hr:0, virals:0, orders:0, tickets:0, qa:0, income:0};
-    h += '<div class="card"><div class="card-header">📊 Здоровье команды</div>' +
+    h += '<div class="card"><div class="card-header"><i class="ti ti-chart-bar"></i> Здоровье команды</div>' +
       '<div class="grid-2">' +
-      '<div class="list-row"><span>🟢 Мейкеры онлайн</span><span>' + health.online + '</span></div>' +
-      '<div class="list-row"><span>📋 HR в работе</span><span>' + health.hr_work + '</span></div>' +
-      '<div class="list-row"><span>📰 Публикаций/час</span><span>' + health.pub_hr + '</span></div>' +
-      '<div class="list-row"><span>🔥 Виралы 24ч</span><span>' + health.virals + '</span></div>' +
-      '<div class="list-row"><span>💱 Заказы биржа</span><span>' + health.orders + '</span></div>' +
-      '<div class="list-row"><span>🎫 Тикеты поддержки</span><span>' + health.tickets + '</span></div>' +
-      '<div class="list-row"><span>🚩 QA флаги</span><span>' + health.qa + '</span></div>' +
-      '<div class="list-row"><span>💵 Доход сегодня</span><span>$' + health.income + '</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-point-filled" style="color:var(--green)"></i> Мейкеры онлайн</span><span>' + health.online + '</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-clipboard"></i> HR в работе</span><span>' + health.hr_work + '</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-news"></i> Публикаций/час</span><span>' + health.pub_hr + '</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-flame"></i> Виралы 24ч</span><span>' + health.virals + '</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-arrows-exchange"></i> Заказы биржа</span><span>' + health.orders + '</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-ticket"></i> Тикеты поддержки</span><span>' + health.tickets + '</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-flag"></i> QA флаги</span><span>' + health.qa + '</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-cash"></i> Доход сегодня</span><span>$' + health.income + '</span></div>' +
       '</div></div>';
 
     page.innerHTML = h;
   } catch(e) {
-    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📡</div><div class="empty-state-text">Ошибка загрузки операционного центра</div></div>';
+    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ti ti-antenna"></i></div><div class="empty-state-text">Ошибка загрузки операционного центра</div></div>';
   }
 }
 
@@ -4112,7 +4115,7 @@ async function loadInvestors() {
     var sold = d.shares_sold || 0;
     var pipeline = d.pipeline || 0;
 
-    var h = '<h2>💰 Инвесторы</h2>';
+    var h = '<h2><i class="ti ti-coin"></i> Инвесторы</h2>';
 
     // --- KPI ---
     h += '<div class="kpi-row">' +
@@ -4125,7 +4128,7 @@ async function loadInvestors() {
 
     // --- Rounds table ---
     var rounds = d.rounds || [
-      {y:1, price:'$5 000', avail:500, sold:0, raised:'$0', plan:'$2 500 000', status:'🟢 Открыт'},
+      {y:1, price:'$5 000', avail:500, sold:0, raised:'$0', plan:'$2 500 000', status:'<i class="ti ti-point-filled" style="color:var(--green)"></i> Открыт'},
       {y:2, price:'$10 000', avail:400, sold:0, raised:'$0', plan:'$4 000 000', status:'⏳ Ожидание'},
       {y:3, price:'$20 000', avail:300, sold:0, raised:'$0', plan:'$6 000 000', status:'⏳ Ожидание'},
       {y:4, price:'$40 000', avail:200, sold:0, raised:'$0', plan:'$8 000 000', status:'⏳ Ожидание'},
@@ -4136,14 +4139,14 @@ async function loadInvestors() {
       var r = rounds[ri];
       rRows += '<tr><td>Year ' + r.y + '</td><td>' + r.price + '</td><td>' + r.avail + '</td><td>' + r.sold + '</td><td>' + r.raised + '</td><td>' + r.plan + '</td><td>' + r.status + '</td></tr>';
     }
-    h += '<div class="card"><div class="card-header">📅 Раунды инвестирования</div>' +
+    h += '<div class="card"><div class="card-header"><i class="ti ti-calendar"></i> Раунды инвестирования</div>' +
       '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
       '<th>Раунд</th><th>Цена</th><th>Доступно</th><th>Продано</th><th>Привлечено</th><th>План</th><th>Статус</th>' +
       '</tr></thead><tbody>' + rRows + '</tbody></table></div></div>';
 
     // --- Progress bar ---
     var pctDone = rounds[0] ? Math.round((rounds[0].sold / (rounds[0].avail || 1)) * 100) : 0;
-    h += '<div class="card"><div class="card-header">📊 Прогресс текущего раунда</div>' +
+    h += '<div class="card"><div class="card-header"><i class="ti ti-chart-bar"></i> Прогресс текущего раунда</div>' +
       '<div class="bar-row"><span class="bar-label">Year 1</span>' +
       '<div class="bar-track"><div class="bar-fill" style="width:' + pctDone + '%;background:var(--green)"></div></div>' +
       '<span class="bar-value">' + pctDone + '%</span></div>' +
@@ -4158,22 +4161,22 @@ async function loadInvestors() {
         var inv = invList[ti];
         invRows += '<tr><td>' + (ti + 1) + '</td><td>' + inv.name + '</td><td>' + inv.shares + '</td><td>$' + inv.amount + '</td><td>' + inv.date + '</td></tr>';
       }
-      h += '<div class="card"><div class="card-header">🏆 Топ инвесторы</div>' +
+      h += '<div class="card"><div class="card-header"><i class="ti ti-trophy"></i> Топ инвесторы</div>' +
         '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
         '<th>#</th><th>Имя</th><th>Акции</th><th>Сумма</th><th>Дата</th>' +
         '</tr></thead><tbody>' + invRows + '</tbody></table></div></div>';
     } else {
-      h += '<div class="card"><div class="card-header">🏆 Топ инвесторы</div>' +
-        '<div class="empty-state"><div class="empty-state-icon">💰</div><div class="empty-state-text">Данные появятся после первых инвесторов</div></div></div>';
+      h += '<div class="card"><div class="card-header"><i class="ti ti-trophy"></i> Топ инвесторы</div>' +
+        '<div class="empty-state"><div class="empty-state-icon"><i class="ti ti-coin"></i></div><div class="empty-state-text">Данные появятся после первых инвесторов</div></div></div>';
     }
 
     // --- Pipeline funnel ---
     var funnel = d.pipeline_funnel || [
-      {stage:'🔍 Лиды', count:0, pct:0},
-      {stage:'📧 Контакт', count:0, pct:0},
-      {stage:'📄 Презентация', count:0, pct:0},
-      {stage:'🤝 Переговоры', count:0, pct:0},
-      {stage:'✅ Сделка', count:0, pct:0}
+      {stage:'<i class="ti ti-search"></i> Лиды', count:0, pct:0},
+      {stage:'<i class="ti ti-mail"></i> Контакт', count:0, pct:0},
+      {stage:'<i class="ti ti-file"></i> Презентация', count:0, pct:0},
+      {stage:'<i class="ti ti-heart-handshake"></i> Переговоры', count:0, pct:0},
+      {stage:'<i class="ti ti-circle-check"></i> Сделка', count:0, pct:0}
     ];
     var fBars = '';
     for (var fi = 0; fi < funnel.length; fi++) {
@@ -4182,17 +4185,17 @@ async function loadInvestors() {
         '<div class="bar-track"><div class="bar-fill" style="width:' + (f.pct || 0) + '%;background:var(--purple)"></div></div>' +
         '<span class="bar-value">' + f.count + '</span></div>';
     }
-    h += '<div class="card"><div class="card-header">📉 Pipeline</div>' + fBars + '</div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-trending-down"></i> Pipeline</div>' + fBars + '</div>';
 
     // --- Advisors ---
-    h += '<div class="card"><div class="card-header">🧑‍💼 Эксперты и адвайзеры</div>' +
-      '<div class="list-row"><span>💹 Финансы и комплаенс</span><span class="badge badge-blue">Поиск</span></div>' +
-      '<div class="list-row"><span>📊 Маркетинг и гроус-хакинг</span><span class="badge badge-blue">Поиск</span></div>' +
-      '<div class="list-row"><span>⚖️ Юридические вопросы</span><span class="badge badge-blue">Поиск</span></div>' +
-      '<div class="list-row"><span>🌐 Международные рынки</span><span class="badge badge-blue">Поиск</span></div></div>';
+    h += '<div class="card"><div class="card-header"><i class="ti ti-user"></i>‍<i class="ti ti-briefcase"></i> Эксперты и адвайзеры</div>' +
+      '<div class="list-row"><span><i class="ti ti-chart-line"></i> Финансы и комплаенс</span><span class="badge badge-blue">Поиск</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-chart-bar"></i> Маркетинг и гроус-хакинг</span><span class="badge badge-blue">Поиск</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-scale"></i> Юридические вопросы</span><span class="badge badge-blue">Поиск</span></div>' +
+      '<div class="list-row"><span><i class="ti ti-world"></i> Международные рынки</span><span class="badge badge-blue">Поиск</span></div></div>';
 
     // --- Contacts ---
-    h += '<div class="card"><div class="card-header">📞 Контакты для инвесторов</div>' +
+    h += '<div class="card"><div class="card-header"><i class="ti ti-phone"></i> Контакты для инвесторов</div>' +
       '<div class="list-row"><span>CFO</span><span style="color:var(--muted)">Назначается</span></div>' +
       '<div class="list-row"><span>CCO</span><span style="color:var(--muted)">Назначается</span></div>' +
       '<div class="list-row"><span>COO</span><span style="color:var(--muted)">Назначается</span></div>' +
@@ -4220,7 +4223,7 @@ async function loadInvestors() {
 
     page.innerHTML = h;
   } catch(e) {
-    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💰</div><div class="empty-state-text">Ошибка загрузки раздела инвесторов</div></div>';
+    page.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="ti ti-coin"></i></div><div class="empty-state-text">Ошибка загрузки раздела инвесторов</div></div>';
   }
 }
 
@@ -4368,8 +4371,8 @@ function loadSettings() {
   // --- Export ---
   h += '<div class="card"><div class="card-header">\uD83D\uDCE4 \u042D\u043A\u0441\u043F\u043E\u0440\u0442</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px">' +
-    '<button class="btn" onclick="exportCSV()">📊 CSV</button>' +
-    '<button class="btn" onclick="exportPDF()">📄 PDF</button>' +
+    '<button class="btn" onclick="exportCSV()"><i class="ti ti-chart-bar"></i> CSV</button>' +
+    '<button class="btn" onclick="exportPDF()"><i class="ti ti-file"></i> PDF</button>' +
     '<button class="btn" onclick="exportFinance()">\uD83D\uDCB9 Finance</button>' +
     '<button class="btn" onclick="exportSnapshot()">\uD83D\uDCF8 Snapshot</button>' +
     '</div></div>';
@@ -4474,7 +4477,7 @@ async function loadAdminMakers() {
 
   page.innerHTML = `
     <div class="alert" style="background:rgba(88,166,255,0.08);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
-      <strong style="color:var(--text);">👥 ${fmtNum(makers)} мейкеров</strong> · 50 HR-менеджеров · план: 3 видео/нед × 4 платформы = 12 видео/нед на каждого
+      <strong style="color:var(--text);"><i class="ti ti-users"></i> ${fmtNum(makers)} мейкеров</strong> · 50 HR-менеджеров · план: 3 видео/нед × 4 платформы = 12 видео/нед на каждого
     </div>
 
     <div class="kpi-row">
@@ -4512,7 +4515,7 @@ async function loadAdminMakers() {
       </div>
 
       <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;">🏆 Топ-10 мейкеров недели <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">по просмотрам</span></h3>
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-trophy"></i> Топ-10 мейкеров недели <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">по просмотрам</span></h3>
         <table class="data-table">
           <thead><tr><th>#</th><th>Мейкер</th><th>Видео</th><th>Просм.</th></tr></thead>
           <tbody>
@@ -4529,7 +4532,7 @@ async function loadAdminMakers() {
 
     <div class="grid-2">
       <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;">📱 Активность по платформам <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">видео/нед</span></h3>
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-device-mobile"></i> Активность по платформам <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">видео/нед</span></h3>
         ${buildPlatformBars(d)}
         <div style="margin-top:14px;padding:10px;background:var(--card);font-size:11px;color:var(--text);">
           <strong style="color:var(--gold);">${fmtNum((d.videos_week||0)*4)} видео в неделю</strong> · равномерное распределение
@@ -4537,7 +4540,7 @@ async function loadAdminMakers() {
       </div>
 
       <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;">💰 Акции мейкеров <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">из 70 000 пула</span></h3>
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-coin"></i> Акции мейкеров <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">из 70 000 пула</span></h3>
         <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:16px;">
           <div>
             <div style="font-size:32px;font-weight:700;color:var(--gold);">${fmtNum(d.makers_shares_distributed||0)}</div>
@@ -4559,7 +4562,7 @@ async function loadAdminMakers() {
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">🔔 Последние события <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">live</span></h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-bell"></i> Последние события <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">live</span></h3>
       <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px;">События появятся по мере активности мейкеров</div>
     </div>
   `;
@@ -4574,11 +4577,11 @@ function buildProductivityBars(d) {
   const total = stars+stable+lagging+critical+silent || 1;
   return `<div style="display:flex;flex-direction:column;gap:8px;">
     ${[
-      {label:'🔥 Звёзды (15+)',val:stars,color:'var(--gold)'},
-      {label:'💪 Стабильные (12-14)',val:stable,color:'var(--green)'},
-      {label:'⚠️ Отстают (9-11)',val:lagging,color:'var(--orange)'},
-      {label:'🆘 Критично (<9)',val:critical,color:'var(--red)'},
-      {label:'⏸️ Тишина (0)',val:silent,color:'var(--muted)'}
+      {label:'<i class="ti ti-flame"></i> Звёзды (15+)',val:stars,color:'var(--gold)'},
+      {label:'<i class="ti ti-barbell"></i> Стабильные (12-14)',val:stable,color:'var(--green)'},
+      {label:'<i class="ti ti-alert-triangle"></i> Отстают (9-11)',val:lagging,color:'var(--orange)'},
+      {label:'<i class="ti ti-lifebuoy"></i> Критично (<9)',val:critical,color:'var(--red)'},
+      {label:'⏸ Тишина (0)',val:silent,color:'var(--muted)'}
     ].map(r => `<div class="bar-row"><div class="bar-label" style="min-width:140px;font-size:11px;">${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:${(r.val/total*100).toFixed(1)}%;background:${r.color};"></div></div><div style="min-width:50px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">${fmtNum(r.val)}</div></div>`).join('')}
   </div>`;
 }
@@ -4591,10 +4594,10 @@ function buildPlatformBars(d) {
   const mx = Math.max(yt,tt,ig,fb) || 1;
   return `<div style="display:flex;flex-direction:column;gap:8px;">
     ${[
-      {label:'▶️ YouTube',val:yt,color:'var(--red)'},
-      {label:'🎵 TikTok',val:tt,color:'var(--purple)'},
-      {label:'📸 Instagram',val:ig,color:'var(--orange)'},
-      {label:'📘 Facebook',val:fb,color:'var(--blue)'}
+      {label:'▶ YouTube',val:yt,color:'var(--red)'},
+      {label:'<i class="ti ti-music"></i> TikTok',val:tt,color:'var(--purple)'},
+      {label:'<i class="ti ti-camera"></i> Instagram',val:ig,color:'var(--orange)'},
+      {label:'<i class="ti ti-book"></i> Facebook',val:fb,color:'var(--blue)'}
     ].map(r => `<div class="bar-row"><div class="bar-label" style="min-width:110px;font-size:11px;">${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:${(r.val/mx*100).toFixed(1)}%;background:${r.color};"></div></div><div style="min-width:50px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">${fmtNum(r.val)}</div></div>`).join('')}
   </div>`;
 
@@ -4605,16 +4608,16 @@ function buildPlatformBars(d) {
     var g = geoData[gi];
     geoRows += '<div class="bar-row"><div class="bar-label" style="min-width:110px;font-size:12px">' + g.n + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + g.p + '%;background:var(--gold)"></div></div><div style="min-width:40px;text-align:right;font-size:12px;font-weight:700">' + g.p + '%</div></div>';
   }
-  var geoBlock = '<div class="content-card"><h3>🌍 География мейкеров</h3><div class="bar-chart">' + geoRows + '</div></div>';
+  var geoBlock = '<div class="content-card"><h3><i class="ti ti-world"></i> География мейкеров</h3><div class="bar-chart">' + geoRows + '</div></div>';
 
-  var retentionBlock = '<div class="content-card"><h3>📉 Retention когорты</h3>' +
+  var retentionBlock = '<div class="content-card"><h3><i class="ti ti-trending-down"></i> Retention когорты</h3>' +
     '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Когорта</th><th>M1</th><th>M2</th><th>M3</th><th>M6</th><th>M12</th></tr></thead><tbody>' +
     '<tr><td>Янв 2026</td><td>100%</td><td>85%</td><td>72%</td><td>—</td><td>—</td></tr>' +
     '<tr><td>Фев 2026</td><td>100%</td><td>82%</td><td>68%</td><td>—</td><td>—</td></tr>' +
     '<tr><td>Мар 2026</td><td>100%</td><td>88%</td><td>—</td><td>—</td><td>—</td></tr>' +
     '<tr><td>Апр 2026</td><td>100%</td><td>80%</td><td>—</td><td>—</td><td>—</td></tr>' +
     '<tr><td>Май 2026</td><td>100%</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>' +
-    '</tbody></table></div><div style="padding:8px 12px;font-size:11px;color:var(--muted)">ℹ️ Данные обновляются ежемесячно</div></div>';
+    '</tbody></table></div><div style="padding:8px 12px;font-size:11px;color:var(--muted)">ℹ Данные обновляются ежемесячно</div></div>';
 
   var wGrowth = d.weekly_growth || [{w:'W21',v:12},{w:'W22',v:18},{w:'W23',v:25},{w:'W24',v:31}];
   var wgRows = '';
@@ -4623,7 +4626,7 @@ function buildPlatformBars(d) {
   for (var wi=0;wi<wGrowth.length;wi++) {
     wgRows += '<div class="bar-row"><div class="bar-label" style="min-width:50px;font-size:11px">' + wGrowth[wi].w + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + (wGrowth[wi].v/wgMax*100).toFixed(0) + '%;background:var(--green)"></div></div><div style="min-width:40px;text-align:right;font-size:12px;font-weight:700">+' + wGrowth[wi].v + '</div></div>';
   }
-  var weeklyGrowthBlock = '<div class="content-card"><h3>📈 Недельный рост</h3><div class="bar-chart">' + wgRows + '</div></div>';
+  var weeklyGrowthBlock = '<div class="content-card"><h3><i class="ti ti-trending-up"></i> Недельный рост</h3><div class="bar-chart">' + wgRows + '</div></div>';
 
   var keDistr = d.ke_distribution || [{tier:'Тир 1 (+5)',count:0,pct:0},{tier:'Тир 2 (+4)',count:0,pct:0},{tier:'Тир 3 (+3)',count:0,pct:0},{tier:'Тир 4 (+2)',count:0,pct:0},{tier:'Тир 5 (+1)',count:0,pct:0}];
   var keRows = '';
@@ -4632,7 +4635,7 @@ function buildPlatformBars(d) {
     var kColors = ['var(--gold)','var(--green)','var(--blue)','var(--orange)','var(--muted)'];
     keRows += '<div class="bar-row"><div class="bar-label" style="min-width:90px;font-size:11px">' + k.tier + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + (k.pct||20) + '%;background:' + kColors[ki%5] + '"></div></div><div style="min-width:60px;text-align:right;font-size:12px">' + fmtNum(k.count) + ' (' + (k.pct||20) + '%)</div></div>';
   }
-  var keHistBlock = '<div class="content-card"><h3>📊 Распределение КЭ</h3><div class="bar-chart">' + keRows + '</div></div>';
+  var keHistBlock = '<div class="content-card"><h3><i class="ti ti-chart-bar"></i> Распределение КЭ</h3><div class="bar-chart">' + keRows + '</div></div>';
 
   var funnel = d.onboarding_funnel || [{s:'Заявка',v:500},{s:'Скрининг',v:350},{s:'Тест',v:200},{s:'Онбординг',v:120},{s:'Активный',v:80}];
   var fnMax = funnel[0] ? funnel[0].v : 1;
@@ -4642,7 +4645,7 @@ function buildPlatformBars(d) {
     var fnColors = ['var(--blue)','var(--purple)','var(--orange)','var(--green)','var(--gold)'];
     fnRows += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="min-width:100px;font-size:12px;color:var(--muted)">' + f.s + '</div><div style="flex:1;height:28px;background:var(--bg);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + (f.v/fnMax*100).toFixed(0) + '%;background:' + fnColors[fi%5] + ';border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff">' + fmtNum(f.v) + '</div></div></div>';
   }
-  var onboardBlock = '<div class="content-card"><h3>🎯 Воронка онбординга</h3>' + fnRows + '</div>';
+  var onboardBlock = '<div class="content-card"><h3><i class="ti ti-target"></i> Воронка онбординга</h3>' + fnRows + '</div>';
 
   page.innerHTML += geoBlock + retentionBlock + '<div class="grid-2">' + weeklyGrowthBlock + keHistBlock + '</div>' + onboardBlock;
 
@@ -4663,7 +4666,7 @@ async function loadAdminHR() {
 
   page.innerHTML = `
     <div class="alert" style="background:rgba(88,166,255,0.08);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
-      <strong style="color:var(--text);">🤝 ${fmtNum(hrTotal)} HR-менеджеров</strong> · по 100 мейкеров на каждого · KPI: % активных мейкеров, средние видео/нед, отток
+      <strong style="color:var(--text);"><i class="ti ti-heart-handshake"></i> ${fmtNum(hrTotal)} HR-менеджеров</strong> · по 100 мейкеров на каждого · KPI: % активных мейкеров, средние видео/нед, отток
     </div>
 
     <div class="kpi-row">
@@ -4693,17 +4696,17 @@ async function loadAdminHR() {
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">🏆 Рейтинг HR-менеджеров <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">по % активных</span></h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-trophy"></i> Рейтинг HR-менеджеров <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">по % активных</span></h3>
       <table class="data-table">
         <thead><tr><th>#</th><th>HR-менеджер</th><th>Группа</th><th>Активны</th><th>Ср. видео/нед</th><th>Отток</th><th>Статус</th></tr></thead>
         <tbody>
           ${hrList.length ? hrList.map((h,i) => {
             const pct = h.active_pct || 0;
             const pctColor = pct >= 90 ? 'var(--green)' : pct >= 75 ? 'var(--orange)' : 'var(--red)';
-            const status = pct >= 95 ? '<span class="badge" style="background:rgba(212,168,67,0.15);color:var(--gold);">⭐ Звезда</span>' :
+            const status = pct >= 95 ? '<span class="badge" style="background:rgba(212,168,67,0.15);color:var(--gold);"><i class="ti ti-star"></i> Звезда</span>' :
                            pct >= 90 ? '<span class="badge" style="background:rgba(63,185,80,0.15);color:var(--green);">Топ</span>' :
                            pct >= 85 ? '<span class="badge" style="background:rgba(63,185,80,0.15);color:var(--green);">Норма</span>' :
-                           pct >= 75 ? '<span class="badge" style="background:rgba(210,153,34,0.15);color:var(--orange);">⚠️ Внимание</span>' :
+                           pct >= 75 ? '<span class="badge" style="background:rgba(214,165,40,0.15);color:var(--orange);"><i class="ti ti-alert-triangle"></i> Внимание</span>' :
                            pct >= 65 ? '<span class="badge" style="background:rgba(248,81,73,0.15);color:var(--red);">PIP</span>' :
                            '<span class="badge" style="background:rgba(248,81,73,0.15);color:var(--red);">Замена</span>';
             return `<tr>
@@ -4719,27 +4722,27 @@ async function loadAdminHR() {
         </tbody>
       </table>
       <div style="margin-top:12px;padding:10px;background:var(--card);font-size:11px;color:var(--muted);">
-        💡 <strong style="color:var(--text);">Бонусы:</strong> >95% = +$1500-1800/мес · 90-94% = +$800-1200 · 85-89% базовая · <85% PIP · <65% замена
+        <i class="ti ti-bulb"></i> <strong style="color:var(--text);">Бонусы:</strong> >95% = +$1500-1800/мес · 90-94% = +$800-1200 · 85-89% базовая · <85% PIP · <65% замена
       </div>
     </div>
 
     <div class="grid-2">
       <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;">📊 Распределение HR по эффективности</h3>
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-chart-bar"></i> Распределение HR по эффективности</h3>
         <div style="display:flex;flex-direction:column;gap:8px;">
           ${[
-            {label:'⭐ Звёзды (95%+)',val:d.hr_stars||0,color:'var(--gold)'},
-            {label:'💎 Топ (90-94%)',val:d.hr_top||0,color:'var(--green)'},
-            {label:'✅ Норма (85-89%)',val:d.hr_normal||0,color:'var(--blue)'},
-            {label:'⚠️ Слабые (75-84%)',val:d.hr_weak||0,color:'var(--orange)'},
-            {label:'🆘 PIP (65-74%)',val:d.hr_pip||0,color:'var(--red)'},
-            {label:'❌ Замена (<65%)',val:d.hr_replace||0,color:'var(--muted)'}
+            {label:'<i class="ti ti-star"></i> Звёзды (95%+)',val:d.hr_stars||0,color:'var(--gold)'},
+            {label:'<i class="ti ti-diamond"></i> Топ (90-94%)',val:d.hr_top||0,color:'var(--green)'},
+            {label:'<i class="ti ti-circle-check"></i> Норма (85-89%)',val:d.hr_normal||0,color:'var(--blue)'},
+            {label:'<i class="ti ti-alert-triangle"></i> Слабые (75-84%)',val:d.hr_weak||0,color:'var(--orange)'},
+            {label:'<i class="ti ti-lifebuoy"></i> PIP (65-74%)',val:d.hr_pip||0,color:'var(--red)'},
+            {label:'<i class="ti ti-x"></i> Замена (<65%)',val:d.hr_replace||0,color:'var(--muted)'}
           ].map(r => `<div class="bar-row"><div class="bar-label" style="min-width:150px;font-size:11px;">${r.label}</div><div class="bar-track" style="flex:1;"><div class="bar-fill" style="width:${Math.max((r.val/(hrTotal||1)*100),2)}%;background:${r.color};"></div></div><div style="min-width:30px;text-align:right;font-size:12px;font-weight:700;color:var(--text);">${r.val}</div></div>`).join('')}
         </div>
       </div>
 
       <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;">🎯 KPI HR-отдела</h3>
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-target"></i> KPI HR-отдела</h3>
         <div style="display:flex;flex-direction:column;gap:14px;">
           ${[
             {label:'% активных мейкеров (план: 90%)',val:avgActive,color:'var(--green)'},
@@ -4788,7 +4791,7 @@ async function loadAdminShares() {
 
   page.innerHTML = `
     <div class="alert" style="background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
-      <strong style="color:var(--gold);">💎 100 000 акций · 6 категорий</strong> · Цена: $5K → $80K · Доход 1 акции: $127 → $2 036/мес · Капитализация к 2030: $8B
+      <strong style="color:var(--gold);"><i class="ti ti-diamond"></i> 100 000 акций · 6 категорий</strong> · Цена: $5K → $80K · Доход 1 акции: $127 → $2 036/мес · Капитализация к 2030: $8B
     </div>
 
     <div class="kpi-row">
@@ -4818,15 +4821,15 @@ async function loadAdminShares() {
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">🥧 Распределение 100 000 акций по 6 категориям</h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-chart-pie"></i> Распределение 100 000 акций по 6 категориям</h3>
       <div style="display:flex;flex-direction:column;gap:1px;">
         ${[
-          {icon:'🎬',name:'Мейкеры',pct:'70%',total:70000,dist:d.shares_makers||0,color:'var(--gold)'},
-          {icon:'🏢',name:'Управл. команда',pct:'17.5%',total:17500,dist:d.shares_team||0,color:'var(--blue)'},
-          {icon:'🏛️',name:'Фонд развития',pct:'5%',total:5000,dist:d.shares_fund||0,color:'var(--muted)'},
-          {icon:'💰',name:'Инвесторы',pct:'5%',total:5000,dist:d.shares_investors||0,color:'var(--green)'},
-          {icon:'📣',name:'Блогеры',pct:'1.5%',total:1500,dist:d.shares_bloggers||0,color:'var(--orange)'},
-          {icon:'🎓',name:'Адвизоры',pct:'1%',total:1000,dist:d.shares_advisors||0,color:'var(--purple)'}
+          {icon:'<i class="ti ti-movie"></i>',name:'Мейкеры',pct:'70%',total:70000,dist:d.shares_makers||0,color:'var(--gold)'},
+          {icon:'<i class="ti ti-building"></i>',name:'Управл. команда',pct:'17.5%',total:17500,dist:d.shares_team||0,color:'var(--blue)'},
+          {icon:'<i class="ti ti-building-bank"></i>',name:'Фонд развития',pct:'5%',total:5000,dist:d.shares_fund||0,color:'var(--muted)'},
+          {icon:'<i class="ti ti-coin"></i>',name:'Инвесторы',pct:'5%',total:5000,dist:d.shares_investors||0,color:'var(--green)'},
+          {icon:'<i class="ti ti-speakerphone"></i>',name:'Блогеры',pct:'1.5%',total:1500,dist:d.shares_bloggers||0,color:'var(--orange)'},
+          {icon:'<i class="ti ti-school"></i>',name:'Адвизоры',pct:'1%',total:1000,dist:d.shares_advisors||0,color:'var(--purple)'}
         ].map(c => `<div style="background:var(--card);padding:12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid ${c.color};">
           <div>
             <div style="font-size:12px;color:var(--text);font-weight:700;">${c.icon} ${c.name} · ${c.pct}</div>
@@ -4858,7 +4861,7 @@ async function loadAdminShares() {
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">📊 Финансовая модель по годам</h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-chart-bar"></i> Финансовая модель по годам</h3>
       <table class="data-table">
         <thead><tr><th>Год</th><th>Цена</th><th>$/акц/мес</th><th>Доход/мес</th><th>Доход/год</th><th>Капитализация</th></tr></thead>
         <tbody>
@@ -4870,18 +4873,18 @@ async function loadAdminShares() {
         </tbody>
       </table>
       <div style="margin-top:12px;padding:10px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);font-size:11px;color:var(--text);">
-        💡 Доход 1 акции удваивается каждый год. Чем раньше зашёл — тем выше доход.
+        <i class="ti ti-bulb"></i> Доход 1 акции удваивается каждый год. Чем раньше зашёл — тем выше доход.
       </div>
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">🏆 Топ-15 держателей акций</h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-trophy"></i> Топ-15 держателей акций</h3>
       <table class="data-table">
         <thead><tr><th>#</th><th>Держатель</th><th>Категория</th><th>Акций</th><th>Доход/мес</th></tr></thead>
         <tbody>
           ${topHolders.length ? topHolders.map((h,i) => {
             const catBadge = h.category === 'investor' ? '<span class="badge" style="background:rgba(63,185,80,0.15);color:var(--green);">Инвестор</span>' :
-                             h.category === 'blogger' ? '<span class="badge" style="background:rgba(210,153,34,0.15);color:var(--orange);">Блогер</span>' :
+                             h.category === 'blogger' ? '<span class="badge" style="background:rgba(214,165,40,0.15);color:var(--orange);">Блогер</span>' :
                              h.category === 'advisor' ? '<span class="badge" style="background:rgba(188,140,255,0.15);color:var(--purple);">Адвизор</span>' :
                              h.category === 'maker' ? '<span class="badge" style="background:rgba(212,168,67,0.15);color:var(--gold);">Мейкер</span>' :
                              '<span class="badge" style="background:rgba(88,166,255,0.15);color:var(--blue);">Команда</span>';
@@ -4898,7 +4901,7 @@ async function loadAdminShares() {
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">🔄 Биржа акций · вторичный рынок <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">Telegram-бот</span></h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-refresh"></i> Биржа акций · вторичный рынок <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">Telegram-бот</span></h3>
       <div style="display:flex;gap:1px;margin-bottom:14px;">
         <div style="flex:1;background:var(--card);padding:14px;text-align:center;">
           <div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Сделок/мес</div>
@@ -4959,16 +4962,16 @@ async function loadAdminKE() {
   try { const r = await api('/admin/users?role=maker&limit=15&sort=ke'); topKE = r.users || r || []; } catch(e) {}
 
   const tiers = [
-    {bonus:'+5',label:'🔥 Топ 20%',count:d.ke_tier5||0,target:1000,color:'var(--gold)',bg:'rgba(212,168,67,0.08)',border:'var(--gold)'},
-    {bonus:'+4',label:'💪 Хорошо',count:d.ke_tier4||0,target:1000,color:'var(--blue)',bg:'rgba(88,166,255,0.08)',border:'rgba(88,166,255,0.4)'},
-    {bonus:'+3',label:'✅ Средне',count:d.ke_tier3||0,target:1000,color:'var(--green)',bg:'rgba(63,185,80,0.08)',border:'rgba(63,185,80,0.4)'},
-    {bonus:'+2',label:'⚠️ Минимум',count:d.ke_tier2||0,target:1000,color:'var(--purple)',bg:'rgba(188,140,255,0.08)',border:'rgba(188,140,255,0.4)'},
-    {bonus:'+1',label:'🆕 Старт',count:d.ke_tier1||0,target:1000,color:'var(--muted)',bg:'var(--card)',border:'var(--border)'}
+    {bonus:'+5',label:'<i class="ti ti-flame"></i> Топ 20%',count:d.ke_tier5||0,target:1000,color:'var(--gold)',bg:'rgba(212,168,67,0.08)',border:'var(--gold)'},
+    {bonus:'+4',label:'<i class="ti ti-barbell"></i> Хорошо',count:d.ke_tier4||0,target:1000,color:'var(--blue)',bg:'rgba(88,166,255,0.08)',border:'rgba(88,166,255,0.4)'},
+    {bonus:'+3',label:'<i class="ti ti-circle-check"></i> Средне',count:d.ke_tier3||0,target:1000,color:'var(--green)',bg:'rgba(63,185,80,0.08)',border:'rgba(63,185,80,0.4)'},
+    {bonus:'+2',label:'<i class="ti ti-alert-triangle"></i> Минимум',count:d.ke_tier2||0,target:1000,color:'var(--purple)',bg:'rgba(188,140,255,0.08)',border:'rgba(188,140,255,0.4)'},
+    {bonus:'+1',label:'<i class="ti ti-sparkles"></i> Старт',count:d.ke_tier1||0,target:1000,color:'var(--muted)',bg:'var(--card)',border:'var(--border)'}
   ];
 
   page.innerHTML = `
     <div class="alert" style="background:rgba(88,166,255,0.08);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
-      <strong style="color:var(--text);">⚡ Коэффициент Эффективности (КЭ)</strong> · 5 тиров: +5/+4/+3/+2/+1 акция/год · формула: Просмотры (40%) + Engagement (40%) + Равномерность (20%) · пересчёт 31 декабря
+      <strong style="color:var(--text);"><i class="ti ti-bolt"></i> Коэффициент Эффективности (КЭ)</strong> · 5 тиров: +5/+4/+3/+2/+1 акция/год · формула: Просмотры (40%) + Engagement (40%) + Равномерность (20%) · пересчёт 31 декабря
     </div>
 
     <div class="kpi-row">
@@ -4999,7 +5002,7 @@ async function loadAdminKE() {
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">🎯 5 тиров КЭ · по 1 000 мейкеров</h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-target"></i> 5 тиров КЭ · по 1 000 мейкеров</h3>
       <div class="tier-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
         ${tiers.map(t => `<div style="background:${t.bg};border:2px solid ${t.border};padding:18px 12px;text-align:center;">
           <div style="font-size:36px;font-weight:700;color:${t.color};line-height:1;margin-bottom:4px;">${t.bonus}</div>
@@ -5010,13 +5013,13 @@ async function loadAdminKE() {
         </div>`).join('')}
       </div>
       <div style="margin-top:14px;padding:12px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);font-size:11px;color:var(--text);">
-        📊 <strong>ИТОГО:</strong> 5K + 4K + 3K + 2K + 1K = <strong style="color:var(--gold);">15 000 акций/год</strong> · за 4 года (2-5) = 60 000 + 10 000 стартовых = <strong style="color:var(--gold);">70 000 = 70%</strong> ✅
+        <i class="ti ti-chart-bar"></i> <strong>ИТОГО:</strong> 5K + 4K + 3K + 2K + 1K = <strong style="color:var(--gold);">15 000 акций/год</strong> · за 4 года (2-5) = 60 000 + 10 000 стартовых = <strong style="color:var(--gold);">70 000 = 70%</strong> <i class="ti ti-circle-check"></i>
       </div>
     </div>
 
     <div class="grid-2">
       <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;">🧮 Формула расчёта КЭ</h3>
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-calculator"></i> Формула расчёта КЭ</h3>
         <div style="margin-bottom:14px;padding:14px;background:var(--card);border-left:3px solid var(--gold);">
           <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;">КЭ = (Просмотры × 0.4) + (Engagement × 0.4) + (Равномерность × 0.2)</div>
           <div style="font-size:11px;color:var(--muted);line-height:1.6;">3 компонента: охват, вовлечённость, стабильность</div>
@@ -5039,7 +5042,7 @@ async function loadAdminKE() {
       </div>
 
       <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;">📊 Текущее распределение по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">промежуточный</span></h3>
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-chart-bar"></i> Текущее распределение по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">промежуточный</span></h3>
         <div style="display:flex;flex-direction:column;gap:12px;">
           ${tiers.map(t => `<div>
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
@@ -5053,7 +5056,7 @@ async function loadAdminKE() {
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">🏆 Топ-15 мейкеров по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">текущий ранг</span></h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-trophy"></i> Топ-15 мейкеров по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">текущий ранг</span></h3>
       <table class="data-table">
         <thead><tr><th>#</th><th>Мейкер</th><th>Eng. Rate</th><th>Просм/нед</th><th>КЭ</th><th>Прогноз</th></tr></thead>
         <tbody>
@@ -5070,7 +5073,7 @@ async function loadAdminKE() {
     </div>
 
     <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;">🎯 Прогноз начислений · 31 декабря 2026</h3>
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-target"></i> Прогноз начислений · 31 декабря 2026</h3>
       <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:16px;">
         <div>
           <div style="font-size:36px;font-weight:700;color:var(--gold);">15 000</div>
@@ -5087,7 +5090,7 @@ async function loadAdminKE() {
           <span style="color:${t.color};font-weight:700;">${fmtNum(parseInt(t.bonus)*1000)} акц</span>
         </div>`).join('')}
         <div style="background:rgba(212,168,67,0.08);padding:14px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(212,168,67,0.3);">
-          <div style="font-size:13px;color:var(--gold);font-weight:700;">💎 ИТОГО</div>
+          <div style="font-size:13px;color:var(--gold);font-weight:700;"><i class="ti ti-diamond"></i> ИТОГО</div>
           <span style="color:var(--gold);font-weight:700;font-size:18px;">15 000</span>
         </div>
       </div>

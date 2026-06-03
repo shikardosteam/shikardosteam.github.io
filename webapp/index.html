@@ -6,22 +6,23 @@
 <title>Shikardos Team</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
 <style>
 /* ===== ADAPTIVE THEME (Telegram CSS vars with fallbacks) ===== */
 :root {
-  --bg: var(--tg-theme-bg-color, #0d1117);
-  --card: var(--tg-theme-secondary-bg-color, #161b22);
-  --text: var(--tg-theme-text-color, #e6edf3);
-  --hint: var(--tg-theme-hint-color, #8b949e);
+  --bg: var(--tg-theme-bg-color, #0c0c0f);
+  --card: var(--tg-theme-secondary-bg-color, #15151b);
+  --text: var(--tg-theme-text-color, #f4f2ec);
+  --hint: var(--tg-theme-hint-color, #8a8a93);
   --link: var(--tg-theme-link-color, #58a6ff);
   --btn: var(--tg-theme-button-color, #d4a843);
-  --btn-text: var(--tg-theme-button-text-color, #0d1117);
+  --btn-text: var(--tg-theme-button-text-color, #0c0c0f);
   --border: rgba(128,128,128,0.15);
   --gold: #d4a843;
   --green: #3fb950;
   --red: #f85149;
   --blue: #58a6ff;
-  --orange: #d29922;
+  --orange: #d6a528;
   --purple: #bc8cff;
 }
 
@@ -113,7 +114,7 @@ body {
 .badge { display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:600; }
 .badge.green { background:rgba(63,185,80,0.12); color:var(--green); }
 .badge.red { background:rgba(248,81,73,0.12); color:var(--red); }
-.badge.orange { background:rgba(210,153,34,0.12); color:var(--orange); }
+.badge.orange { background:rgba(214,165,40,0.12); color:var(--orange); }
 .badge.blue { background:rgba(88,166,255,0.12); color:var(--blue); }
 .badge.gold { background:rgba(212,168,67,0.12); color:var(--gold); }
 .badge.muted { background:rgba(128,128,128,0.1); color:var(--hint); }
@@ -123,7 +124,7 @@ body {
 /* Alert */
 .alert { padding:8px 10px; border-radius:8px; font-size:11px; margin-bottom:8px; font-weight:500; }
 .alert-success { background:rgba(63,185,80,0.1); color:var(--green); border:1px solid rgba(63,185,80,0.2); }
-.alert-warn { background:rgba(210,153,34,0.1); color:var(--orange); border:1px solid rgba(210,153,34,0.2); }
+.alert-warn { background:rgba(214,165,40,0.1); color:var(--orange); border:1px solid rgba(214,165,40,0.2); }
 .alert-danger { background:rgba(248,81,73,0.1); color:var(--red); border:1px solid rgba(248,81,73,0.2); }
 .alert-info { background:rgba(88,166,255,0.1); color:var(--blue); border:1px solid rgba(88,166,255,0.2); }
 .alert-gold { background:rgba(212,168,67,0.1); color:var(--gold); border:1px solid rgba(212,168,67,0.2); }
@@ -137,7 +138,7 @@ body {
 .lb-rank { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
 .lb-rank.g { background:rgba(212,168,67,0.2); color:var(--gold); }
 .lb-rank.s { background:rgba(139,148,158,0.2); color:var(--hint); }
-.lb-rank.b { background:rgba(210,153,34,0.15); color:var(--orange); }
+.lb-rank.b { background:rgba(214,165,40,0.15); color:var(--orange); }
 .lb-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .lb-val { font-weight:700; color:var(--gold); }
 
@@ -255,16 +256,16 @@ body {
 
   <!-- BOTTOM TABS -->
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="go('home')"><span class="ico">🏠</span>Главная</button>
-    <button class="tab-btn" onclick="go('shares')"><span class="ico">💎</span>Акции</button>
-    <button class="tab-btn" onclick="go('trends')"><span class="ico">📈</span>Тренды</button>
-    <button class="tab-btn" onclick="go('hall')"><span class="ico">🏆</span>Зал</button>
-    <button class="tab-btn" onclick="go('more')"><span class="ico">⚙️</span>Ещё</button>
+    <button class="tab-btn active" onclick="go('home')"><span class="ico"><i class="ti ti-home"></i></span>Главная</button>
+    <button class="tab-btn" onclick="go('shares')"><span class="ico"><i class="ti ti-diamond"></i></span>Акции</button>
+    <button class="tab-btn" onclick="go('trends')"><span class="ico"><i class="ti ti-trending-up"></i></span>Тренды</button>
+    <button class="tab-btn" onclick="go('hall')"><span class="ico"><i class="ti ti-trophy"></i></span>Зал</button>
+    <button class="tab-btn" onclick="go('more')"><span class="ico"><i class="ti ti-settings"></i></span>Ещё</button>
   </div>
 </div>
 
 <div id="app-error" class="error-screen" style="display:none">
-  <div style="font-size:48px;margin-bottom:12px">🔐</div>
+  <div style="font-size:48px;margin-bottom:12px"><i class="ti ti-lock"></i></div>
   <div style="font-size:15px;font-weight:600;margin-bottom:6px">Вход в систему</div>
   <div id="err-text" style="color:var(--hint);font-size:13px;margin-bottom:16px">Войдите через Telegram бот или по email</div>
   <div id="email-fallback" style="max-width:300px;margin:0 auto">
@@ -281,8 +282,8 @@ var tg = window.Telegram.WebApp;
 tg.ready(); tg.expand();
 var isDark = tg.colorScheme === 'dark';
 if (!tg.themeParams || !tg.themeParams.bg_color) {
-  tg.setHeaderColor('#0d1117');
-  tg.setBackgroundColor('#0d1117');
+  tg.setHeaderColor('#0c0c0f');
+  tg.setBackgroundColor('#0c0c0f');
 }
 
 // ===== CONFIG =====
@@ -423,10 +424,10 @@ function buildHome(profile, shares) {
 
   // Alerts
   if (frozen) {
-    h += '<div class="alert alert-danger">⚠️ Акции заморожены. Публикуйте видео чтобы разморозить.</div>';
+    h += '<div class="alert alert-danger"><i class="ti ti-alert-triangle"></i> Акции заморожены. Публикуйте видео чтобы разморозить.</div>';
   }
   if (status === 'active' && sc > 0 && !frozen) {
-    h += '<div class="alert alert-success">✅ Всё в порядке. Система работает, акции активны.</div>';
+    h += '<div class="alert alert-success"><i class="ti ti-circle-check"></i> Всё в порядке. Система работает, акции активны.</div>';
   }
 
   // KPI
@@ -443,7 +444,7 @@ function buildHome(profile, shares) {
 
   // Project stats (for founder/team/admin)
   if (role === 'founder' || role === 'team' || profile.is_admin) {
-    h += '<div class="card"><h3>📊 Проект</h3>';
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Проект</h3>';
     h += '<div class="kpi-grid">';
     h += '<div class="kpi"><div class="val blue" id="home-users">—</div><div class="lbl">Участников</div></div>';
     h += '<div class="kpi"><div class="val" id="home-makers">—</div><div class="lbl">Мейкеров</div></div>';
@@ -453,14 +454,14 @@ function buildHome(profile, shares) {
   }
 
   // Income chart
-  h += '<div class="card"><h3>📈 Прогноз дохода</h3><div class="chart-box"><canvas id="ch-income"></canvas></div>';
+  h += '<div class="card"><h3><i class="ti ti-trending-up"></i> Прогноз дохода</h3><div class="chart-box"><canvas id="ch-income"></canvas></div>';
   h += '<table class="inc-tbl" style="margin-top:6px">';
   h += '<tr><th>Год</th><th>$/акц/мес</th><th>Ваш доход/мес</th><th>Доход/год</th></tr>';
   for (var i = 0; i < 5; i++) h += '<tr><td>Год ' + (i+1) + '</td><td>$' + fmt(RATES[i]) + '</td><td style="color:var(--gold);font-weight:600">' + fmtUSD(sc * RATES[i]) + '</td><td>' + fmtUSD(sc * RATES[i] * 12) + '</td></tr>';
   h += '</table></div>';
 
   // Tier system
-  h += '<div class="card"><h3>🎯 Система тиров (акции/год)</h3>';
+  h += '<div class="card"><h3><i class="ti ti-target"></i> Система тиров (акции/год)</h3>';
   h += '<div class="tier-grid">';
   var tiers = [{n:'T1',s:'+5',d:'Топ 20%'},{n:'T2',s:'+4',d:'20-40%'},{n:'T3',s:'+3',d:'40-60%'},{n:'T4',s:'+2',d:'60-80%'},{n:'T5',s:'+1',d:'80-100%'}];
   for (var t = 0; t < tiers.length; t++) h += '<div class="tier-card"><strong>' + tiers[t].n + '</strong><div style="color:var(--gold);font-weight:700">' + tiers[t].s + '</div><div style="font-size:9px;color:var(--hint)">' + tiers[t].d + '</div></div>';
@@ -474,8 +475,8 @@ function buildHome(profile, shares) {
     type: 'bar',
     data: {labels:['Г1','Г2','Г3','Г4','Г5'], datasets:[{data:RATES.map(function(r){return sc*r;}), backgroundColor:'#d4a843', borderRadius:6}]},
     options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}},
-              y:{ticks:{color:'#8b949e',font:{size:9},callback:function(v){return v>=1000?'$'+Math.round(v/1000)+'K':'$'+v;}},grid:{color:'rgba(128,128,128,0.1)'}}}}
+      scales:{x:{ticks:{color:'#8a8a93',font:{size:10}},grid:{display:false}},
+              y:{ticks:{color:'#8a8a93',font:{size:9},callback:function(v){return v>=1000?'$'+Math.round(v/1000)+'K':'$'+v;}},grid:{color:'rgba(128,128,128,0.1)'}}}}
   });
 
   // Maker-specific
@@ -506,9 +507,9 @@ function buildShares(shares) {
   h += '<div class="kpi"><div class="val green">' + fmtUSD(sc * RATES[0]) + '</div><div class="lbl">Доход / мес</div></div>';
   h += '</div>';
 
-  h += '<div class="card"><h3>🔄 Ротация</h3><div id="sh-rot"></div></div>';
-  h += '<div class="card"><h3>📜 Транзакции <button class="export-btn" onclick="exportTransactions()" style="float:right">📥 CSV</button></h3><div id="sh-hist"><div class="empty">Загрузка...</div></div></div>';
-  h += '<div class="card"><h3>📦 SaaS ссылки</h3><div id="sh-saas"><div class="empty">Загрузка...</div></div></div>';
+  h += '<div class="card"><h3><i class="ti ti-refresh"></i> Ротация</h3><div id="sh-rot"></div></div>';
+  h += '<div class="card"><h3><i class="ti ti-file-text"></i> Транзакции <button class="export-btn" onclick="exportTransactions()" style="float:right"><i class="ti ti-download"></i> CSV</button></h3><div id="sh-hist"><div class="empty">Загрузка...</div></div></div>';
+  h += '<div class="card"><h3><i class="ti ti-package"></i> SaaS ссылки</h3><div id="sh-saas"><div class="empty">Загрузка...</div></div></div>';
 
   $('pg-shares').innerHTML = h;
 
@@ -516,12 +517,12 @@ function buildShares(shares) {
     var items = o.items || [];
     var filled = items.filter(function(i){return i.my_link;}).length;
     var inR = filled >= items.length && items.length > 0;
-    var rH = '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:600;background:' + (inR?'rgba(63,185,80,0.1)':'rgba(248,81,73,0.1)') + ';color:' + (inR?'var(--green)':'var(--red)') + '">' + (inR?'✅ В ротации':'❌ Не в ротации') + '</div>';
+    var rH = '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:600;background:' + (inR?'rgba(63,185,80,0.1)':'rgba(248,81,73,0.1)') + ';color:' + (inR?'var(--green)':'var(--red)') + '">' + (inR?'<i class="ti ti-circle-check"></i> В ротации':'<i class="ti ti-x"></i> Не в ротации') + '</div>';
     rH += '<div style="margin-top:6px"><div class="row"><span class="lbl">Заполнено</span><span class="val">' + filled + '/' + items.length + '</span></div>';
     rH += '<div class="prog"><div class="fill" style="width:' + (items.length>0?Math.round(filled/items.length*100):0) + '%;background:var(--green)"></div></div></div>';
     $('sh-rot').innerHTML = rH;
     var sl = '';
-    items.forEach(function(i) { sl += '<div class="list-item"><span>' + (i.my_link?'✅':'❌') + ' ' + esc(i.name) + '</span></div>'; });
+    items.forEach(function(i) { sl += '<div class="list-item"><span>' + (i.my_link?'<i class="ti ti-circle-check"></i>':'<i class="ti ti-x"></i>') + ' ' + esc(i.name) + '</span></div>'; });
     $('sh-saas').innerHTML = sl || '<div class="empty">Нет офферов</div>';
   }).catch(function() { $('sh-rot').innerHTML = '<div class="empty">—</div>'; });
 
@@ -553,7 +554,7 @@ async function loadTrends() {
     h += '<div class="kpi"><div class="val green">' + fmt(d.templates_count||0) + '</div><div class="lbl">Шаблонов</div></div>';
     h += '</div>';
     var vids = d.top_videos || [];
-    h += '<div class="card"><h3>🎬 Топ видео</h3>';
+    h += '<div class="card"><h3><i class="ti ti-movie"></i> Топ видео</h3>';
     if (vids.length) {
       vids.forEach(function(v, i) {
         h += '<div class="list-item"><div><span style="color:var(--gold);font-weight:700">#' + (i+1) + '</span> ' + esc(v.maker||'—') + '<div style="font-size:10px;color:var(--hint)">' + esc(v.platform||'') + ' · ' + esc(v.niche||'') + '</div></div><span style="font-weight:700">' + fmt(v.views||0) + '</span></div>';
@@ -570,7 +571,7 @@ async function loadTrends() {
     }
     var pats = d.viral_patterns || [];
     if (pats.length) {
-      h += '<div class="card"><h3>🧬 Виральные паттерны</h3>';
+      h += '<div class="card"><h3><i class="ti ti-dna"></i> Виральные паттерны</h3>';
       pats.forEach(function(p) {
         h += '<div style="padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px"><div style="font-weight:600;color:var(--gold);font-size:12px">' + esc(p.name||'') + '</div><div style="font-size:11px;color:var(--hint);margin-top:3px">' + esc(p.description||'') + '</div></div>';
       });
@@ -592,7 +593,7 @@ async function loadHall() {
     var h = '';
     var ts = d.top_shares || d.top_by_shares || [];
     if (ts.length) {
-      h += '<div class="card"><h3>💰 Топ по акциям</h3>';
+      h += '<div class="card"><h3><i class="ti ti-coin"></i> Топ по акциям</h3>';
       ts.forEach(function(u, i) {
         var cls = i === 0 ? 'g' : i === 1 ? 's' : i === 2 ? 'b' : '';
         var me = u.is_me ? ' style="color:var(--gold)"' : '';
@@ -602,7 +603,7 @@ async function loadHall() {
     }
     var tv = d.top_videos_this_week || d.top_by_videos || [];
     if (tv.length) {
-      h += '<div class="card"><h3>🎥 Топ по видео (неделя)</h3>';
+      h += '<div class="card"><h3><i class="ti ti-video"></i> Топ по видео (неделя)</h3>';
       tv.forEach(function(u, i) {
         var cls = i === 0 ? 'g' : i === 1 ? 's' : i === 2 ? 'b' : '';
         h += '<div class="lb-row"><div class="lb-rank ' + cls + '">' + (i+1) + '</div><div class="lb-name">' + esc(u.full_name||'—') + '</div><div class="lb-val">' + (u.videos_this_week || u.video_count || 0) + '</div></div>';
@@ -610,7 +611,7 @@ async function loadHall() {
       h += '</div>';
     }
     if (d.my_rank) {
-      h += '<div class="card" style="text-align:center"><span style="font-size:13px">📍 Ваше место: <strong style="color:var(--gold)">#' + d.my_rank + '</strong></span></div>';
+      h += '<div class="card" style="text-align:center"><span style="font-size:13px"><i class="ti ti-map-pin"></i> Ваше место: <strong style="color:var(--gold)">#' + d.my_rank + '</strong></span></div>';
     }
     if (!h) h = '<div class="empty">Нет данных</div>';
     pg.innerHTML = h;
@@ -624,37 +625,37 @@ async function loadHall() {
 function buildMoreMenu() {
   var pg = $('pg-more');
   var allItems = [
-    {id:'profile', ico:'👤', name:'Профиль', access:'profile'},
-    {id:'kaizen', ico:'💡', name:'Кайдзен', access:'kaizen'},
-    {id:'contests', ico:'🏅', name:'Конкурсы', access:'contests'},
-    {id:'referrals', ico:'🔗', name:'Рефералы', access:'referrals'},
-    {id:'tasks', ico:'📋', name:'Задачи', access:'tasks'},
-    {id:'videos', ico:'📹', name:'Видео', access:'videos'},
-    {id:'ke', ico:'⚡', name:'КЭ', access:'ke'},
-    {id:'offers', ico:'🎯', name:'Офферы', access:'offers'},
-    {id:'hr-makers', ico:'👥', name:'Мои мейкеры', access:'hr-makers'},
-    {id:'hr-review', ico:'✅', name:'Проверка', access:'hr-review'},
-    {id:'portfolio', ico:'💼', name:'Портфель', access:'portfolio'},
-    {id:'calculator', ico:'🧮', name:'Калькулятор', access:'calculator'},
-    {id:'publications', ico:'📝', name:'Публикации', access:'publications'},
-    {id:'team-members', ico:'🏢', name:'Команда', access:'team-members'},
-    {id:'team-pulse', ico:'💓', name:'Пульс', access:'team-pulse'},
-    {id:'pain-points', ico:'🔥', name:'Боли', access:'pain-points'},
-    {id:'content', ico:'🎬', name:'Контент', access:'content'},
-    {id:'admin', ico:'🔧', name:'Обзор', access:'admin'},
-    {id:'admin-makers', ico:'👥', name:'Админ:Мейк', access:'admin-makers'},
-    {id:'admin-hr', ico:'🧑‍💼', name:'Админ:HR', access:'admin-hr'},
-    {id:'admin-shares', ico:'💎', name:'Админ:Акции', access:'admin-shares'},
-    {id:'admin-ke', ico:'📊', name:'Админ:КЭ', access:'admin-ke'},
-    {id:'admin-users', ico:'👤', name:'Юзеры', access:'admin-users'},
-    {id:'bloggers', ico:'📰', name:'Блогеры', access:'bloggers'},
-    {id:'investors', ico:'💰', name:'Инвесторы', access:'investors'},
-    {id:'ai-automators', ico:'🤖', name:'AI-автомат.', access:'ai-automators'},
-    {id:'quality', ico:'✅', name:'Качество', access:'quality'},
-    {id:'risk', ico:'⚠️', name:'Риски', access:'risk-zone'},
-    {id:'infra', ico:'🖥️', name:'Инфра', access:'infrastructure'},
-    {id:'ops-center', ico:'🎛️', name:'Ops Center', access:'ops-center'},
-    {id:'settings', ico:'⚙️', name:'Настройки', access:'settings'}
+    {id:'profile', ico:'<i class="ti ti-user"></i>', name:'Профиль', access:'profile'},
+    {id:'kaizen', ico:'<i class="ti ti-bulb"></i>', name:'Кайдзен', access:'kaizen'},
+    {id:'contests', ico:'<i class="ti ti-medal"></i>', name:'Конкурсы', access:'contests'},
+    {id:'referrals', ico:'<i class="ti ti-link"></i>', name:'Рефералы', access:'referrals'},
+    {id:'tasks', ico:'<i class="ti ti-clipboard"></i>', name:'Задачи', access:'tasks'},
+    {id:'videos', ico:'<i class="ti ti-video"></i>', name:'Видео', access:'videos'},
+    {id:'ke', ico:'<i class="ti ti-bolt"></i>', name:'КЭ', access:'ke'},
+    {id:'offers', ico:'<i class="ti ti-target"></i>', name:'Офферы', access:'offers'},
+    {id:'hr-makers', ico:'<i class="ti ti-users"></i>', name:'Мои мейкеры', access:'hr-makers'},
+    {id:'hr-review', ico:'<i class="ti ti-circle-check"></i>', name:'Проверка', access:'hr-review'},
+    {id:'portfolio', ico:'<i class="ti ti-briefcase"></i>', name:'Портфель', access:'portfolio'},
+    {id:'calculator', ico:'<i class="ti ti-calculator"></i>', name:'Калькулятор', access:'calculator'},
+    {id:'publications', ico:'<i class="ti ti-edit"></i>', name:'Публикации', access:'publications'},
+    {id:'team-members', ico:'<i class="ti ti-building"></i>', name:'Команда', access:'team-members'},
+    {id:'team-pulse', ico:'<i class="ti ti-heart"></i>', name:'Пульс', access:'team-pulse'},
+    {id:'pain-points', ico:'<i class="ti ti-flame"></i>', name:'Боли', access:'pain-points'},
+    {id:'content', ico:'<i class="ti ti-movie"></i>', name:'Контент', access:'content'},
+    {id:'admin', ico:'<i class="ti ti-tool"></i>', name:'Обзор', access:'admin'},
+    {id:'admin-makers', ico:'<i class="ti ti-users"></i>', name:'Админ:Мейк', access:'admin-makers'},
+    {id:'admin-hr', ico:'<i class="ti ti-user"></i>‍<i class="ti ti-briefcase"></i>', name:'Админ:HR', access:'admin-hr'},
+    {id:'admin-shares', ico:'<i class="ti ti-diamond"></i>', name:'Админ:Акции', access:'admin-shares'},
+    {id:'admin-ke', ico:'<i class="ti ti-chart-bar"></i>', name:'Админ:КЭ', access:'admin-ke'},
+    {id:'admin-users', ico:'<i class="ti ti-user"></i>', name:'Юзеры', access:'admin-users'},
+    {id:'bloggers', ico:'<i class="ti ti-news"></i>', name:'Блогеры', access:'bloggers'},
+    {id:'investors', ico:'<i class="ti ti-coin"></i>', name:'Инвесторы', access:'investors'},
+    {id:'ai-automators', ico:'<i class="ti ti-robot"></i>', name:'AI-автомат.', access:'ai-automators'},
+    {id:'quality', ico:'<i class="ti ti-circle-check"></i>', name:'Качество', access:'quality'},
+    {id:'risk', ico:'<i class="ti ti-alert-triangle"></i>', name:'Риски', access:'risk-zone'},
+    {id:'infra', ico:'<i class="ti ti-device-desktop"></i>', name:'Инфра', access:'infrastructure'},
+    {id:'ops-center', ico:'<i class="ti ti-adjustments"></i>', name:'Ops Center', access:'ops-center'},
+    {id:'settings', ico:'<i class="ti ti-settings"></i>', name:'Настройки', access:'settings'}
   ];
 
   var items = [];
@@ -716,7 +717,7 @@ async function loadSubPage(id) {
 // ---------- PROFILE ----------
 function loadProfile(pg, back) {
   var p = U.profile || {};
-  var h = back + '<div class="card"><h3>👤 Профиль</h3>';
+  var h = back + '<div class="card"><h3><i class="ti ti-user"></i> Профиль</h3>';
   h += '<div class="row"><span class="lbl">Имя</span><span class="val">' + esc(p.full_name||'—') + '</span></div>';
   h += '<div class="row"><span class="lbl">Роль</span><span class="val">' + (ROLE_NAMES[p.role]||p.role) + '</span></div>';
   if (p.team_role) h += '<div class="row"><span class="lbl">Позиция</span><span class="val">' + p.team_role.toUpperCase() + '</span></div>';
@@ -736,10 +737,10 @@ async function loadKaizen(pg, back) {
     if (k.stats) {
       h += '<div class="kpi-grid three"><div class="kpi"><div class="val">' + k.stats.total + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val" style="color:var(--orange)">' + k.stats.new + '</div><div class="lbl">Новых</div></div><div class="kpi"><div class="val green">' + k.stats.approved + '</div><div class="lbl">Одобрено</div></div></div>';
     }
-    h += '<div class="card"><h3>💡 Предложения</h3>';
+    h += '<div class="card"><h3><i class="ti ti-bulb"></i> Предложения</h3>';
     if (k.items && k.items.length) {
       k.items.forEach(function(i) {
-        var st = {new:'🟡',reviewing:'🟠',approved:'✅',rejected:'❌',implemented:'🚀'}[i.status] || '⚪';
+        var st = {new:'<i class="ti ti-point-filled" style="color:#e3b341"></i>',reviewing:'<i class="ti ti-point-filled" style="color:var(--orange)"></i>',approved:'<i class="ti ti-circle-check"></i>',rejected:'<i class="ti ti-x"></i>',implemented:'<i class="ti ti-rocket"></i>'}[i.status] || '<i class="ti ti-point-filled" style="color:var(--hint)"></i>';
         h += '<div class="list-item"><div style="max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">' + esc(i.text) + '</div><span style="font-size:11px">' + st + '</span></div>';
       });
     } else { h += '<div class="empty">Нет предложений</div>'; }
@@ -753,11 +754,11 @@ async function loadContests(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var c = await api('/contests');
-    var h = back + '<div class="card"><h3>🏅 Конкурсы</h3>';
+    var h = back + '<div class="card"><h3><i class="ti ti-medal"></i> Конкурсы</h3>';
     if (c.items && c.items.length) {
       c.items.forEach(function(i) {
-        var st = {active:'🟢',upcoming:'🟡',ended:'⏹'}[i.status]||'⚪';
-        h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(i.title) + '</div><div style="font-size:10px;color:var(--hint)">' + st + ' ' + (i.status||'') + (i.prize_shares?' · 🏆 '+i.prize_shares+' акц.':'') + '</div></div>' + (i.my_entry?'<span class="badge green">Участвую</span>':'') + '</div>';
+        var st = {active:'<i class="ti ti-point-filled" style="color:var(--green)"></i>',upcoming:'<i class="ti ti-point-filled" style="color:#e3b341"></i>',ended:'⏹'}[i.status]||'<i class="ti ti-point-filled" style="color:var(--hint)"></i>';
+        h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(i.title) + '</div><div style="font-size:10px;color:var(--hint)">' + st + ' ' + (i.status||'') + (i.prize_shares?' · <i class="ti ti-trophy"></i> '+i.prize_shares+' акц.':'') + '</div></div>' + (i.my_entry?'<span class="badge green">Участвую</span>':'') + '</div>';
       });
     } else { h += '<div class="empty">Нет конкурсов</div>'; }
     h += '</div>';
@@ -770,7 +771,7 @@ async function loadReferrals(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var r = await api('/referrals');
-    var h = back + '<div class="card"><h3>🔗 Реферальная программа</h3>';
+    var h = back + '<div class="card"><h3><i class="ti ti-link"></i> Реферальная программа</h3>';
     h += '<div class="row"><span class="lbl">Мой код</span><span class="val" style="color:var(--gold)">' + esc(r.referral_code||'—') + '</span></div>';
     h += '<div class="row"><span class="lbl">Привлечено</span><span class="val">' + (r.total_referrals||0) + '</span></div>';
     if (r.referrals && r.referrals.length) {
@@ -812,11 +813,11 @@ async function loadVideos(pg, back) {
     var h = back;
 
     // Alert
-    if (total === 0) h += '<div class="alert alert-warn">🎥 Вы пока не опубликовали ни одного видео.</div>';
-    else if (weeklyCount < 3) h += '<div class="alert alert-warn">⚠️ За эту неделю: ' + weeklyCount + '/3 видео. Минимум 3 чтобы избежать заморозки.</div>';
+    if (total === 0) h += '<div class="alert alert-warn"><i class="ti ti-video"></i> Вы пока не опубликовали ни одного видео.</div>';
+    else if (weeklyCount < 3) h += '<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> За эту неделю: ' + weeklyCount + '/3 видео. Минимум 3 чтобы избежать заморозки.</div>';
 
     // KPI
-    h += '<button class="export-btn" onclick="exportVideos()">📥 CSV</button>';
+    h += '<button class="export-btn" onclick="exportVideos()"><i class="ti ti-download"></i> CSV</button>';
     h += '<div class="kpi-grid">';
     h += '<div class="kpi"><div class="val blue">' + fmt(total) + '</div><div class="lbl">Всего видео</div></div>';
     h += '<div class="kpi"><div class="val green">' + fmtViews(totalViews) + '</div><div class="lbl">Просмотры</div></div>';
@@ -825,7 +826,7 @@ async function loadVideos(pg, back) {
     h += '</div>';
 
     // Platform bars
-    h += '<div class="card"><h3>📊 По платформам</h3>';
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> По платформам</h3>';
     if (platLabels.length) {
       for (var j = 0; j < platLabels.length; j++) {
         var pl = platLabels[j];
@@ -839,13 +840,13 @@ async function loadVideos(pg, back) {
 
     // Distribution chart
     if (platLabels.length > 0) {
-      h += '<div class="card"><h3>📈 Распределение</h3><div class="chart-box"><canvas id="ch-platforms"></canvas></div></div>';
+      h += '<div class="card"><h3><i class="ti ti-trending-up"></i> Распределение</h3><div class="chart-box"><canvas id="ch-platforms"></canvas></div></div>';
     }
 
     // Recent videos table
     var sorted = videos.slice().sort(function(a,b) { return new Date(b.created_at||0) - new Date(a.created_at||0); }).slice(0, 10);
     if (sorted.length > 0) {
-      h += '<div class="card"><h3>🎬 Последние видео</h3><div class="m-tbl-wrap"><table class="m-tbl">';
+      h += '<div class="card"><h3><i class="ti ti-movie"></i> Последние видео</h3><div class="m-tbl-wrap"><table class="m-tbl">';
       h += '<tr><th>Платф.</th><th>Просм.</th><th>Дата</th><th>Статус</th></tr>';
       for (var r = 0; r < sorted.length; r++) {
         var sv = sorted[r];
@@ -861,13 +862,13 @@ async function loadVideos(pg, back) {
     // Platform pie chart
     if (platLabels.length > 0) {
       if (charts.platforms) charts.platforms.destroy();
-      var colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d29922','#bc8cff'];
+      var colors = ['#d4a843','#58a6ff','#3fb950','#f85149','#d6a528','#bc8cff'];
       var platCounts = [];
       for (var c = 0; c < platLabels.length; c++) platCounts.push(platforms[platLabels[c]].count);
       charts.platforms = new Chart($('ch-platforms'), {
         type: 'doughnut',
         data: {labels:platLabels, datasets:[{data:platCounts, backgroundColor:platLabels.map(function(_,i){return colors[i%colors.length];}), borderWidth:0}]},
-        options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:10},padding:8}}}}
+        options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:'#8a8a93',font:{size:10},padding:8}}}}
       });
     }
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка загрузки видео</div>'; }
@@ -886,7 +887,7 @@ async function loadKE(pg, back) {
     var bKeys = Object.keys(breakdown);
 
     var h = back;
-    h += '<div class="alert alert-info">📖 КЭ пересчитывается ежегодно 31 декабря. Формула учитывает просмотры, вовлечённость и равномерность.</div>';
+    h += '<div class="alert alert-info"><i class="ti ti-book-2"></i> КЭ пересчитывается ежегодно 31 декабря. Формула учитывает просмотры, вовлечённость и равномерность.</div>';
 
     // KPI
     h += '<div class="kpi-grid">';
@@ -897,7 +898,7 @@ async function loadKE(pg, back) {
     h += '</div>';
 
     // Formula
-    h += '<div class="card"><h3>📐 Формула КЭ</h3>';
+    h += '<div class="card"><h3><i class="ti ti-ruler-2"></i> Формула КЭ</h3>';
     h += '<div class="formula-box">';
     h += '<div class="formula-step"><span style="color:var(--gold)">Просмотры</span> × 0.4</div>';
     h += '<div class="formula-step"><span style="color:var(--green)">Целевой Engagement</span> × 0.4</div>';
@@ -906,9 +907,9 @@ async function loadKE(pg, back) {
 
     // Tips
     var tips = [];
-    if ((breakdown.views || 0) < 40) tips.push('📈 Увеличьте просмотры — трендовые темы и SEO');
-    if ((breakdown.engagement || 0) < 40) tips.push('💬 Повысьте вовлечённость — CTA в видео');
-    if ((breakdown.uniformity || 0) < 20) tips.push('📅 Публикуйте равномерно');
+    if ((breakdown.views || 0) < 40) tips.push('<i class="ti ti-trending-up"></i> Увеличьте просмотры — трендовые темы и SEO');
+    if ((breakdown.engagement || 0) < 40) tips.push('<i class="ti ti-message"></i> Повысьте вовлечённость — CTA в видео');
+    if ((breakdown.uniformity || 0) < 20) tips.push('<i class="ti ti-calendar"></i> Публикуйте равномерно');
     if (tips.length > 0) {
       h += '<div class="note-box"><strong>Рекомендации:</strong><br>';
       for (var tp = 0; tp < tips.length; tp++) h += tips[tp] + '<br>';
@@ -918,11 +919,11 @@ async function loadKE(pg, back) {
 
     // Breakdown chart
     if (bKeys.length > 0) {
-      h += '<div class="card"><h3>📊 Детализация</h3><div class="chart-box"><canvas id="ch-ke"></canvas></div></div>';
+      h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Детализация</h3><div class="chart-box"><canvas id="ch-ke"></canvas></div></div>';
     }
 
     // Tier system
-    h += '<div class="card"><h3>🎯 Система тиров</h3>';
+    h += '<div class="card"><h3><i class="ti ti-target"></i> Система тиров</h3>';
     h += '<div class="tier-grid">';
     var tierData = [
       {name:'T1',bonus:'+5',range:'1-1000',color:'var(--gold)'},
@@ -943,13 +944,13 @@ async function loadKE(pg, back) {
     // KE breakdown chart
     if (bKeys.length > 0) {
       if (charts.ke) charts.ke.destroy();
-      var colors = ['#d4a843','#3fb950','#58a6ff','#f85149','#d29922'];
+      var colors = ['#d4a843','#3fb950','#58a6ff','#f85149','#d6a528'];
       var bVals = [];
       for (var b = 0; b < bKeys.length; b++) bVals.push(breakdown[bKeys[b]]);
       charts.ke = new Chart($('ch-ke'), {
         type: 'doughnut',
         data: {labels:bKeys, datasets:[{data:bVals, backgroundColor:bKeys.map(function(_,i){return colors[i%colors.length];}), borderWidth:0}]},
-        options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:10},padding:8}}}}
+        options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:'#8a8a93',font:{size:10},padding:8}}}}
       });
     }
   } catch(e) { pg.innerHTML = back + '<div class="empty">Нет данных КЭ</div>'; }
@@ -969,7 +970,7 @@ async function loadOffers(pg, back) {
     var activeNiches = d.active_niches_week || 5;
 
     var h = back;
-    h += '<div class="alert alert-gold">🎯 250 ниш в год · 5 команд AI-офферщиков · 1000 мейкеров на нишу</div>';
+    h += '<div class="alert alert-gold"><i class="ti ti-target"></i> 250 ниш в год · 5 команд AI-офферщиков · 1000 мейкеров на нишу</div>';
 
     // KPI
     h += '<div class="kpi-grid">';
@@ -982,7 +983,7 @@ async function loadOffers(pg, back) {
     // Team × Niche matrix
     var matrix = d.team_niche_matrix || [];
     if (matrix.length > 0) {
-      h += '<div class="card"><h3>📋 Матрица Команда × Ниша</h3><div class="m-tbl-wrap"><table class="m-tbl">';
+      h += '<div class="card"><h3><i class="ti ti-clipboard"></i> Матрица Команда × Ниша</h3><div class="m-tbl-wrap"><table class="m-tbl">';
       h += '<tr><th>Команда</th><th>Ниша</th><th>PM</th><th>Статус</th></tr>';
       for (var m = 0; m < matrix.length; m++) {
         var r = matrix[m];
@@ -996,7 +997,7 @@ async function loadOffers(pg, back) {
     // Diversification
     var divRisks = d.diversification || [];
     if (divRisks.length > 0) {
-      h += '<div class="card"><h3>🛡️ Диверсификация</h3>';
+      h += '<div class="card"><h3><i class="ti ti-shield"></i> Диверсификация</h3>';
       for (var dr = 0; dr < divRisks.length; dr++) {
         var dv = divRisks[dr];
         var dvPct = dv.percent || 0;
@@ -1015,7 +1016,7 @@ async function loadOffers(pg, back) {
       else if (offers[i].status === 'paused') pausedCount++;
     }
 
-    h += '<div class="card"><h3>📦 Каталог офферов</h3>';
+    h += '<div class="card"><h3><i class="ti ti-package"></i> Каталог офферов</h3>';
     h += '<div class="kpi-grid three" style="margin-bottom:8px">';
     h += '<div class="kpi"><div class="val blue">' + offers.length + '</div><div class="lbl">Всего</div></div>';
     h += '<div class="kpi"><div class="val green">' + activeCount + '</div><div class="lbl">Активных</div></div>';
@@ -1032,7 +1033,7 @@ async function loadOffers(pg, back) {
     } else { h += '<div class="empty">Нет офферов</div>'; }
     h += '</div>';
 
-    h += '<div class="note-box">💡 Офферы ротируются через Round Robin. Ваши реферальные ссылки участвуют в ротации пропорционально вашим акциям.</div>';
+    h += '<div class="note-box"><i class="ti ti-bulb"></i> Офферы ротируются через Round Robin. Ваши реферальные ссылки участвуют в ротации пропорционально вашим акциям.</div>';
 
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка загрузки офферов</div>'; }
@@ -1057,7 +1058,7 @@ async function loadHRMakers(pg, back) {
     var h = back;
 
     // KPI
-    h += '<button class="export-btn" onclick="exportHRMakers()">📥 CSV</button>';
+    h += '<button class="export-btn" onclick="exportHRMakers()"><i class="ti ti-download"></i> CSV</button>';
     h += '<div class="kpi-grid">';
     h += '<div class="kpi"><div class="val blue">' + total + '</div><div class="lbl">Всего</div><div class="sub">из 100 макс</div></div>';
     h += '<div class="kpi"><div class="val green">' + active + '</div><div class="lbl">Активных</div></div>';
@@ -1066,11 +1067,11 @@ async function loadHRMakers(pg, back) {
     h += '</div>';
 
     if (frozen > 0) {
-      h += '<div class="alert alert-warn">⚠️ ' + frozen + ' мейкер(ов) с замороженными акциями. Проверьте их активность.</div>';
+      h += '<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> ' + frozen + ' мейкер(ов) с замороженными акциями. Проверьте их активность.</div>';
     }
 
     // Table
-    h += '<div class="card"><h3>👥 Рейтинг мейкеров (по КЭ)</h3>';
+    h += '<div class="card"><h3><i class="ti ti-users"></i> Рейтинг мейкеров (по КЭ)</h3>';
     var sorted = makers.slice().sort(function(a,b) { return (b.ke_score||0) - (a.ke_score||0); });
     if (sorted.length > 0) {
       h += '<div class="m-tbl-wrap"><table class="m-tbl">';
@@ -1079,7 +1080,7 @@ async function loadHRMakers(pg, back) {
         var m = sorted[j];
         var stCls = m.status === 'active' ? 'green' : m.shares_frozen ? 'red' : 'muted';
         h += '<tr><td>' + (j+1) + '</td><td>' + esc(m.display_name || m.username || '—') + '</td>';
-        h += '<td><span class="badge ' + stCls + '">' + (m.shares_frozen ? '❄️' : '🟢') + '</span></td>';
+        h += '<td><span class="badge ' + stCls + '">' + (m.shares_frozen ? '<i class="ti ti-snowflake"></i>' : '<i class="ti ti-point-filled" style="color:var(--green)"></i>') + '</span></td>';
         h += '<td>' + fmt(m.videos_count || m.videos || 0) + '</td>';
         h += '<td style="color:var(--gold)">' + (m.ke_score != null ? Number(m.ke_score).toFixed(2) : '—') + '</td>';
         h += '<td>' + fmt(m.shares || 0) + '</td></tr>';
@@ -1106,11 +1107,11 @@ async function loadHRReview(pg, back) {
     h += '<div class="kpi-grid"><div class="kpi"><div class="val' + (pending.length > 0 ? '" style="color:var(--orange)"' : ' green"') + '>' + pending.length + '</div><div class="lbl">На проверке</div></div></div>';
 
     if (pending.length === 0) {
-      h += '<div class="alert alert-success">✅ Всё проверено! Новый контент появится когда мейкеры загрузят видео.</div>';
+      h += '<div class="alert alert-success"><i class="ti ti-circle-check"></i> Всё проверено! Новый контент появится когда мейкеры загрузят видео.</div>';
     }
 
     // Table
-    h += '<div class="card"><h3>✅ Очередь проверки</h3>';
+    h += '<div class="card"><h3><i class="ti ti-circle-check"></i> Очередь проверки</h3>';
     if (pending.length > 0) {
       h += '<div class="m-tbl-wrap"><table class="m-tbl">';
       h += '<tr><th>Мейкер</th><th>Платф.</th><th>Дата</th><th>Ст.</th></tr>';
@@ -1124,7 +1125,7 @@ async function loadHRReview(pg, back) {
     } else { h += '<div class="empty">Нет контента на проверку</div>'; }
     h += '</div>';
 
-    h += '<div class="note-box">💡 Проверка контента также доступна через Telegram-бот. Бот отправляет уведомления о новом контенте.</div>';
+    h += '<div class="note-box"><i class="ti ti-bulb"></i> Проверка контента также доступна через Telegram-бот. Бот отправляет уведомления о новом контенте.</div>';
 
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
@@ -1158,13 +1159,13 @@ async function loadTasks(pg, back) {
     h += '</div>';
 
     // Progress bar
-    h += '<div class="card"><h3>📊 Прогресс</h3>';
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Прогресс</h3>';
     h += '<div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:var(--gold);font-weight:700">' + completionPct + '%</span>';
     h += '<div class="prog" style="flex:1"><div class="fill" style="width:' + completionPct + '%;background:var(--green)"></div></div></div>';
     h += '</div>';
 
     // Table
-    h += '<div class="card"><h3>📋 Задачи <button class="export-btn" onclick="exportTasks()" style="float:right">📥 CSV</button></h3>';
+    h += '<div class="card"><h3><i class="ti ti-clipboard"></i> Задачи <button class="export-btn" onclick="exportTasks()" style="float:right"><i class="ti ti-download"></i> CSV</button></h3>';
     if (tasks.length > 0) {
       var sorted = tasks.slice().sort(function(a,b) {
         var prio = {high:0,medium:1,low:2};
@@ -1206,10 +1207,10 @@ function loadPortfolio(pg, back) {
   h += '</div>';
 
   // Chart
-  h += '<div class="card"><h3>📈 Рост дохода</h3><div class="chart-box"><canvas id="ch-portfolio"></canvas></div></div>';
+  h += '<div class="card"><h3><i class="ti ti-trending-up"></i> Рост дохода</h3><div class="chart-box"><canvas id="ch-portfolio"></canvas></div></div>';
 
   // ROI table
-  h += '<div class="card"><h3>📊 Детальный прогноз</h3><div class="m-tbl-wrap"><table class="m-tbl">';
+  h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Детальный прогноз</h3><div class="m-tbl-wrap"><table class="m-tbl">';
   h += '<tr><th>Год</th><th>$/акц/мес</th><th>Доход/мес</th><th>Доход/год</th><th>Цена</th></tr>';
   for (var i = 0; i < 5; i++) {
     h += '<tr><td>Год ' + (i+1) + '</td><td>$' + fmt(RATES[i]) + '</td>';
@@ -1221,7 +1222,7 @@ function loadPortfolio(pg, back) {
   h += '</table></div></div>';
 
   // Cap chart
-  h += '<div class="card"><h3>💎 Капитализация акций</h3>';
+  h += '<div class="card"><h3><i class="ti ti-diamond"></i> Капитализация акций</h3>';
   h += '<div class="note-box" style="margin-bottom:8px">Цена акции удваивается каждый год: $5K → $10K → $20K → $40K → $80K. Капитализация к 2030: $8B.</div>';
   h += '<div class="chart-box"><canvas id="ch-portfolio-price"></canvas></div></div>';
 
@@ -1237,9 +1238,9 @@ function loadPortfolio(pg, back) {
         borderColor:'#3fb950', backgroundColor:'rgba(63,185,80,0.1)',
         borderWidth:2, tension:0.3, fill:true, pointBackgroundColor:'#3fb950', pointRadius:5}]
     },
-    options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},
-      scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(128,128,128,0.1)'}},
-              y:{ticks:{color:'#8b949e',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(128,128,128,0.1)'}}}}
+    options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#8a8a93',font:{size:10}}}},
+      scales:{x:{ticks:{color:'#8a8a93'},grid:{color:'rgba(128,128,128,0.1)'}},
+              y:{ticks:{color:'#8a8a93',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(128,128,128,0.1)'}}}}
   });
 
   // Price chart
@@ -1249,11 +1250,11 @@ function loadPortfolio(pg, back) {
     data: {
       labels:['Г1','Г2','Г3','Г4','Г5'],
       datasets:[{label:'Цена ($)', data:PRICES,
-        backgroundColor:['#d4a843','#58a6ff','#3fb950','#d29922','#bc8cff'], borderRadius:4}]
+        backgroundColor:['#d4a843','#58a6ff','#3fb950','#d6a528','#bc8cff'], borderRadius:4}]
     },
     options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#8b949e'},grid:{display:false}},
-              y:{ticks:{color:'#8b949e',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(128,128,128,0.1)'}}}}
+      scales:{x:{ticks:{color:'#8a8a93'},grid:{display:false}},
+              y:{ticks:{color:'#8a8a93',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(128,128,128,0.1)'}}}}
   });
 }
 
@@ -1263,7 +1264,7 @@ function loadCalculator(pg, back) {
 
   var h = back;
   h += '<div class="card" style="text-align:center">';
-  h += '<h3>🧮 Калькулятор дохода</h3>';
+  h += '<h3><i class="ti ti-calculator"></i> Калькулятор дохода</h3>';
   h += '<input type="range" class="calc-slider" id="calc-slider" min="1" max="500" value="' + initShares + '">';
   h += '<div style="font-size:14px;color:var(--hint);margin-bottom:12px">Акций: <strong id="calc-label" style="color:var(--gold);font-size:20px">' + initShares + '</strong></div>';
   h += '<div id="calc-results"></div>';
@@ -1291,11 +1292,11 @@ function loadCalculator(pg, back) {
       data: {
         labels:['Г1','Г2','Г3','Г4','Г5'],
         datasets:[{label:'$/мес', data:RATES.map(function(m){return n*m;}),
-          backgroundColor:['#d4a843','#58a6ff','#3fb950','#d29922','#bc8cff'], borderRadius:6}]
+          backgroundColor:['#d4a843','#58a6ff','#3fb950','#d6a528','#bc8cff'], borderRadius:6}]
       },
       options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-        scales:{x:{ticks:{color:'#8b949e'},grid:{display:false}},
-                y:{ticks:{color:'#8b949e',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(128,128,128,0.1)'}}}}
+        scales:{x:{ticks:{color:'#8a8a93'},grid:{display:false}},
+                y:{ticks:{color:'#8a8a93',callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'rgba(128,128,128,0.1)'}}}}
     });
   }
 
@@ -1331,7 +1332,7 @@ async function loadPublications(pg, back) {
     h += '</div>';
 
     // Table
-    h += '<div class="card"><h3>📝 Ваш контент</h3>';
+    h += '<div class="card"><h3><i class="ti ti-edit"></i> Ваш контент</h3>';
     if (items.length > 0) {
       h += '<div class="m-tbl-wrap"><table class="m-tbl">';
       h += '<tr><th>Название</th><th>Статус</th><th>Дата</th><th>Охват</th></tr>';
@@ -1359,7 +1360,7 @@ async function loadAdmin(pg, back) {
     var rc = a.role_counts || {};
     var h = back;
     h += '<div class="kpi-grid three"><div class="kpi"><div class="val">' + a.total_users + '</div><div class="lbl">Юзеров</div></div><div class="kpi"><div class="val green">' + a.active_users + '</div><div class="lbl">Активных</div></div><div class="kpi"><div class="val red">' + a.frozen_users + '</div><div class="lbl">Заморожено</div></div></div>';
-    h += '<div class="card"><h3>🔧 Статистика</h3>';
+    h += '<div class="card"><h3><i class="ti ti-tool"></i> Статистика</h3>';
     h += '<div class="row"><span class="lbl">Waitlist</span><span class="val" style="color:var(--orange)">' + a.waitlist_new + '</span></div>';
     h += '<div class="row"><span class="lbl">Баги</span><span class="val" style="color:var(--red)">' + a.bugs_open + '</span></div>';
     h += '<div class="row"><span class="lbl">Кайдзен</span><span class="val" style="color:var(--blue)">' + a.kaizen_new + '</span></div>';
@@ -1367,7 +1368,7 @@ async function loadAdmin(pg, back) {
     h += '<div class="row"><span class="lbl">Видео/нед</span><span class="val">' + a.videos_this_week + '</span></div>';
     h += '<div class="row"><span class="lbl">Офферов</span><span class="val">' + a.offers_active + '</span></div>';
     h += '</div>';
-    h += '<div class="card"><h3>👥 По ролям</h3>';
+    h += '<div class="card"><h3><i class="ti ti-users"></i> По ролям</h3>';
     ['maker','hr','investor','blogger','team'].forEach(function(r) { h += '<div class="row"><span class="lbl">' + (ROLE_NAMES[r]||r) + '</span><span class="val">' + (rc[r]||0) + '</span></div>'; });
     h += '</div>';
     pg.innerHTML = h;
@@ -1381,12 +1382,12 @@ async function loadRisk(pg, back) {
     var d = await api('/risk-zone/anomalies/stats');
     var h = back;
     h += '<div class="kpi-grid three"><div class="kpi"><div class="val red">' + (d.total_open||0) + '</div><div class="lbl">Открытых</div></div><div class="kpi"><div class="val" style="color:var(--orange)">' + (d.p1_count||0) + '</div><div class="lbl">P1</div></div><div class="kpi"><div class="val green">' + (d.resolved_today||0) + '</div><div class="lbl">Решено</div></div></div>';
-    h += '<div class="card"><h3>⚠️ Зона риска</h3>';
+    h += '<div class="card"><h3><i class="ti ti-alert-triangle"></i> Зона риска</h3>';
     try {
       var an = await api('/risk-zone/anomalies?limit=10');
       if (an.items && an.items.length) {
         an.items.forEach(function(a) {
-          var sev = a.severity === 'critical' ? '🔴' : a.severity === 'high' ? '🟠' : '🟡';
+          var sev = a.severity === 'critical' ? '<i class="ti ti-point-filled" style="color:var(--red)"></i>' : a.severity === 'high' ? '<i class="ti ti-point-filled" style="color:var(--orange)"></i>' : '<i class="ti ti-point-filled" style="color:#e3b341"></i>';
           h += '<div class="list-item"><div><div style="font-size:12px">' + sev + ' ' + esc(a.check_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + fmtDate(a.created_at) + '</div></div></div>';
         });
       } else { h += '<div class="empty">Нет аномалий</div>'; }
@@ -1401,7 +1402,7 @@ async function loadInfra(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var d = await api('/infrastructure');
-    var h = back + '<div class="card"><h3>🖥️ Инфраструктура</h3>';
+    var h = back + '<div class="card"><h3><i class="ti ti-device-desktop"></i> Инфраструктура</h3>';
     h += '<div class="row"><span class="lbl">БД</span><span class="val" style="color:var(--green)">' + (d.db_status||'—') + '</span></div>';
     h += '<div class="row"><span class="lbl">API</span><span class="val" style="color:var(--green)">' + (d.api_status||'—') + '</span></div>';
     h += '<div class="row"><span class="lbl">Бот</span><span class="val" style="color:var(--green)">' + (d.bot_status||'—') + '</span></div>';
@@ -1424,22 +1425,22 @@ async function loadTeamMembers(pg, back) {
     h += '<div class="kpi"><div class="val">' + (d.managers||0) + '</div><div class="lbl">Менеджеры</div></div>';
     h += '</div>';
     var orgData = [{lvl:1,role:'CEO / Founder',n:1},{lvl:2,role:'C-Level',n:10},{lvl:3,role:'Directors',n:4},{lvl:4,role:'PM',n:6},{lvl:5,role:'HR Managers',n:125},{lvl:6,role:'Content Makers',n:50},{lvl:7,role:'Support & QA',n:12},{lvl:8,role:'Advisors',n:25}];
-    h += '<div class="card"><h3>🏛️ Орг структура</h3>';
+    h += '<div class="card"><h3><i class="ti ti-building-bank"></i> Орг структура</h3>';
     for (var i = 0; i < orgData.length; i++) { var o = orgData[i]; h += '<div class="row"><span class="lbl">L' + o.lvl + ' ' + o.role + '</span><span class="val">' + o.n + '</span></div>'; }
     h += '</div>';
     if (U.profile && (U.profile.role === 'founder' || U.profile.team_role === 'founder')) {
-      h += '<div class="card"><h3>👑 Founder Vesting</h3><div class="m-tbl-wrap"><table class="m-tbl">';
+      h += '<div class="card"><h3><i class="ti ti-crown"></i> Founder Vesting</h3><div class="m-tbl-wrap"><table class="m-tbl">';
       h += '<tr><th>Год</th><th>Акции</th><th>Доход/мес</th><th>Капитал</th></tr>';
       var vd = [{y:'2026',s:'1 000',i:'$1 470',c:'$50K'},{y:'2027',s:'1 000',i:'$6 580',c:'$275K'},{y:'2028',s:'1 000',i:'$24 440',c:'$1.15M'},{y:'2029',s:'1 000',i:'$79 130',c:'$4M'},{y:'2030',s:'1 000',i:'$240 760',c:'$14M'}];
       for (var v = 0; v < vd.length; v++) h += '<tr><td>' + vd[v].y + '</td><td>' + vd[v].s + '</td><td style="color:var(--gold)">' + vd[v].i + '</td><td>' + vd[v].c + '</td></tr>';
       h += '</table></div></div>';
     }
-    h += '<div class="card"><h3>📈 Доход команды</h3>';
+    h += '<div class="card"><h3><i class="ti ti-trending-up"></i> Доход команды</h3>';
     var incD = [{y:'2026',v:'$4.50M',p:5},{y:'2027',v:'$14.26M',p:15},{y:'2028',v:'$39.04M',p:40},{y:'2029',v:'$99.31M',p:70},{y:'2030',v:'$240.76M',p:100}];
     for (var ii = 0; ii < incD.length; ii++) { h += '<div class="bar-row"><div class="bar-label">' + incD[ii].y + '</div><div class="bar-track"><div class="bar-fill" style="width:' + incD[ii].p + '%;background:var(--gold)"></div></div><div class="bar-val">' + incD[ii].v + '</div></div>'; }
     h += '</div>';
     var members = d.members || [];
-    if (members.length > 0) { h += '<div class="card"><h3>👥 Состав</h3>'; for (var m = 0; m < members.length; m++) { var mb = members[m]; h += '<div class="list-item"><span>' + (mb.shares_frozen?'❄️':'🟢') + ' ' + esc(mb.full_name) + '</span><span style="font-size:10px;color:var(--hint)">' + (mb.team_role||'—').toUpperCase() + ' · ' + (mb.shares_count||0) + '</span></div>'; } h += '</div>'; }
+    if (members.length > 0) { h += '<div class="card"><h3><i class="ti ti-users"></i> Состав</h3>'; for (var m = 0; m < members.length; m++) { var mb = members[m]; h += '<div class="list-item"><span>' + (mb.shares_frozen?'<i class="ti ti-snowflake"></i>':'<i class="ti ti-point-filled" style="color:var(--green)"></i>') + ' ' + esc(mb.full_name) + '</span><span style="font-size:10px;color:var(--hint)">' + (mb.team_role||'—').toUpperCase() + ' · ' + (mb.shares_count||0) + '</span></div>'; } h += '</div>'; }
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
@@ -1450,7 +1451,7 @@ async function loadTeamPulse(pg, back) {
   try {
     var d = await api('/team-pulse');
     var h = back;
-    h += '<div class="alert alert-info">❤️ Еженедельный анонимный опрос. 5 метрик.</div>';
+    h += '<div class="alert alert-info"><i class="ti ti-heart"></i> Еженедельный анонимный опрос. 5 метрик.</div>';
     h += '<div class="kpi-grid">';
     h += '<div class="kpi"><div class="val green">' + ((d.pulse_overall||0).toFixed?(d.pulse_overall||0).toFixed(1):'0') + '</div><div class="lbl">Пульс /10</div></div>';
     h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + (d.pulse_survey_pct||0) + '%</div><div class="lbl">Участие</div></div>';
@@ -1460,13 +1461,13 @@ async function loadTeamPulse(pg, back) {
     h += '<div class="kpi-grid three"><div class="kpi"><div class="val green">' + (d.regs_week||0) + '</div><div class="lbl">Рег/нед</div></div>';
     h += '<div class="kpi"><div class="val blue">' + (d.videos_week||0) + '</div><div class="lbl">Видео/нед</div></div>';
     h += '<div class="kpi"><div class="val">' + (d.active_makers||0) + '/' + (d.total_makers||0) + '</div><div class="lbl">Акт.мейк</div></div></div>';
-    var metrics = d.pulse_metrics || [{name:'❤️ Состояние',score:0},{name:'🔥 Мотивация',score:0},{name:'🤝 Отношения',score:0},{name:'🎯 Ясность',score:0},{name:'⚖️ Нагрузка',score:0}];
+    var metrics = d.pulse_metrics || [{name:'<i class="ti ti-heart"></i> Состояние',score:0},{name:'<i class="ti ti-flame"></i> Мотивация',score:0},{name:'<i class="ti ti-heart-handshake"></i> Отношения',score:0},{name:'<i class="ti ti-target"></i> Ясность',score:0},{name:'<i class="ti ti-scale"></i> Нагрузка',score:0}];
     var mC = ['var(--green)','var(--gold)','var(--blue)','var(--orange)','var(--purple)'];
-    h += '<div class="card"><h3>📊 5 метрик</h3>';
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> 5 метрик</h3>';
     for (var m = 0; m < metrics.length; m++) { var mt = metrics[m]; var sc = mt.score||0; h += '<div style="margin-bottom:10px"><div class="row"><span class="lbl">' + (mt.name||'') + '</span><span class="val" style="color:' + mC[m%5] + '">' + sc.toFixed(1) + '/10</span></div><div class="prog"><div class="fill" style="width:' + Math.round(sc*10) + '%;background:' + mC[m%5] + '"></div></div></div>'; }
     h += '</div>';
     var burnout = d.burnout_risk || [];
-    if (burnout.length > 0) { h += '<div class="card"><h3>🔥 Выгорание (' + burnout.length + ')</h3>'; for (var br = 0; br < burnout.length; br++) { var b = burnout[br]; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(b.name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(b.reason||'') + '</div></div><span class="badge ' + (b.level==='critical'?'red':'orange') + '">' + (b.level==='critical'?'Крит.':'Вним.') + '</span></div>'; } h += '</div>'; }
+    if (burnout.length > 0) { h += '<div class="card"><h3><i class="ti ti-flame"></i> Выгорание (' + burnout.length + ')</h3>'; for (var br = 0; br < burnout.length; br++) { var b = burnout[br]; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(b.name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(b.reason||'') + '</div></div><span class="badge ' + (b.level==='critical'?'red':'orange') + '">' + (b.level==='critical'?'Крит.':'Вним.') + '</span></div>'; } h += '</div>'; }
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
@@ -1482,13 +1483,13 @@ async function loadPainPoints(pg, back) {
     var resolved = feed.filter(function(f){return f.status==='resolved'||f.status==='dismissed';});
     var rPct = feed.length>0?Math.round(resolved.length/feed.length*100):0;
     var h = back;
-    h += '<div class="alert alert-info">🧠 Агрегация: Пульс + Кайдзен + Риск + Support.</div>';
+    h += '<div class="alert alert-info"><i class="ti ti-brain"></i> Агрегация: Пульс + Кайдзен + Риск + Support.</div>';
     h += '<div class="kpi-grid"><div class="kpi"><div class="val red">' + critical.length + '</div><div class="lbl">Критичных</div></div>';
     h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + important.length + '</div><div class="lbl">Важных</div></div>';
     h += '<div class="kpi"><div class="val blue">' + resolved.length + '</div><div class="lbl">Решено</div></div>';
     h += '<div class="kpi"><div class="val green">' + rPct + '%</div><div class="lbl">% решённых</div></div></div>';
-    if (critical.length>0) { h += '<div class="card"><h3>🔴 Критичные</h3>'; for (var c=0;c<critical.length;c++) { var it=critical[c]; h += '<div class="list-item"><div style="flex:1"><div style="font-weight:600;font-size:12px">' + esc((it.text||'').substring(0,80)) + '</div><div style="font-size:10px;color:var(--hint)">' + esc(it.author||'') + '</div></div><span class="badge red">' + esc(it.type||'') + '</span></div>'; } h += '</div>'; }
-    if (important.length>0) { h += '<div class="card"><h3>🟠 Важные (' + important.length + ')</h3>'; for (var ip=0;ip<Math.min(important.length,15);ip++) { var imp=important[ip]; h += '<div class="list-item"><div style="flex:1;font-size:12px">' + esc((imp.text||'').substring(0,60)) + '</div><span class="badge orange">' + esc(imp.category||'') + '</span></div>'; } h += '</div>'; }
+    if (critical.length>0) { h += '<div class="card"><h3><i class="ti ti-point-filled" style="color:var(--red)"></i> Критичные</h3>'; for (var c=0;c<critical.length;c++) { var it=critical[c]; h += '<div class="list-item"><div style="flex:1"><div style="font-weight:600;font-size:12px">' + esc((it.text||'').substring(0,80)) + '</div><div style="font-size:10px;color:var(--hint)">' + esc(it.author||'') + '</div></div><span class="badge red">' + esc(it.type||'') + '</span></div>'; } h += '</div>'; }
+    if (important.length>0) { h += '<div class="card"><h3><i class="ti ti-point-filled" style="color:var(--orange)"></i> Важные (' + important.length + ')</h3>'; for (var ip=0;ip<Math.min(important.length,15);ip++) { var imp=important[ip]; h += '<div class="list-item"><div style="flex:1;font-size:12px">' + esc((imp.text||'').substring(0,60)) + '</div><span class="badge orange">' + esc(imp.category||'') + '</span></div>'; } h += '</div>'; }
     if (feed.length===0) h += '<div class="empty">Нет болей</div>';
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
@@ -1507,7 +1508,7 @@ async function loadContentPage(pg, back) {
     var plats = d.platform_publications || [{name:'YouTube',count:0},{name:'Instagram',count:0},{name:'TikTok',count:0},{name:'Facebook',count:0}];
     var maxP = 1; for (var p=0;p<plats.length;p++) if (plats[p].count>maxP) maxP=plats[p].count;
     var pC = ['var(--red)','var(--purple)','var(--blue)','var(--orange)'];
-    h += '<div class="card"><h3>📱 По платформам</h3>';
+    h += '<div class="card"><h3><i class="ti ti-device-mobile"></i> По платформам</h3>';
     for (var p=0;p<plats.length;p++) { h += '<div class="bar-row"><div class="bar-label">' + esc(plats[p].name) + '</div><div class="bar-track"><div class="bar-fill" style="width:' + Math.round(plats[p].count/maxP*100) + '%;background:' + pC[p%4] + '"></div></div><div class="bar-val">' + fmt(plats[p].count) + '</div></div>'; }
     h += '</div>';
     pg.innerHTML = h;
@@ -1523,8 +1524,8 @@ async function loadAdminMakers(pg, back) {
     for (var i=0;i<makers.length;i++){if(makers[i].status==='active')active++;if(makers[i].shares_frozen)frozen++;}
     var h = back;
     h += '<div class="kpi-grid three"><div class="kpi"><div class="val blue">' + total + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + active + '</div><div class="lbl">Акт.</div></div><div class="kpi"><div class="val red">' + frozen + '</div><div class="lbl">Замор.</div></div></div>';
-    h += '<div class="card"><h3>👥 Мейкеры</h3>';
-    if (makers.length>0) { h += '<div class="m-tbl-wrap"><table class="m-tbl"><tr><th>Имя</th><th>Ст.</th><th>Видео</th><th>Акц.</th></tr>'; for (var j=0;j<makers.length;j++) { var m=makers[j]; h += '<tr><td>' + esc(m.display_name||m.username||'—') + '</td><td><span class="badge ' + (m.shares_frozen?'red':'green') + '">' + (m.shares_frozen?'❄️':'🟢') + '</span></td><td>' + fmt(m.videos_count||0) + '</td><td>' + fmt(m.shares||0) + '</td></tr>'; } h += '</table></div>'; }
+    h += '<div class="card"><h3><i class="ti ti-users"></i> Мейкеры</h3>';
+    if (makers.length>0) { h += '<div class="m-tbl-wrap"><table class="m-tbl"><tr><th>Имя</th><th>Ст.</th><th>Видео</th><th>Акц.</th></tr>'; for (var j=0;j<makers.length;j++) { var m=makers[j]; h += '<tr><td>' + esc(m.display_name||m.username||'—') + '</td><td><span class="badge ' + (m.shares_frozen?'red':'green') + '">' + (m.shares_frozen?'<i class="ti ti-snowflake"></i>':'<i class="ti ti-point-filled" style="color:var(--green)"></i>') + '</span></td><td>' + fmt(m.videos_count||0) + '</td><td>' + fmt(m.shares||0) + '</td></tr>'; } h += '</table></div>'; }
     else { h += '<div class="empty">Нет</div>'; }
     h += '</div>'; pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
@@ -1537,7 +1538,7 @@ async function loadAdminHR(pg, back) {
     var d = await api('/admin/hr'); var hrs = d.hr_managers||d||[]; if (!Array.isArray(hrs)) hrs=[];
     var h = back;
     h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + hrs.length + '</div><div class="lbl">HR менеджеров</div></div><div class="kpi"><div class="val green">' + fmt(d.total_makers_managed||0) + '</div><div class="lbl">Мейкеров</div></div></div>';
-    h += '<div class="card"><h3>🧑‍💼 HR</h3>';
+    h += '<div class="card"><h3><i class="ti ti-user"></i>‍<i class="ti ti-briefcase"></i> HR</h3>';
     if (hrs.length>0) { for (var i=0;i<hrs.length;i++) { var hr=hrs[i]; h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(hr.display_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">Мейкеров: ' + (hr.makers_count||0) + '</div></div><span class="badge gold">' + fmt(hr.shares||0) + '</span></div>'; } }
     else { h += '<div class="empty">Нет HR</div>'; }
     h += '</div>'; pg.innerHTML = h;
@@ -1554,9 +1555,9 @@ async function loadAdminShares(pg, back) {
     h += '<div class="kpi"><div class="val green">' + fmt(d.in_rotation||0) + '</div><div class="lbl">В ротации</div></div>';
     h += '<div class="kpi"><div class="val red">' + fmt(d.frozen||0) + '</div><div class="lbl">Замор.</div></div></div>';
     var dist = d.distribution||{}; var dK = Object.keys(dist);
-    if (dK.length>0) { h += '<div class="card"><h3>📊 Распределение</h3>'; for (var i=0;i<dK.length;i++) h += '<div class="row"><span class="lbl">' + esc(dK[i]) + '</span><span class="val">' + fmt(dist[dK[i]]) + '</span></div>'; h += '</div>'; }
+    if (dK.length>0) { h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Распределение</h3>'; for (var i=0;i<dK.length;i++) h += '<div class="row"><span class="lbl">' + esc(dK[i]) + '</span><span class="val">' + fmt(dist[dK[i]]) + '</span></div>'; h += '</div>'; }
     var txns = d.recent_transactions||[];
-    if (txns.length>0) { h += '<div class="card"><h3>📜 Транзакции</h3>'; for (var t=0;t<Math.min(txns.length,15);t++) { var tx=txns[t]; var sign=tx.amount>0?'+':''; var color=tx.amount>0?'var(--green)':'var(--red)'; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(tx.user||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(tx.reason||'') + '</div></div><span style="color:' + color + ';font-weight:700">' + sign + tx.amount + '</span></div>'; } h += '</div>'; }
+    if (txns.length>0) { h += '<div class="card"><h3><i class="ti ti-file-text"></i> Транзакции</h3>'; for (var t=0;t<Math.min(txns.length,15);t++) { var tx=txns[t]; var sign=tx.amount>0?'+':''; var color=tx.amount>0?'var(--green)':'var(--red)'; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(tx.user||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(tx.reason||'') + '</div></div><span style="color:' + color + ';font-weight:700">' + sign + tx.amount + '</span></div>'; } h += '</div>'; }
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
@@ -1571,11 +1572,11 @@ async function loadAdminKE(pg, back) {
     h += '<div class="kpi"><div class="val blue">' + (d.calculated_count||0) + '</div><div class="lbl">Рассчитано</div></div>';
     h += '<div class="kpi"><div class="val">' + daysUntilNewYear() + '</div><div class="lbl">До пересчёта</div></div></div>';
     var tiers = d.tier_distribution||{};
-    h += '<div class="card"><h3>📊 По тирам</h3>';
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> По тирам</h3>';
     for (var t=1;t<=5;t++) h += '<div class="row"><span class="lbl">Тир ' + t + ' (+' + (6-t) + '/год)</span><span class="val">' + (tiers['tier_'+t]||tiers[t]||0) + '</span></div>';
     h += '</div>';
     var top = d.top_performers||[];
-    if (top.length>0) { h += '<div class="card"><h3>🏆 Топ КЭ</h3>'; for (var i=0;i<top.length;i++) { var tp=top[i]; h += '<div class="lb-row"><div class="lb-rank ' + (i<3?['g','s','b'][i]:'') + '">' + (i+1) + '</div><div class="lb-name">' + esc(tp.display_name||'—') + '</div><div class="lb-val">' + (tp.score||0).toFixed(2) + '</div></div>'; } h += '</div>'; }
+    if (top.length>0) { h += '<div class="card"><h3><i class="ti ti-trophy"></i> Топ КЭ</h3>'; for (var i=0;i<top.length;i++) { var tp=top[i]; h += '<div class="lb-row"><div class="lb-rank ' + (i<3?['g','s','b'][i]:'') + '">' + (i+1) + '</div><div class="lb-name">' + esc(tp.display_name||'—') + '</div><div class="lb-val">' + (tp.score||0).toFixed(2) + '</div></div>'; } h += '</div>'; }
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
@@ -1588,8 +1589,8 @@ async function loadAdminUsers(pg, back) {
     var h = back;
     h += '<div class="kpi-grid"><div class="kpi"><div class="val">' + fmt(d.total_users||0) + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + fmt(d.active_users||0) + '</div><div class="lbl">Активных</div></div></div>';
     var byRole = d.users_by_role||d.role_counts||{}; var rK = Object.keys(byRole);
-    if (rK.length>0) { h += '<div class="card"><h3>👤 По ролям</h3>'; for (var r=0;r<rK.length;r++) h += '<div class="row"><span class="lbl">' + (ROLE_NAMES[rK[r]]||rK[r]) + '</span><span class="val">' + byRole[rK[r]] + '</span></div>'; h += '</div>'; }
-    h += '<div class="note-box">💡 Управление через Telegram-бот (/admin).</div>';
+    if (rK.length>0) { h += '<div class="card"><h3><i class="ti ti-user"></i> По ролям</h3>'; for (var r=0;r<rK.length;r++) h += '<div class="row"><span class="lbl">' + (ROLE_NAMES[rK[r]]||rK[r]) + '</span><span class="val">' + byRole[rK[r]] + '</span></div>'; h += '</div>'; }
+    h += '<div class="note-box"><i class="ti ti-bulb"></i> Управление через Telegram-бот (/admin).</div>';
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
@@ -1601,7 +1602,7 @@ async function loadBloggers(pg, back) {
     var d = await api('/admin/bloggers'); var bl = d.bloggers||d||[]; if (!Array.isArray(bl)) bl=[];
     var h = back;
     h += '<div class="kpi-grid three"><div class="kpi"><div class="val blue">' + bl.length + '</div><div class="lbl">Блогеров</div></div><div class="kpi"><div class="val green">' + fmtViews(d.total_reach||0) + '</div><div class="lbl">Охват</div></div><div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(d.total_publications||0) + '</div><div class="lbl">Публик.</div></div></div>';
-    h += '<div class="card"><h3>📰 Блогеры</h3>';
+    h += '<div class="card"><h3><i class="ti ti-news"></i> Блогеры</h3>';
     if (bl.length>0) { for (var i=0;i<bl.length;i++) { var b=bl[i]; h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(b.display_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + fmt(b.publications||0) + ' публ.</div></div><span class="badge gold">' + fmt(b.shares||0) + '</span></div>'; } }
     else { h += '<div class="empty">Нет</div>'; }
     h += '</div>'; pg.innerHTML = h;
@@ -1616,11 +1617,11 @@ async function loadInvestors(pg, back) {
     var h = back;
     h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + inv.length + '</div><div class="lbl">Инвесторов</div></div>';
     h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + fmtUSD(d.total_invested||0) + '</div><div class="lbl">Привлечено</div></div></div>';
-    h += '<div class="card"><h3>📊 Раунды</h3><div class="m-tbl-wrap"><table class="m-tbl"><tr><th>Год</th><th>Цена</th><th>Цель</th></tr>';
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Раунды</h3><div class="m-tbl-wrap"><table class="m-tbl"><tr><th>Год</th><th>Цена</th><th>Цель</th></tr>';
     var rds = [{y:'2026',p:'$5K',t:'$5M'},{y:'2027',p:'$10K',t:'$10M'},{y:'2028',p:'$20K',t:'$20M'},{y:'2029',p:'$40K',t:'$40M'},{y:'2030',p:'$80K',t:'$80M'}];
     for (var r=0;r<rds.length;r++) h += '<tr><td>' + rds[r].y + '</td><td>' + rds[r].p + '</td><td style="color:var(--gold)">' + rds[r].t + '</td></tr>';
     h += '</table></div></div>';
-    if (inv.length>0) { h += '<div class="card"><h3>💰 Список</h3>'; for (var i=0;i<inv.length;i++) h += '<div class="list-item"><span>' + esc(inv[i].display_name||'—') + '</span><span class="badge gold">' + fmt(inv[i].shares||0) + '</span></div>'; h += '</div>'; }
+    if (inv.length>0) { h += '<div class="card"><h3><i class="ti ti-coin"></i> Список</h3>'; for (var i=0;i<inv.length;i++) h += '<div class="list-item"><span>' + esc(inv[i].display_name||'—') + '</span><span class="badge gold">' + fmt(inv[i].shares||0) + '</span></div>'; h += '</div>'; }
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
@@ -1632,8 +1633,8 @@ async function loadAIAutomators(pg, back) {
     var d = await api('/ai-automators'); var internal=d.internal||[]; var offerers=d.offerers||[];
     var h = back;
     h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + internal.length + '</div><div class="lbl">Внутренних</div></div><div class="kpi"><div class="val" style="color:var(--gold)">' + offerers.length + '</div><div class="lbl">Офферщиков</div></div></div>';
-    h += '<div class="alert alert-warn">⚠️ 4 внутренних ≠ 50 офферщиков. Разные роли!</div>';
-    h += '<div class="card"><h3>🤖 Внутренние</h3>';
+    h += '<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> 4 внутренних ≠ 50 офферщиков. Разные роли!</div>';
+    h += '<div class="card"><h3><i class="ti ti-robot"></i> Внутренние</h3>';
     if (internal.length>0) { for (var i=0;i<internal.length;i++) { var a=internal[i]; h += '<div class="list-item"><span>' + esc(a.name||a.display_name||'—') + '</span><span class="badge blue">' + esc(a.area||'') + '</span></div>'; } }
     else { h += '<div class="empty">Нет</div>'; }
     h += '</div>'; pg.innerHTML = h;
@@ -1651,7 +1652,7 @@ async function loadQualityPage(pg, back) {
     h += '<div class="kpi"><div class="val blue">' + fmt(d.total_reviewed||0) + '</div><div class="lbl">Проверено</div></div>';
     h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + fmt(d.pending_review||0) + '</div><div class="lbl">В очереди</div></div></div>';
     var reviews = d.recent_reviews||[];
-    if (reviews.length>0) { h += '<div class="card"><h3>✅ Проверки</h3>'; for (var i=0;i<Math.min(reviews.length,15);i++) { var r=reviews[i]; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(r.maker||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(r.platform||'') + '</div></div><span class="badge ' + (r.result==='approved'?'green':r.result==='rejected'?'red':'orange') + '">' + esc(r.result||'—') + '</span></div>'; } h += '</div>'; }
+    if (reviews.length>0) { h += '<div class="card"><h3><i class="ti ti-circle-check"></i> Проверки</h3>'; for (var i=0;i<Math.min(reviews.length,15);i++) { var r=reviews[i]; h += '<div class="list-item"><div><div style="font-size:12px">' + esc(r.maker||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(r.platform||'') + '</div></div><span class="badge ' + (r.result==='approved'?'green':r.result==='rejected'?'red':'orange') + '">' + esc(r.result||'—') + '</span></div>'; } h += '</div>'; }
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
@@ -1667,7 +1668,7 @@ async function loadOpsCenter(pg, back) {
     h += '<div class="kpi"><div class="val">' + fmt(d.requests_today||0) + '</div><div class="lbl">Запросов</div></div>';
     h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + (d.errors_today||0) + '</div><div class="lbl">Ошибок</div></div></div>';
     var services = d.services||[{name:'API',status:'ok'},{name:'PostgreSQL',status:'ok'},{name:'Redis',status:'ok'},{name:'Bot',status:'ok'}];
-    h += '<div class="card"><h3>🎛️ Сервисы</h3>';
+    h += '<div class="card"><h3><i class="ti ti-adjustments"></i> Сервисы</h3>';
     for (var i=0;i<services.length;i++) { var s=services[i]; h += '<div class="row"><span class="lbl">' + esc(s.name) + '</span><span class="badge ' + (s.status==='ok'?'green':'red') + '">' + esc(s.status) + '</span></div>'; }
     h += '</div>'; pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
@@ -1676,13 +1677,13 @@ async function loadOpsCenter(pg, back) {
 // ---------- SETTINGS (P3) ----------
 function loadSettingsPage(pg, back) {
   var h = back;
-  h += '<div class="card"><h3>⚙️ Настройки</h3>';
+  h += '<div class="card"><h3><i class="ti ti-settings"></i> Настройки</h3>';
   h += '<div class="row"><span class="lbl">Версия</span><span class="val">v3.0</span></div>';
   h += '<div class="row"><span class="lbl">Платформа</span><span class="val">Telegram WebApp</span></div>';
   h += '<div class="row"><span class="lbl">API</span><span class="val" style="color:var(--green)">api.shikardos.team</span></div>';
-  h += '<div class="row"><span class="lbl">Тема</span><span class="val">' + (isDark ? '🌙 Тёмная' : '☀️ Светлая') + '</span></div>';
+  h += '<div class="row"><span class="lbl">Тема</span><span class="val">' + (isDark ? '<i class="ti ti-moon"></i> Тёмная' : '<i class="ti ti-sun"></i> Светлая') + '</span></div>';
   h += '</div>';
-  h += '<div class="note-box">💡 Расширенные настройки в shikardos.team/cabinet.</div>';
+  h += '<div class="note-box"><i class="ti ti-bulb"></i> Расширенные настройки в shikardos.team/cabinet.</div>';
   pg.innerHTML = h;
 }
 
