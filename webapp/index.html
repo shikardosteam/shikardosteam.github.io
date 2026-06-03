@@ -949,7 +949,7 @@ async function loadKE(pg, back) {
       for (var b = 0; b < bKeys.length; b++) bVals.push(breakdown[bKeys[b]]);
       charts.ke = new Chart($('ch-ke'), {
         type: 'doughnut',
-        data: {labels:bKeys, datasets:[{data:bVals, backgroundColor:bKeys.map(function(_,i){return colors[i%colors.length];}), borderWidth:0}]},
+        data: {labels:bKeys.map(function(k){return ({views:'Просмотры',engagement:'Вовлечённость',uniformity:'Равномерность',consistency:'Равномерность'}[k]||k);}), datasets:[{data:bVals, backgroundColor:bKeys.map(function(_,i){return colors[i%colors.length];}), borderWidth:0}]},
         options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:'#8a8a93',font:{size:10},padding:8}}}}
       });
     }
