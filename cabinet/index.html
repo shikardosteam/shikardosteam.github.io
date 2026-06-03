@@ -1481,7 +1481,7 @@ async function saveProfile() {
 async function loadVideos() {
   const page = document.getElementById('page-videos');
   const data = await api('/videos');
-  const videos = data?.videos || data || [];
+  const videos = data?.items || data?.videos || data || [];
 
   var platforms = {};
   var weeklyCount = 0;
@@ -1563,7 +1563,7 @@ async function loadVideos() {
 // ---------- KE ----------
 async function loadKE() {
   const page = document.getElementById('page-ke');
-  const data = await api('/ke');
+  const data = await api('/ke/my');
   const ke = data?.ke || data || {};
   const score = ke.score ?? ke.total ?? 0;
   const tier = ke.tier || ke.level || '\u2014';
@@ -4398,7 +4398,7 @@ function loadSettings() {
       var newName = document.getElementById('stg-name').value;
       var newEmail = document.getElementById('stg-email').value;
       var newLoc = document.getElementById('stg-location').value;
-      api('/me', 'PATCH', { full_name: newName, email: newEmail, location: newLoc })
+      api('/profile', 'PUT', { full_name: newName, email: newEmail, location: newLoc })
         .then(function() {
           saveBtn.textContent = '\u2705 \u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E';
           saveBtn.style.background = 'var(--green)';

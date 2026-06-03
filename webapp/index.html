@@ -480,8 +480,8 @@ function buildHome(profile, shares) {
 
   // Maker-specific
   if (role === 'maker') {
-    api('/maker/videos').then(function(v) { $('home-vids').textContent = (v.this_week_count||0)+'/3'; }).catch(function(){});
-    api('/maker/ke').then(function(k) { $('home-ke').textContent = k.tier ? 'Тир '+k.tier : '—'; }).catch(function(){});
+    api('/videos').then(function(v) { var it=(v&&v.items)||[]; var wa=Date.now()-7*24*3600*1000; var wc=it.filter(function(x){return x.created_at && new Date(x.created_at).getTime()>wa;}).length; $('home-vids').textContent = wc+'/3'; }).catch(function(){});
+    api('/ke/my').then(function(k) { $('home-ke').textContent = k.estimated_tier ? 'Тир '+k.estimated_tier : '—'; }).catch(function(){});
   }
 
   // Project stats (founder/team/admin)
@@ -788,7 +788,7 @@ async function loadVideos(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var data = await api('/videos');
-    var videos = data.videos || data || [];
+    var videos = data.items || data.videos || data || [];
     if (!Array.isArray(videos)) videos = [];
 
     var platforms = {};
@@ -877,7 +877,7 @@ async function loadVideos(pg, back) {
 async function loadKE(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var data = await api('/ke');
+    var data = await api('/ke/my');
     var ke = data.ke || data || {};
     var score = ke.score || ke.total || 0;
     var tier = ke.tier || ke.level || '—';
@@ -1378,7 +1378,7 @@ async function loadAdmin(pg, back) {
 async function loadRisk(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/risk-zone/stats');
+    var d = await api('/risk-zone/anomalies/stats');
     var h = back;
     h += '<div class="kpi-grid three"><div class="kpi"><div class="val red">' + (d.total_open||0) + '</div><div class="lbl">Открытых</div></div><div class="kpi"><div class="val" style="color:var(--orange)">' + (d.p1_count||0) + '</div><div class="lbl">P1</div></div><div class="kpi"><div class="val green">' + (d.resolved_today||0) + '</div><div class="lbl">Решено</div></div></div>';
     h += '<div class="card"><h3>⚠️ Зона риска</h3>';
@@ -1691,7 +1691,7 @@ function loadSettingsPage(pg, back) {
 // ===== EXPORT DATA FUNCTIONS =====
 function exportVideos() {
   api('/videos').then(function(data) {
-    var videos = data.videos || data || [];
+    var videos = data.items || data.videos || data || [];
     if (!Array.isArray(videos) || videos.length === 0) { toast('Нет данных', 'warn'); return; }
     var rows = videos.map(function(v) {
       return [v.platform||'', v.title||'', v.views||0, v.status||'', v.created_at||''];
