@@ -1379,22 +1379,121 @@ async function loadAdmin(pg, back) {
 async function loadRisk(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/risk-zone/anomalies/stats');
+    var r = await Promise.all([
+      api('/risk-zone'),
+      api('/risk-zone/anomalies?status=new&limit=30').catch(function(){return {items:[],total:0};}),
+      api('/risk-zone/anomalies/stats').catch(function(){return {by_type:{},by_severity:{}};})
+    ]);
+    var d = r[0] || {}, anom = r[1] || {}, anomStats = r[2] || {};
+    var penaltyUsers = d.penalty_users||0, frozenCount = d.frozen_count||0, anomNew = d.anomalies_new||0;
+    var bugsNew = d.bugs_new||0, bugsProg = d.bugs_in_progress||0, bugsTotal = d.bugs_total||0, waitlist = d.waitlist_count||0;
     var h = back;
-    h += '<div class="kpi-grid three"><div class="kpi"><div class="val red">' + (d.total_open||0) + '</div><div class="lbl">Открытых</div></div><div class="kpi"><div class="val" style="color:var(--orange)">' + (d.p1_count||0) + '</div><div class="lbl">P1</div></div><div class="kpi"><div class="val green">' + (d.resolved_today||0) + '</div><div class="lbl">Решено</div></div></div>';
-    h += '<div class="card"><h3><i class="ti ti-alert-triangle"></i> Зона риска</h3>';
-    try {
-      var an = await api('/risk-zone/anomalies?limit=10');
-      if (an.items && an.items.length) {
-        an.items.forEach(function(a) {
-          var sev = a.severity === 'critical' ? '<i class="ti ti-point-filled" style="color:var(--red)"></i>' : a.severity === 'high' ? '<i class="ti ti-point-filled" style="color:var(--orange)"></i>' : '<i class="ti ti-point-filled" style="color:#e3b341"></i>';
-          h += '<div class="list-item"><div><div style="font-size:12px">' + sev + ' ' + esc(a.check_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + fmtDate(a.created_at) + '</div></div></div>';
-        });
-      } else { h += '<div class="empty">Нет аномалий</div>'; }
-    } catch(e2) { h += '<div class="empty">Нет данных</div>'; }
+
+    h += '<div class="card" style="border-left:3px solid var(--red)"><div style="font-size:12px;color:var(--text)"><i class="ti ti-alert-triangle"></i> <b>Зона риска</b> · мониторинг через Apify · триггер замены: &lt;6 видео/нед 3 нед подряд · очередь: ' + fmt(waitlist) + '</div></div>';
+
+    // KPI
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val red">' + fmt(penaltyUsers) + '</div><div class="lbl">Кандидаты на замену</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">' + fmt(bugsNew+bugsProg) + '</div><div class="lbl">Предупреждения</div></div>';
+    h += '<div class="kpi"><div class="val blue">' + fmt(waitlist) + '</div><div class="lbl">Очередь ожидания</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">' + fmt(anomNew) + '</div><div class="lbl">AI-флаги</div></div>';
+    h += '<div class="kpi"><div class="val green">' + fmt(frozenCount) + '</div><div class="lbl">Замен/мес</div></div>';
     h += '</div>';
+
+    // Воронка деградации
+    function fbar(label, color, val, total) {
+      var pct = total>0 ? Math.round(val/total*100) : 0;
+      return '<div class="bar-row"><span style="min-width:130px;font-size:12px">' + label + '</span>' +
+        '<div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:' + color + ';height:100%;border-radius:4px;min-width:' + (val>0?'2':'0') + 'px"></div></div>' +
+        '<span style="min-width:36px;text-align:right;font-size:12px">' + fmt(val) + '</span></div>';
+    }
+    var tot = d.stats_total||0;
+    h += '<div class="card"><h3><i class="ti ti-trending-down"></i> Воронка деградации</h3>';
+    h += fbar('<i class="ti ti-point-filled" style="color:var(--green)"></i> Норма (12+)', 'var(--green)', d.stats_normal||0, tot||1);
+    h += fbar('<i class="ti ti-point-filled" style="color:#e3b341"></i> Внимание (9-11)', '#e3b341', d.stats_attention||0, tot||1);
+    h += fbar('<i class="ti ti-point-filled" style="color:var(--orange)"></i> Предупр. (6-8)', 'var(--orange)', d.stats_warning||0, tot||1);
+    h += fbar('<i class="ti ti-point-filled" style="color:var(--red)"></i> Критично (1-5)', 'var(--red)', d.stats_critical||0, tot||1);
+    h += fbar('<i class="ti ti-point-filled" style="color:var(--hint)"></i> Тишина (0)', 'var(--hint)', d.stats_silence||0, tot||1);
+    h += '<div style="margin-top:10px;font-size:11px;color:var(--hint)"><i class="ti ti-bulb"></i> Apify парсит 4 платформы еженедельно. &lt;6 видео/нед 3 нед подряд → статус "Замена".</div></div>';
+
+    // Топ критичных
+    var frozen = d.frozen||[];
+    h += '<div class="card"><h3><i class="ti ti-point-filled" style="color:var(--red)"></i> Топ критичных · замена</h3>';
+    if (frozen.length) {
+      frozen.slice(0,10).forEach(function(u){
+        h += '<div class="list-item"><div><div style="font-size:12px">' + esc(u.full_name||u.username||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + fmt(u.penalty_shares||0) + ' штраф · ' + fmt(u.shares_count||0) + ' акц.</div></div><span class="badge" style="background:rgba(248,81,73,0.15);color:var(--red)"><i class="ti ti-snowflake"></i> -' + (u.penalty_shares||0) + '</span></div>';
+      });
+    } else { h += '<div class="empty">Нет критичных мейкеров</div>'; }
+    h += '</div>';
+
+    // AI-флаги
+    var items = anom.items||[];
+    var typeLabels = {views_spike:'Спайк просмотров',low_engagement:'Низкий ER',mass_upload:'Масс-заливка',inactive_14d:'Неактивен',views_drop:'Падение просм.',foreign_link:'Чужая ссылка'};
+    h += '<div class="card"><h3><i class="ti ti-robot"></i> AI-флаги накруток <span style="font-size:11px;color:var(--hint);font-weight:400">' + fmt(anom.total||0) + ' кейсов</span></h3>';
+    if (items.length) {
+      items.slice(0,8).forEach(function(a){
+        var sc = a.severity==='red'?'var(--red)':a.severity==='orange'?'var(--orange)':'#e3b341';
+        h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px"><i class="ti ti-point-filled" style="color:' + sc + '"></i> ' + esc(a.maker_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + (typeLabels[a.anomaly_type]||a.anomaly_type) + ' · ' + esc((a.description||'').substring(0,50)) + '</div></div><button onclick="resolveAnomaly(' + a.id + ')" class="badge" style="border:none;cursor:pointer;background:var(--card);color:var(--text)"><i class="ti ti-circle-check"></i></button></div>';
+      });
+    } else { h += '<div class="empty">Нет аномалий</div>'; }
+    // by_type bars
+    var bt = anomStats.by_type||{}, btk = Object.keys(bt), mx=1;
+    btk.forEach(function(k){ if(bt[k]>mx) mx=bt[k]; });
+    if (btk.length) {
+      h += '<div style="margin-top:8px">';
+      var bc = ['var(--red)','var(--orange)','var(--purple)','var(--hint)','var(--blue)','var(--green)'];
+      btk.forEach(function(k,i){
+        var pct = Math.round(bt[k]/mx*100);
+        h += '<div class="bar-row"><span style="min-width:120px;font-size:11px">' + (typeLabels[k]||k) + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:14px;overflow:hidden"><div style="width:' + pct + '%;background:' + bc[i%bc.length] + ';height:100%;border-radius:4px;min-width:2px"></div></div><span style="min-width:26px;text-align:right;font-size:11px">' + bt[k] + '</span></div>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+
+    // Баги
+    var bugs = d.bugs||[];
+    var bSt = {'new':'<i class="ti ti-point-filled" style="color:var(--green)"></i> Новый','in_progress':'В работе','resolved':'<i class="ti ti-circle-check"></i> Решён','dismissed':'<i class="ti ti-x"></i> Отклонён'};
+    h += '<div class="card"><h3><i class="ti ti-bug"></i> Баги <span style="font-size:11px;color:var(--hint);font-weight:400">(' + bugsTotal + ')</span></h3>';
+    if (bugs.length) {
+      bugs.forEach(function(b){
+        h += '<div class="list-item"><div style="flex:1;font-size:12px">' + esc((b.text||'').substring(0,60)) + (b.escalated?' <i class="ti ti-alert-octagon"></i>':'') + '</div><span style="font-size:11px;white-space:nowrap">' + (bSt[b.status]||b.status) + '</span></div>';
+      });
+    } else { h += '<div class="empty">Нет багов</div>'; }
+    h += '</div>';
+
+    // Замороженные
+    h += '<div class="card"><h3><i class="ti ti-snowflake"></i> Замороженные <span style="font-size:11px;color:var(--hint);font-weight:400">(' + frozenCount + ')</span></h3>';
+    if (frozen.length) {
+      frozen.forEach(function(u){
+        h += '<div class="list-item"><span style="font-size:12px"><i class="ti ti-snowflake"></i> ' + esc(u.full_name||'—') + '</span><span style="font-size:11px;color:var(--red)">-' + (u.penalty_shares||0) + ' · ' + (u.shares_count||0) + ' акц.</span></div>';
+      });
+    } else { h += '<div class="empty">Нет замороженных</div>'; }
+    h += '</div>';
+
+    // Процедура списания
+    var steps = [
+      ['01','var(--red)','Нет ссылок за неделю → заморозка','Бот убирает ссылку из ротации, акции заморожены, доход = 0'],
+      ['02','var(--orange)','Уведомления с альтернативами','Работай сам / найми подрядчика / продай акции'],
+      ['03','var(--gold)','Каждый месяц простоя = -1 акция','Списывается с баланса безвозвратно'],
+      ['04','var(--blue)','0 акций = выход из системы','Место передаётся новому мейкеру из очереди'],
+      ['05','var(--green)','Возврат в любой момент','Скинул ссылки → разморозка, доход восстанавливается']
+    ];
+    h += '<div class="card"><h3><i class="ti ti-clipboard"></i> Процедура списания <span style="font-size:11px;color:var(--hint);font-weight:400">-1 акция/мес</span></h3>';
+    steps.forEach(function(st){
+      h += '<div class="list-item" style="align-items:flex-start"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:' + st[1] + ';min-width:26px">' + st[0] + '</div><div><div style="font-size:12px;font-weight:600">' + st[2] + '</div><div style="font-size:10px;color:var(--hint)">' + st[3] + '</div></div></div>';
+    });
+    h += '<div style="margin-top:8px;font-size:11px;color:var(--text)"><i class="ti ti-alert-triangle"></i> Исключение: подтверждённая мед. ситуация. Механика одинакова для всех.</div></div>';
+
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e) { console.error('risk', e); pg.innerHTML = back + '<div class="empty"><i class="ti ti-alert-triangle"></i> Ошибка загрузки зоны риска</div>'; }
+}
+
+async function resolveAnomaly(flagId) {
+  try {
+    await api('/risk-zone/anomalies/' + flagId + '/resolve', 'POST', {action:'resolved', comment:'Closed from webapp'});
+    if (typeof toast === 'function') toast('Флаг закрыт');
+    loadSubPage('risk');
+  } catch(e) { if (typeof toast === 'function') toast('Ошибка', 'error'); }
 }
 
 // ---------- INFRA ----------
@@ -1765,8 +1864,11 @@ async function emailFallbackLogin() {
     var jwtToken = data.token;
     // Override api function to use JWT
     window._origApi = api;
-    api = async function(path) {
-      var r = await fetch(API_BASE + path, {headers: {'Authorization': 'Bearer ' + jwtToken}});
+    api = async function(path, method, body) {
+      if (typeof method === 'object') { body = method; method = 'POST'; }
+      var opts = { method: method || 'GET', headers: {'Authorization': 'Bearer ' + jwtToken} };
+      if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+      var r = await fetch(API_BASE + path, opts);
       if (!r.ok) throw new Error('API ' + r.status);
       return r.json();
     };
