@@ -29,6 +29,11 @@
   --purple: #bc8cff;
   --sidebar-w: 240px;
 }
+.theme-toggle{background:transparent;border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:9px;cursor:pointer;display:inline-grid;place-items:center}
+.theme-toggle:hover{border-color:var(--gold);color:var(--gold)}
+.theme-toggle i{font-size:18px}
+body.light{--bg:#f4f3ee;--card:#ffffff;--card2:#faf9f5;--border:#e2e0d6;--text:#1b1b1d;--muted:#6c6c73;--gold:#b8902f;--gold2:#9c7a26;--gold-dim:rgba(184,144,47,0.12);--green:#1f9d57;--red:#d23b3b;--blue:#2a72c9;--orange:#b07d12;--purple:#8a5cf6;}
+body.light .bar-track{background:rgba(0,0,0,0.06)}
 
 * { margin:0; padding:0; box-sizing:border-box; }
 html { scroll-behavior:smooth; }
@@ -524,6 +529,7 @@ h3 { font-size:18px; }
         <span class="status-dot" id="topbar-status-dot"></span>
         <span class="user-name" id="topbar-name"></span>
       </span>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Сменить тему"><i class="ti ti-moon"></i></button>
       <button class="logout-btn" onclick="logout()">Выйти</button>
     </div>
   </header>
@@ -2323,7 +2329,10 @@ function fmtDate(d) {
 }
 
 // ===== INIT =====
+function applyTheme(t){var l=(t==='light');document.body.classList.toggle('light',l);try{localStorage.setItem('st_theme',t);}catch(e){}var b=document.getElementById('theme-toggle');if(b)b.innerHTML=l?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon"></i>';}
+function toggleTheme(){applyTheme(document.body.classList.contains('light')?'dark':'light');}
 document.addEventListener('DOMContentLoaded', async () => {
+  applyTheme(localStorage.getItem('st_theme')||'dark');
   // Auto-login если есть сохранённый token
   if (token) {
     const me = await api('/auth/me');
@@ -4419,8 +4428,8 @@ function loadSettings() {
   // Theme toggle
   var darkBtn = document.getElementById('stg-theme-dark');
   var lightBtn = document.getElementById('stg-theme-light');
-  if (darkBtn) darkBtn.addEventListener('click', function() { stg.theme = 'dark'; saveSt(); loadSettings(); });
-  if (lightBtn) lightBtn.addEventListener('click', function() { stg.theme = 'light'; saveSt(); loadSettings(); });
+  if (darkBtn) darkBtn.addEventListener('click', function() { stg.theme = 'dark'; saveSt(); applyTheme('dark'); loadSettings(); });
+  if (lightBtn) lightBtn.addEventListener('click', function() { stg.theme = 'light'; saveSt(); applyTheme('light'); loadSettings(); });
 
   // Toggle switches
   var toggleRows = page.querySelectorAll('[data-toggle]');
