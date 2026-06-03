@@ -889,43 +889,32 @@ function getStatusLabel(status) {
 
 // ===== GRANULAR C-LEVEL ACCESS =====
 var TEAM_ROLE_ACCESS = {
-  // Common pages for ALL team members (including C-Level)
-  _common: ['home','shares','profile','trends','hall-of-fame','tasks','kaizen','team-pulse','settings','admin-ke','risk-zone','pain-points','team-members'],
-  // C-Level specific additions
-  cto: ['infrastructure','ai-automators','quality','admin-overview','content'],
-  cmo: ['content','trends','bloggers','admin-overview'],
+  _common: ['home','shares','profile','trends','hall-of-fame','settings','referrals','kaizen'],
+  _team: ['tasks','team-members','team-pulse','pain-points','contests','content','admin-ke','risk-zone'],
+  cto: ['infrastructure','ai-automators','quality','admin-overview','content','admin-ke','risk-zone','ops-center'],
+  cmo: ['content','bloggers','admin-overview'],
   cfo: ['investors','admin-shares','admin-overview'],
-  coo: ['ops-center','admin-hr','admin-makers','admin-overview','admin-users'],
-  hr_director: ['admin-hr','admin-makers','team-pulse','pain-points','admin-overview'],
-  pm: ['admin-makers','content','admin-overview'],
-  // Ролевые (не C-Level)
-  maker: ['home','shares','profile','videos','ke','offers','trends','hall-of-fame'],
-  hr: ['home','shares','profile','hr-makers','hr-review','trends','hall-of-fame'],
-  investor: ['home','shares','profile','portfolio','calculator','trends','hall-of-fame'],
-  blogger: ['home','shares','profile','publications','trends','hall-of-fame']
+  coo: ['ops-center','admin-hr','admin-makers','admin-overview','admin-users','risk-zone'],
+  hr_director: ['admin-hr','admin-makers','admin-overview'],
+  pm: ['admin-makers','admin-overview'],
+  maker: ['videos','ke','offers'],
+  hr: ['hr-makers','hr-review'],
+  investor: ['portfolio','calculator'],
+  blogger: ['publications']
 };
 
 function canAccessPage(pageId) {
   if (!currentUser) return false;
-  // Founder sees everything
-  if (currentUser.role === 'founder' || currentUser.team_role === 'founder') return true;
-  // Check role-based access
+  if (currentUser.role === 'founder' || currentUser.team_role === 'founder' || currentUser.is_admin) return true;
   var role = currentUser.role;
   var teamRole = currentUser.team_role || '';
-  // Common pages — everyone can see
   if (TEAM_ROLE_ACCESS._common.indexOf(pageId) >= 0) return true;
-  // Role-specific pages (maker, hr, investor, blogger)
-  if (role !== 'team' && TEAM_ROLE_ACCESS[role]) {
-    if (TEAM_ROLE_ACCESS[role].indexOf(pageId) >= 0) return true;
-  }
-  // Team role specific pages (C-Level)
-  if (role === 'team' && teamRole && TEAM_ROLE_ACCESS[teamRole]) {
-    if (TEAM_ROLE_ACCESS[teamRole].indexOf(pageId) >= 0) return true;
-  }
-  // Team without specific team_role — only common pages
   if (role === 'team') {
-    return TEAM_ROLE_ACCESS._common.indexOf(pageId) >= 0;
+    if (TEAM_ROLE_ACCESS._team.indexOf(pageId) >= 0) return true;
+    if (teamRole && TEAM_ROLE_ACCESS[teamRole] && TEAM_ROLE_ACCESS[teamRole].indexOf(pageId) >= 0) return true;
+    return false;
   }
+  if (TEAM_ROLE_ACCESS[role] && TEAM_ROLE_ACCESS[role].indexOf(pageId) >= 0) return true;
   return false;
 }
 

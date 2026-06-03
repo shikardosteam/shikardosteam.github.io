@@ -298,17 +298,18 @@ var charts = {};
 
 // ===== TEAM ROLE ACCESS =====
 var TEAM_ROLE_ACCESS = {
-  _common: ['home','shares','profile','trends','hall','tasks','kaizen','contests','referrals','settings','team-members','team-pulse','pain-points'],
+  _common: ['home','shares','profile','trends','hall','settings','referrals','kaizen'],
+  _team: ['tasks','team-members','team-pulse','pain-points','contests','content','admin-ke','risk-zone'],
   cto: ['infrastructure','ai-automators','quality','admin','content','admin-ke','risk-zone','ops-center'],
-  cmo: ['content','trends','bloggers','admin'],
+  cmo: ['content','bloggers','admin'],
   cfo: ['investors','admin-shares','admin'],
   coo: ['ops-center','admin-hr','admin-makers','admin','admin-users','risk-zone'],
-  hr_director: ['admin-hr','admin-makers','team-pulse','pain-points','admin'],
-  pm: ['admin-makers','content','admin'],
-  maker: ['home','shares','profile','videos','ke','offers','trends','hall'],
-  hr: ['home','shares','profile','hr-makers','hr-review','trends','hall'],
-  investor: ['home','shares','profile','portfolio','calculator','trends','hall'],
-  blogger: ['home','shares','profile','publications','trends','hall']
+  hr_director: ['admin-hr','admin-makers','admin'],
+  pm: ['admin-makers','admin'],
+  maker: ['videos','ke','offers'],
+  hr: ['hr-makers','hr-review'],
+  investor: ['portfolio','calculator'],
+  blogger: ['publications']
 };
 
 function canAccess(pageId) {
@@ -317,12 +318,12 @@ function canAccess(pageId) {
   var teamRole = U.profile.team_role || '';
   if (role === 'founder' || teamRole === 'founder' || U.profile.is_admin) return true;
   if (TEAM_ROLE_ACCESS._common.indexOf(pageId) >= 0) return true;
-  if (role !== 'team' && TEAM_ROLE_ACCESS[role]) {
-    if (TEAM_ROLE_ACCESS[role].indexOf(pageId) >= 0) return true;
+  if (role === 'team') {
+    if (TEAM_ROLE_ACCESS._team.indexOf(pageId) >= 0) return true;
+    if (teamRole && TEAM_ROLE_ACCESS[teamRole] && TEAM_ROLE_ACCESS[teamRole].indexOf(pageId) >= 0) return true;
+    return false;
   }
-  if (role === 'team' && teamRole && TEAM_ROLE_ACCESS[teamRole]) {
-    if (TEAM_ROLE_ACCESS[teamRole].indexOf(pageId) >= 0) return true;
-  }
+  if (TEAM_ROLE_ACCESS[role] && TEAM_ROLE_ACCESS[role].indexOf(pageId) >= 0) return true;
   return false;
 }
 
