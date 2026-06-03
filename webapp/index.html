@@ -752,20 +752,39 @@ async function loadKaizen(pg, back) {
 async function loadContests(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var c = await api('/contests');
-    var h = back + '<div class="card"><h3><i class="ti ti-medal"></i> Конкурсы</h3>';
-    if (c.items && c.items.length) {
-      c.items.forEach(function(i) {
-        var st = {active:'<i class="ti ti-point-filled" style="color:var(--green)"></i>',upcoming:'<i class="ti ti-point-filled" style="color:#e3b341"></i>',ended:'⏹'}[i.status]||'<i class="ti ti-point-filled" style="color:var(--hint)"></i>';
-        h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(i.title) + '</div><div style="font-size:10px;color:var(--hint)">' + st + ' ' + (i.status||'') + (i.prize_shares?' · <i class="ti ti-trophy"></i> '+i.prize_shares+' акц.':'') + '</div></div>' + (i.my_entry?'<span class="badge green">Участвую</span>':'') + '</div>';
-      });
-    } else { h += '<div class="empty">Нет конкурсов</div>'; }
+    var d = await api('/contests') || {};
+    var stM={draft:'Черновик',active:'Активный',voting:'Голосование',finished:'Завершён',cancelled:'Отменён'};
+    var tpM={hr_manager:'HR',ai_automator:'AI',project_manager:'PM',pr:'PR',targeting:'Таргет',affiliate:'Affiliate',seo:'SEO',copywriter:'Копирайтер'};
+    var h = back;
+    h += '<div class="card" style="border-left:3px solid var(--gold)"><div style="font-size:12px"><b>Конкурсы · ежегодно</b> · 2 175 акц из пула команды (17.5%) · беспроигрышная система</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val gold">2 175</div><div class="lbl">Акций (5 лет)</div></div>';
+    h += '<div class="kpi"><div class="val blue">435</div><div class="lbl">Акций/год</div></div>';
+    h += '<div class="kpi"><div class="val green">Дек 2026</div><div class="lbl">Следующий</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">150</div><div class="lbl">Участников</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">Беспр.</div><div class="lbl">Принцип</div></div>';
+    h += '</div>';
+    var princ=[['<i class="ti ti-target"></i> Только цифры из дашборда','Никакой субъективности','var(--gold)'],['<i class="ti ti-trophy"></i> Беспроигрышная система','Каждый получает акции, топы больше','var(--green)'],['<i class="ti ti-trending-up"></i> Бонус топам со 2 года','Рост отстающих 10-100% → бонус руководителю','var(--blue)'],['<i class="ti ti-diamond"></i> Источник акций','Пул команды 17.5%, отдельно от ЗП','var(--purple)']];
+    h += '<div class="card"><h3><i class="ti ti-settings"></i> Как работает конкурс</h3>';
+    princ.forEach(function(x){ h += '<div class="list-item" style="border-left:3px solid ' + x[2] + ';padding-left:8px"><div><div style="font-size:12px;font-weight:600">' + x[0] + '</div><div style="font-size:10px;color:var(--hint)">' + x[1] + '</div></div></div>'; });
+    h += '</div>';
+    var roles=[['HR-менеджер (мейкеры) ×50','150 акц/год · 750 за 5 лет','var(--green)'],['HR-менеджер (блогеры) ×10','30 акц/год · 150 за 5 лет','var(--orange)'],['Project Manager ×10','30 акц/год · 150 за 5 лет','var(--blue)'],['AI автоматизатор ×50','150 акц/год · 750 за 5 лет','var(--purple)'],['5 подразделений ×5','75 акц/год · 375 за 5 лет','var(--gold)']];
+    h += '<div class="card"><h3><i class="ti ti-trophy"></i> Правила по ролям (1-е +5 … 5-е +1)</h3>';
+    roles.forEach(function(r){ h += '<div class="list-item"><span style="font-size:12px;color:' + r[2] + ';font-weight:600">' + r[0] + '</span><span style="font-size:10px;color:var(--hint)">' + r[1] + '</span></div>'; });
+    h += '</div>';
+    var math=[['HR-Менеджер мейкеров','50','150','750'],['AI автоматизатор','50','150','750'],['HR-Менеджер блогеров','10','30','150'],['Project Manager','10','30','150'],['5 подразделений','25','75','375']];
+    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Итоговая математика</h3>';
+    math.forEach(function(m){ h += '<div class="list-item"><span style="font-size:12px">' + m[0] + ' <span style="color:var(--hint)">(' + m[1] + ')</span></span><span style="font-size:11px"><span style="color:var(--gold)">' + m[2] + '/год</span> · <span style="color:var(--green)">' + m[3] + '</span></span></div>'; });
+    h += '<div class="list-item" style="border-top:1px solid var(--border)"><span style="font-size:12px;font-weight:700">ИТОГО (150 чел)</span><span style="font-size:12px;font-weight:700;color:var(--gold)">435/год · 2 175</span></div>';
+    h += '<div style="font-size:11px;color:var(--hint);margin-top:6px"><i class="ti ti-diamond"></i> Конкурсные акции — бонус сверх ЗП-вестинга</div></div>';
+    var items=d.items||[];
+    h += '<div class="card"><h3><i class="ti ti-file"></i> Текущие конкурсы</h3>';
+    if(items.length){ items.forEach(function(c){ var my=c.my_entry?' <i class="ti ti-circle-check"></i>':''; h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px;font-weight:600">' + esc(c.title||'') + my + '</div><div style="font-size:10px;color:var(--hint)">' + (tpM[c.contest_type]||c.contest_type||'') + ' · ' + (c.prize_shares||0) + ' акц</div></div><span class="badge" style="background:rgba(128,128,128,0.12);color:var(--blue)">' + (stM[c.status]||c.status||'') + '</span></div>'; }); } else { h += '<div class="empty">Нет конкурсов</div>'; }
     h += '</div>';
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e){ console.error('contests',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- REFERRALS ----------
 async function loadReferrals(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
@@ -1798,34 +1817,68 @@ async function loadAdminUsers(pg, back) {
 async function loadBloggers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/admin/bloggers'); var bl = d.bloggers||d||[]; if (!Array.isArray(bl)) bl=[];
+    var d = await api('/admin/bloggers') || {};
     var h = back;
-    h += '<div class="kpi-grid three"><div class="kpi"><div class="val blue">' + bl.length + '</div><div class="lbl">Блогеров</div></div><div class="kpi"><div class="val green">' + fmtViews(d.total_reach||0) + '</div><div class="lbl">Охват</div></div><div class="kpi"><div class="val" style="color:var(--gold)">' + fmt(d.total_publications||0) + '</div><div class="lbl">Публик.</div></div></div>';
-    h += '<div class="card"><h3><i class="ti ti-news"></i> Блогеры</h3>';
-    if (bl.length>0) { for (var i=0;i<bl.length;i++) { var b=bl[i]; h += '<div class="list-item"><div><div style="font-weight:600;font-size:12px">' + esc(b.display_name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + fmt(b.publications||0) + ' публ.</div></div><span class="badge gold">' + fmt(b.shares||0) + '</span></div>'; } }
-    else { h += '<div class="empty">Нет</div>'; }
-    h += '</div>'; pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val blue">' + fmt(d.active_bloggers||0) + '</div><div class="lbl">Активных</div></div>';
+    h += '<div class="kpi"><div class="val gold">' + fmt(d.total_audience||0) + '</div><div class="lbl">Аудитория</div></div>';
+    h += '<div class="kpi"><div class="val green">' + fmt(d.brought_makers||0) + '</div><div class="lbl">Привели</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">' + fmt(d.distributed_shares||0) + '</div><div class="lbl">Акций</div></div>';
+    h += '<div class="kpi"><div class="val green">$' + fmt(d.avg_income||0) + '</div><div class="lbl">Ср.доход</div></div>';
+    h += '</div>';
+    var top=d.top_bloggers||[];
+    h += '<div class="card"><h3><i class="ti ti-crown"></i> Топ-15 блогеров</h3>';
+    if(top.length){ top.slice(0,15).forEach(function(b,i){ h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + '">' + (i+1) + '.</span> ' + esc(b.name||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(b.platform||'') + ' · ' + fmt(b.audience||0) + ' ауд · привёл ' + fmt(b.brought||0) + '</div></div><span style="font-size:11px;color:var(--gold);font-weight:600">' + fmt(b.shares||0) + ' акц</span></div>'; }); } else { h += '<div class="empty">Нет данных</div>'; }
+    h += '</div>';
+    var pd=d.platform_distribution||[];
+    if(pd.length){ var mx=1; pd.forEach(function(x){if((x.count||0)>mx)mx=x.count;}); h += '<div class="card"><h3><i class="ti ti-device-mobile"></i> По платформам</h3>'; pd.forEach(function(x){ var pct=Math.round((x.count||0)/mx*100); h += '<div class="bar-row"><span style="min-width:90px;font-size:12px">' + esc(x.name||'—') + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:var(--blue);height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + fmt(x.count||0) + '</span></div>'; }); h += '</div>'; }
+    var tp=d.topics||[];
+    if(tp.length){ var mx2=1; tp.forEach(function(x){if((x.count||0)>mx2)mx2=x.count;}); h += '<div class="card"><h3><i class="ti ti-target"></i> Тематики</h3>'; tp.forEach(function(x){ var pct=Math.round((x.count||0)/mx2*100); h += '<div class="bar-row"><span style="min-width:90px;font-size:12px">' + esc(x.name||'—') + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:var(--gold);height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + fmt(x.count||0) + '</span></div>'; }); h += '</div>'; }
+    var pool=d.shares_pool||1500, dd=d.shares_distributed||d.distributed_shares||0, shPct=pool>0?Math.round(dd/pool*100):0;
+    h += '<div class="card"><h3><i class="ti ti-coin"></i> Акции блогеров</h3><div class="kpi-grid three"><div class="kpi"><div class="val blue">' + fmt(pool) + '</div><div class="lbl">Пул</div></div><div class="kpi"><div class="val green">' + fmt(dd) + '</div><div class="lbl">Распред.</div></div><div class="kpi"><div class="val gold">' + fmt(pool-dd) + '</div><div class="lbl">Осталось</div></div></div><div class="prog" style="margin-top:6px"><div class="fill" style="width:' + shPct + '%;background:var(--green)"></div></div></div>';
+    var fn=d.acquisition_funnel||{};
+    var fs=[['<i class="ti ti-eye"></i> Просмотры',fn.views||0],['<i class="ti ti-link"></i> Клики',fn.clicks||0],['<i class="ti ti-robot"></i> Бот',fn.bot||0],['<i class="ti ti-edit"></i> Заявка',fn.application||0],['<i class="ti ti-circle-check"></i> Прошли',fn.passed||0],['<i class="ti ti-movie"></i> Активные',fn.active||0]];
+    var mxf=1; fs.forEach(function(x){if(x[1]>mxf)mxf=x[1];});
+    h += '<div class="card"><h3><i class="ti ti-trending-down"></i> Воронка привлечения</h3>';
+    fs.forEach(function(x){ var pct=Math.round(x[1]/mxf*100); h += '<div class="bar-row"><span style="min-width:110px;font-size:12px">' + x[0] + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + pct + '%;background:var(--gold);height:100%;min-width:' + (x[1]>0?'2':'0') + 'px"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + fmt(x[1]) + '</span></div>'; });
+    h += '</div>';
+    pg.innerHTML = h;
+  } catch(e){ console.error('bloggers',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- INVESTORS (P3) ----------
 async function loadInvestors(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/admin/investors'); var inv = d.investors||d||[]; if (!Array.isArray(inv)) inv=[];
+    var d = await api('/admin/investors').catch(function(){return {};}) || {};
     var h = back;
-    h += '<div class="kpi-grid"><div class="kpi"><div class="val blue">' + inv.length + '</div><div class="lbl">Инвесторов</div></div>';
-    h += '<div class="kpi"><div class="val" style="color:var(--gold)">' + fmtUSD(d.total_invested||0) + '</div><div class="lbl">Привлечено</div></div></div>';
-    h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Раунды</h3><div class="m-tbl-wrap"><table class="m-tbl"><tr><th>Год</th><th>Цена</th><th>Цель</th></tr>';
-    var rds = [{y:'2026',p:'$5K',t:'$5M'},{y:'2027',p:'$10K',t:'$10M'},{y:'2028',p:'$20K',t:'$20M'},{y:'2029',p:'$40K',t:'$40M'},{y:'2030',p:'$80K',t:'$80M'}];
-    for (var r=0;r<rds.length;r++) h += '<tr><td>' + rds[r].y + '</td><td>' + rds[r].p + '</td><td style="color:var(--gold)">' + rds[r].t + '</td></tr>';
-    h += '</table></div></div>';
-    if (inv.length>0) { h += '<div class="card"><h3><i class="ti ti-coin"></i> Список</h3>'; for (var i=0;i<inv.length;i++) h += '<div class="list-item"><span>' + esc(inv[i].display_name||'—') + '</span><span class="badge gold">' + fmt(inv[i].shares||0) + '</span></div>'; h += '</div>'; }
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val blue">Год ' + (d.current_round||1) + '</div><div class="lbl">Раунд</div></div>';
+    h += '<div class="kpi"><div class="val green">$' + fmt(d.raised||0) + '</div><div class="lbl">Привлечено</div></div>';
+    h += '<div class="kpi"><div class="val gold">' + (d.active_investors||0) + '</div><div class="lbl">Инвесторов</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--purple)">' + (d.shares_sold||0) + '</div><div class="lbl">Акций продано</div></div>';
+    h += '<div class="kpi"><div class="val" style="color:var(--orange)">$' + fmt(d.pipeline||0) + '</div><div class="lbl">Pipeline</div></div>';
+    h += '</div>';
+    var rounds=d.rounds||[{y:1,price:'$5 000',avail:1000,sold:0,plan:'$5M',status:'Открыт'},{y:2,price:'$10 000',avail:1000,sold:0,plan:'$10M',status:'Ожидание'},{y:3,price:'$20 000',avail:1000,sold:0,plan:'$20M',status:'Ожидание'},{y:4,price:'$40 000',avail:1000,sold:0,plan:'$40M',status:'Ожидание'},{y:5,price:'$80 000',avail:1000,sold:0,plan:'$80M',status:'Ожидание'}];
+    h += '<div class="card"><h3><i class="ti ti-calendar"></i> Раунды инвестирования</h3>';
+    rounds.forEach(function(r){ var cl=(r.status||'').indexOf('Откр')>=0?'var(--green)':'var(--hint)'; h += '<div class="list-item"><div><div style="font-size:12px;font-weight:600">Год ' + r.y + ' · ' + r.price + '</div><div style="font-size:10px;color:var(--hint)">продано ' + r.sold + '/' + r.avail + ' · план ' + r.plan + '</div></div><span class="badge" style="background:rgba(128,128,128,0.12);color:' + cl + '">' + esc(r.status) + '</span></div>'; });
+    h += '</div>';
+    var top=d.top_investors||[];
+    h += '<div class="card"><h3><i class="ti ti-trophy"></i> Топ инвесторы</h3>';
+    if(top.length){ top.forEach(function(x,i){ h += '<div class="list-item"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + '">' + (i+1) + '.</span> ' + esc(x.name||'—') + '</div><span style="font-size:11px">' + (x.shares||0) + ' акц · $' + fmt(x.amount||0) + '</span></div>'; }); } else { h += '<div class="empty">Данные появятся после первых инвесторов</div>'; }
+    h += '</div>';
+    var fn=d.pipeline_funnel||[{stage:'<i class="ti ti-search"></i> Лиды',count:0,pct:0},{stage:'<i class="ti ti-mail"></i> Контакт',count:0,pct:0},{stage:'<i class="ti ti-file"></i> Презентация',count:0,pct:0},{stage:'<i class="ti ti-heart-handshake"></i> Переговоры',count:0,pct:0},{stage:'<i class="ti ti-circle-check"></i> Сделка',count:0,pct:0}];
+    h += '<div class="card"><h3><i class="ti ti-trending-down"></i> Pipeline</h3>';
+    fn.forEach(function(f){ h += '<div class="bar-row"><span style="min-width:120px;font-size:12px">' + f.stage + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + (f.pct||0) + '%;background:var(--purple);height:100%"></div></div><span style="min-width:26px;text-align:right;font-size:12px">' + (f.count||0) + '</span></div>'; });
+    h += '</div>';
+    var geo=d.investor_geography||[{r:'СНГ',p:40},{r:'Европа',p:25},{r:'Азия',p:15},{r:'Ближний Восток',p:12},{r:'Другие',p:8}];
+    h += '<div class="card"><h3><i class="ti ti-world"></i> География инвесторов</h3>';
+    geo.forEach(function(g){ h += '<div class="bar-row"><span style="min-width:120px;font-size:12px">' + esc(g.r) + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + g.p + '%;background:var(--gold);height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + g.p + '%</span></div>'; });
+    h += '</div>';
+    h += '<div class="card"><h3><i class="ti ti-phone"></i> Контакты для инвесторов</h3><div class="row"><span class="lbl">CFO/CCO/COO</span><span class="val">Назначается</span></div><div class="row"><span class="lbl">CEO</span><span class="val"><a href="https://t.me/Shikardos_V" style="color:var(--link)">@Shikardos_V</a></span></div></div>';
     pg.innerHTML = h;
-  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
+  } catch(e){ console.error('investors',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
 }
 
-// ---------- AI AUTOMATORS (P3) ----------
 async function loadAIAutomators(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
