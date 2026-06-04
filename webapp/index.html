@@ -457,10 +457,13 @@ function buildHome(profile, shares) {
 
   // Income chart
   h += '<div class="card"><h3><i class="ti ti-trending-up"></i> Прогноз дохода</h3><div class="chart-box"><canvas id="ch-income"></canvas></div>';
+  var grow = (role === 'maker') ? 3 : 0;
   h += '<table class="inc-tbl" style="margin-top:6px">';
-  h += '<tr><th>Год</th><th>$/акц/мес</th><th>Ваш доход/мес</th><th>Доход/год</th></tr>';
-  for (var i = 0; i < 5; i++) h += '<tr><td>Год ' + (i+1) + '</td><td>$' + fmt(RATES[i]) + '</td><td style="color:var(--gold);font-weight:600">' + fmtUSD(sc * RATES[i]) + '</td><td>' + fmtUSD(sc * RATES[i] * 12) + '</td></tr>';
-  h += '</table></div>';
+  h += '<tr><th>Год</th><th>Акций</th><th>$/акц/мес</th><th>Доход/мес</th><th>Доход/год</th></tr>';
+  for (var i = 0; i < 5; i++) { var ys = sc + grow * i; h += '<tr><td>Год ' + (i+1) + '</td><td>' + ys + '</td><td>$' + fmt(RATES[i]) + '</td><td style="color:var(--gold);font-weight:600">' + fmtUSD(ys * RATES[i]) + '</td><td>' + fmtUSD(ys * RATES[i] * 12) + '</td></tr>'; }
+  h += '</table>';
+  if (grow > 0) h += '<div style="font-size:10px;color:var(--hint);margin-top:4px">Прогноз при среднем тире +3 акц/год. Топ-тир (+5/год) — ещё больше.</div>';
+  h += '</div>';
 
   // Tier system
   h += '<div class="card"><h3><i class="ti ti-target"></i> Система тиров (акции/год)</h3>';
@@ -475,7 +478,7 @@ function buildHome(profile, shares) {
   if (charts.income) charts.income.destroy();
   charts.income = new Chart($('ch-income'), {
     type: 'bar',
-    data: {labels:['Г1','Г2','Г3','Г4','Г5'], datasets:[{data:RATES.map(function(r){return sc*r;}), backgroundColor:'#d4a843', borderRadius:6}]},
+    data: {labels:['Г1','Г2','Г3','Г4','Г5'], datasets:[{data:RATES.map(function(r,i){return (sc+grow*i)*r;}), backgroundColor:'#d4a843', borderRadius:6}]},
     options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#8a8a93',font:{size:10}},grid:{display:false}},
               y:{ticks:{color:'#8a8a93',font:{size:9},callback:function(v){return v>=1000?'$'+Math.round(v/1000)+'K':'$'+v;}},grid:{color:'rgba(128,128,128,0.1)'}}}}
@@ -883,7 +886,8 @@ async function loadVideos(pg, back) {
       for (var r = 0; r < sorted.length; r++) {
         var sv = sorted[r];
         var stCls = sv.status === 'verified' ? 'green' : sv.status === 'rejected' ? 'red' : 'muted';
-        h += '<tr><td>' + esc(sv.platform||'—') + '</td><td>' + fmtViews(sv.views||0) + '</td><td>' + fmtDate(sv.created_at) + '</td>';
+        var pcell = sv.url ? '<a href="' + esc(sv.url) + '" target="_blank" style="color:var(--blue)">' + esc(sv.platform||'—') + ' <i class="ti ti-external-link" style="font-size:10px"></i></a>' : esc(sv.platform||'—');
+        h += '<tr><td>' + pcell + '</td><td>' + fmtViews(sv.views||0) + '</td><td>' + fmtDate(sv.created_at) + '</td>';
         h += '<td><span class="badge ' + stCls + '">' + esc(sv.status||'pending') + '</span></td></tr>';
       }
       h += '</table></div></div>';

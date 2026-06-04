@@ -1524,7 +1524,8 @@ async function loadVideos() {
     recentHtml = '<div class="content-card"><h3>\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 \u0432\u0438\u0434\u0435\u043e</h3><div style="overflow-x:auto"><table class="data-table"><thead><tr><th>\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430</th><th>\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b</th><th>\u0414\u0430\u0442\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th></tr></thead><tbody>';
     for (var r = 0; r < sorted.length; r++) {
       var sv = sorted[r];
-      recentHtml += '<tr><td>' + esc(sv.platform || '\u2014') + '</td><td>' + fmtViews(sv.views || 0) + '</td><td>' + fmtDate(sv.created_at) + '</td>' +
+      var pcell = sv.url ? '<a href="' + esc(sv.url) + '" target="_blank" style="color:var(--blue)">' + esc(sv.platform || '\u2014') + ' \u2197</a>' : esc(sv.platform || '\u2014');
+      recentHtml += '<tr><td>' + pcell + '</td><td>' + fmtViews(sv.views || 0) + '</td><td>' + fmtDate(sv.created_at) + '</td>' +
         '<td><span class="badge badge-' + (sv.status === 'verified' ? 'green' : sv.status === 'rejected' ? 'red' : 'muted') + '">' + (sv.status || 'pending') + '</span></td></tr>';
     }
     recentHtml += '</tbody></table></div></div>';
