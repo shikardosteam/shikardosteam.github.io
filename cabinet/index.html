@@ -975,7 +975,7 @@ function getStatusLabel(status) {
 
 // ===== GRANULAR C-LEVEL ACCESS =====
 var TEAM_ROLE_ACCESS = {
-  _common: ['home','shares','profile','trends','hall-of-fame','settings','referrals','kaizen','knowledge','support'],
+  _common: ['home','shares','profile','trends','hall-of-fame','settings','referrals','kaizen','knowledge','support','exchange'],
   _team: ['tasks','team-members','team-pulse','pain-points','contests','content','admin-ke','risk-zone'],
   cto: ['infrastructure','ai-automators','quality','admin-overview','content','admin-ke','risk-zone','ops-center'],
   cmo: ['content','bloggers','admin-overview'],
@@ -1065,6 +1065,7 @@ function buildNavSections() {
     items: [
       { id:'home', icon:'<i class="ti ti-home"></i>', name:'Главная' },
       { id:'shares', icon:'<i class="ti ti-chart-bar"></i>', name:'Мои акции' },
+      { id:'exchange', icon:'<i class="ti ti-arrows-exchange"></i>', name:'Биржа' },
       { id:'profile', icon:'<i class="ti ti-user"></i>', name:'Профиль' },
         { id:'trends', icon:'<i class="ti ti-trending-up"></i>', name:'Тренды' },
         { id:'hall-of-fame', icon:'<i class="ti ti-trophy"></i>', name:'Зал славы' }
@@ -1244,7 +1245,7 @@ function renderPages() {
     'tasks',
     'admin-overview','admin-makers','admin-hr','admin-shares','admin-ke','admin-users',
     'trends','hall-of-fame','kaizen','team-members','risk-zone','contests','infrastructure','ai-automators','quality','team-pulse','pain-points','investors','ops-center','content','bloggers','settings',
-    'knowledge','support'
+    'knowledge','support','exchange'
   ];
 
   pages.forEach(id => {
@@ -1295,6 +1296,7 @@ async function loadPageData(pageId) {
     case 'settings': loadSettings(); break;
     case 'knowledge': loadKnowledge(); break;
     case 'support': loadSupport(); break;
+    case 'exchange': await loadExchange(); break;
   }
 }
 
@@ -1592,6 +1594,137 @@ async function saveProfile() {
   if (name) { currentUser.display_name = name; currentUser.full_name = name; }
   if (email) currentUser.email = email;
   setTimeout(function() { cancelProfileEdit(); loadProfile(); }, 1200);
+}
+
+// ---------- EXCHANGE (биржа акций) ----------
+function exMoney(n) { return '$' + fmtNum(Math.round(n||0)); }
+function exTradeStatus(s) {
+  var m = { 'pending_payment':'<span class="badge badge-muted">ждёт оплаты</span>', 'paid':'<span class="badge badge-blue">оплачено</span>', 'confirmed':'<span class="badge badge-green">завершено</span>', 'disputed':'<span class="badge badge-red">спор</span>', 'cancelled':'<span class="badge badge-muted">отменено</span>' };
+  return m[s] || '<span class="badge badge-muted">' + esc(s||'') + '</span>';
+}
+function exOrderStatus(s) {
+  var m = { 'active':'<span class="badge badge-green">активен</span>', 'matched':'<span class="badge badge-blue">в сделке</span>', 'cancelled':'<span class="badge badge-muted">отменён</span>', 'expired':'<span class="badge badge-muted">истёк</span>' };
+  return m[s] || '<span class="badge badge-muted">' + esc(s||'') + '</span>';
+}
+
+async function loadExchange() {
+  var page = document.getElementById('page-exchange');
+  var d = await api('/exchange') || {};
+  var ob = await api('/exchange/orderbook') || {};
+  var mo = await api('/exchange/my-orders') || {};
+  var mt = await api('/exchange/my-trades') || {};
+
+  var h = '<div class="section-title"><i class="ti ti-arrows-exchange"></i> Биржа акций</div>';
+  h += '<div class="alert" style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.15);padding:12px;margin-bottom:14px;font-size:12px">' +
+    'Вторичный рынок P2P. Оплата USDT (TRON TRC-20). Акции переходят после подтверждения обеих сторон. Акция = слот в Round Robin ротации.</div>';
+
+  h += '<div class="kpi-row">' +
+    '<div class="kpi-card"><div class="stat-label">Ордеров на продажу</div><div class="stat-value blue">' + fmtNum(d.sell_count||0) + '</div></div>' +
+    '<div class="kpi-card"><div class="stat-label">Акций в стакане</div><div class="stat-value gold">' + fmtNum(d.total_shares||0) + '</div></div>' +
+    '<div class="kpi-card"><div class="stat-label">Средняя цена</div><div class="stat-value green">' + (d.avg_price ? exMoney(d.avg_price) : '—') + '</div></div>' +
+    '<div class="kpi-card"><div class="stat-label">Мои акции</div><div class="stat-value">' + fmtNum(d.my_shares||0) + '</div></div>' +
+    '</div>';
+
+  // Форма продажи
+  if (d.shares_frozen) {
+    h += '<div class="content-card"><h3><i class="ti ti-snowflake"></i> Продажа недоступна</h3><div style="color:var(--muted);font-size:13px">Твои акции заморожены (нет видео за неделю). Возобнови публикации, чтобы разморозить.</div></div>';
+  } else if ((d.my_shares||0) > 0) {
+    h += '<div class="content-card"><h3><i class="ti ti-upload"></i> Продать акции</h3>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+        '<input id="ex-amount" type="number" min="1" max="' + (d.my_shares||0) + '" class="form-input" style="max-width:160px" placeholder="Кол-во (до ' + (d.my_shares||0) + ')">' +
+        '<input id="ex-price" type="number" min="' + (d.min_price||100) + '" class="form-input" style="max-width:180px" placeholder="Цена за 1 акцию $">' +
+        '<button class="btn btn-primary" onclick="exSell()"><i class="ti ti-check"></i> Выставить</button>' +
+        '<span id="ex-msg" style="font-size:12px"></span>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:6px">Минимум ${' + (d.min_price||100) + '}/акция. Акции замораживаются в escrow до продажи или отмены. Ордер живёт 30 дней.</div></div>';
+  } else {
+    h += '<div class="content-card"><h3><i class="ti ti-upload"></i> Продать акции</h3><div style="color:var(--muted);font-size:13px">У тебя пока нет акций для продажи.</div></div>';
+  }
+
+  // Стакан
+  var obItems = ob.items || [];
+  var obRows = '';
+  for (var i=0;i<obItems.length;i++){
+    var o = obItems[i];
+    var act = o.is_mine ? '<span style="color:var(--muted);font-size:11px">твой ордер</span>' : '<button class="btn btn-sm btn-primary" onclick="exBuy(' + o.id + ')"><i class="ti ti-download"></i> Купить</button>';
+    obRows += '<tr><td>#' + o.id + '</td><td>' + fmtNum(o.shares_amount) + '</td><td>' + exMoney(o.price_per_share) + '</td><td style="color:var(--gold)">' + exMoney(o.total) + '</td><td>' + esc(o.seller) + '</td><td>' + act + '</td></tr>';
+  }
+  h += '<div class="content-card"><h3><i class="ti ti-book-2"></i> Стакан ордеров</h3>' +
+    (obRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>#</th><th>Акций</th><th>Цена</th><th>Итого</th><th>Продавец</th><th></th></tr></thead><tbody>' + obRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет активных ордеров на продажу.</div>') +
+    '</div>';
+
+  // Мои ордера
+  var moItems = mo.items || [];
+  var moRows = '';
+  for (var j=0;j<moItems.length;j++){
+    var m = moItems[j];
+    var ca = m.status === 'active' ? '<button class="btn btn-sm" style="color:var(--red)" onclick="exCancelOrder(' + m.id + ')">Отменить</button>' : '';
+    moRows += '<tr><td>#' + m.id + '</td><td>' + (m.order_type==='sell'?'Продажа':'Покупка') + '</td><td>' + fmtNum(m.shares_amount) + '</td><td>' + exMoney(m.price_per_share) + '</td><td>' + exOrderStatus(m.status) + '</td><td>' + ca + '</td></tr>';
+  }
+  // Мои сделки
+  var mtItems = mt.items || [];
+  var mtRows = '';
+  for (var k=0;k<mtItems.length;k++){
+    var t = mtItems[k];
+    var act2 = '';
+    if (t.status === 'pending_payment' && t.role === 'buy') act2 = '<button class="btn btn-sm btn-primary" onclick="exPaid(' + t.id + ')">Оплатил</button> <button class="btn btn-sm" style="color:var(--red)" onclick="exCancelTrade(' + t.id + ')">Отмена</button>';
+    else if (t.status === 'paid' && t.role === 'sell') act2 = '<button class="btn btn-sm btn-primary" onclick="exConfirm(' + t.id + ')">Получил оплату</button>';
+    else if (t.status === 'paid' && t.role === 'buy') act2 = '<button class="btn btn-sm" style="color:var(--red)" onclick="exDispute(' + t.id + ')">Спор</button>';
+    mtRows += '<tr><td>#' + t.id + '</td><td>' + (t.role==='buy'?'Покупка':'Продажа') + '</td><td>' + fmtNum(t.shares_amount) + '</td><td style="color:var(--gold)">' + exMoney(t.total_usd) + '</td><td>' + exTradeStatus(t.status) + '</td><td>' + act2 + '</td></tr>';
+  }
+  h += '<div class="grid-2">' +
+    '<div class="content-card"><h3><i class="ti ti-list"></i> Мои ордера</h3>' + (moRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>#</th><th>Тип</th><th>Акций</th><th>Цена</th><th>Статус</th><th></th></tr></thead><tbody>' + moRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет ордеров</div>') + '</div>' +
+    '<div class="content-card"><h3><i class="ti ti-refresh"></i> Мои сделки</h3>' + (mtRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>#</th><th>Роль</th><th>Акций</th><th>Сумма</th><th>Статус</th><th></th></tr></thead><tbody>' + mtRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет сделок</div>') + '</div>' +
+    '</div>';
+
+  page.innerHTML = h;
+}
+
+async function exSell() {
+  var msg = document.getElementById('ex-msg');
+  var amount = parseInt(document.getElementById('ex-amount').value, 10);
+  var price = parseFloat(document.getElementById('ex-price').value);
+  if (!amount || amount < 1) { msg.style.color='var(--red)'; msg.textContent='Укажи количество'; return; }
+  if (!price || price <= 0) { msg.style.color='var(--red)'; msg.textContent='Укажи цену'; return; }
+  msg.style.color='var(--muted)'; msg.textContent='Выставляю…';
+  var r = await api('/exchange/sell', 'POST', { shares_amount: amount, price_per_share: price });
+  if (r && (r.ok || r.order_id)) { msg.style.color='var(--green)'; msg.innerHTML='<i class="ti ti-check"></i> Ордер создан'; setTimeout(loadExchange, 1000); }
+  else { msg.style.color='var(--red)'; msg.textContent=(r && (r.detail||r.error)) || 'Ошибка'; }
+}
+async function exBuy(orderId) {
+  if (!confirm('Создать сделку на покупку этого ордера?')) return;
+  var r = await api('/exchange/buy', 'POST', { order_id: orderId });
+  if (r && (r.ok || r.trade_id)) { alert('Сделка #' + r.trade_id + ' создана. Оплати USDT и нажми «Оплатил» в разделе «Мои сделки».'); loadExchange(); }
+  else { alert((r && (r.detail||r.error)) || 'Ошибка'); }
+}
+async function exCancelOrder(id) {
+  if (!confirm('Отменить ордер? Акции вернутся из escrow.')) return;
+  var r = await api('/exchange/orders/' + id + '/cancel', 'POST', {});
+  if (r && r.ok) loadExchange(); else alert((r && (r.detail||r.error)) || 'Ошибка');
+}
+async function exCancelTrade(id) {
+  if (!confirm('Отменить сделку до оплаты?')) return;
+  var r = await api('/exchange/trades/' + id + '/cancel', 'POST', {});
+  if (r && r.ok) loadExchange(); else alert((r && (r.detail||r.error)) || 'Ошибка');
+}
+async function exPaid(id) {
+  var proof = prompt('Подтверждение оплаты: вставь TXID транзакции USDT TRC-20 или ссылку на скриншот');
+  if (!proof) return;
+  var r = await api('/exchange/trades/' + id + '/paid', 'POST', { proof: proof.trim() });
+  if (r && r.ok) { alert('Оплата отмечена. Продавец подтвердит получение.'); loadExchange(); }
+  else alert((r && (r.detail||r.error)) || 'Ошибка');
+}
+async function exConfirm(id) {
+  if (!confirm('Подтвердить получение оплаты? Акции перейдут покупателю.')) return;
+  var r = await api('/exchange/trades/' + id + '/confirm', 'POST', {});
+  if (r && r.ok) { alert('Сделка завершена, акции переданы.'); loadExchange(); }
+  else alert((r && (r.detail||r.error)) || 'Ошибка');
+}
+async function exDispute(id) {
+  if (!confirm('Открыть спор по сделке? Администрация будет уведомлена.')) return;
+  var r = await api('/exchange/trades/' + id + '/dispute', 'POST', {});
+  if (r && r.ok) { alert('Спор открыт.'); loadExchange(); }
+  else alert((r && (r.detail||r.error)) || 'Ошибка');
 }
 
 // ---------- KNOWLEDGE BASE ----------
@@ -2466,15 +2599,21 @@ async function loadTasks() {
       if (t.priority === 'high') highPriority++;
       var prioColor = t.priority === 'high' ? 'red' : t.priority === 'medium' ? 'orange' : 'muted';
       var statusColor = t.status === 'done' ? 'green' : t.status === 'in_progress' ? 'blue' : 'muted';
+      var taskAct = '';
+      if (t.status !== 'done') {
+        if (t.status === 'new') taskAct += '<button class="btn btn-sm btn-primary" onclick="taskTake(' + t.id + ')">\u0412\u0437\u044f\u0442\u044c</button> ';
+        taskAct += '<button class="btn btn-sm" onclick="taskDone(' + t.id + ')">\u0412\u044b\u043f\u043e\u043b\u043d\u0438\u0442\u044c</button>';
+      }
       rows += '<tr>' +
         '<td>' + esc(t.title || '\u2014') + '</td>' +
         '<td><span class="badge badge-' + statusColor + '">' + esc(t.status || '\u2014') + '</span></td>' +
         '<td><span class="badge badge-' + prioColor + '">' + esc(t.priority || '\u2014') + '</span></td>' +
         '<td>' + esc(t.assignee || '\u2014') + '</td>' +
-        '<td>' + fmtDate(t.due_date || t.deadline) + '</td></tr>';
+        '<td>' + fmtDate(t.due_date || t.deadline) + '</td>' +
+        '<td>' + taskAct + '</td></tr>';
     }
   } else {
-    rows = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u0437\u0430\u0434\u0430\u0447</td></tr>';
+    rows = '<tr><td colspan="6" style="text-align:center;color:var(--muted)">\u041d\u0435\u0442 \u0437\u0430\u0434\u0430\u0447</td></tr>';
   }
 
   var completionPct = total > 0 ? Math.round(done / total * 100) : 0;
@@ -2492,10 +2631,19 @@ async function loadTasks() {
     '</div>' +
     '<div class="content-card">' +
       '<div style="overflow-x:auto"><table class="data-table">' +
-        '<thead><tr><th>\u0417\u0430\u0434\u0430\u0447\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u041f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442</th><th>\u0418\u0441\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c</th><th>\u0421\u0440\u043e\u043a</th></tr></thead>' +
+        '<thead><tr><th>\u0417\u0430\u0434\u0430\u0447\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th>\u041f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442</th><th>\u0418\u0441\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c</th><th>\u0421\u0440\u043e\u043a</th><th></th></tr></thead>' +
         '<tbody>' + rows + '</tbody>' +
       '</table></div>' +
     '</div>';
+}
+async function taskTake(id) {
+  var r = await api('/team/tasks/' + id + '/take', 'POST', {});
+  if (r && r.ok) loadTasks(); else alert((r && (r.detail||r.error)) || '\u041e\u0448\u0438\u0431\u043a\u0430');
+}
+async function taskDone(id) {
+  if (!confirm('\u041e\u0442\u043c\u0435\u0442\u0438\u0442\u044c \u0437\u0430\u0434\u0430\u0447\u0443 \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u043d\u043e\u0439?')) return;
+  var r = await api('/team/tasks/' + id + '/done', 'POST', {});
+  if (r && r.ok) loadTasks(); else alert((r && (r.detail||r.error)) || '\u041e\u0448\u0438\u0431\u043a\u0430');
 }
 
 
