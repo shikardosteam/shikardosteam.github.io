@@ -2750,6 +2750,16 @@ function buildMilestone(date, title, desc, color, isDone) {
 }
 
 // ---------- KAIZEN ----------
+async function submitKaizen() {
+  var txt = (document.getElementById('kz-text').value || '').trim();
+  var cat = document.getElementById('kz-cat').value;
+  var msg = document.getElementById('kz-msg');
+  if (txt.length < 10) { msg.style.color='var(--red)'; msg.textContent='Идея слишком короткая (минимум 10 символов)'; return; }
+  msg.style.color='var(--muted)'; msg.textContent='Отправляю…';
+  var r = await api('/kaizen', 'POST', { text: txt, category: cat });
+  if (r && (r.ok || r.id)) { msg.style.color='var(--green)'; msg.innerHTML='<i class="ti ti-check"></i> Идея отправлена'; setTimeout(function(){ loadKaizen(); }, 1200); }
+  else { msg.style.color='var(--red)'; msg.textContent=(r && (r.detail||r.error)) || 'Ошибка'; }
+}
 async function loadKaizen() {
   var page = document.getElementById('page-kaizen');
   try {
@@ -2831,8 +2841,15 @@ async function loadKaizen() {
 
     page.innerHTML = '<h2 class="section-title"><i class="ti ti-bulb"></i> Кайдзен</h2>' +
       '<div class="alert" style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.15);padding:14px;margin-bottom:16px;">' +
-      '<strong style="color:var(--gold);">Кайдзен</strong> · система непрерывных улучшений · любой член команды подаёт идею через Telegram-бот · лучшие идеи внедряются · вознаграждение акциями из <strong style="color:var(--gold);">Фонда развития (5%)</strong>' +
+      '<strong style="color:var(--gold);">Кайдзен</strong> · система непрерывных улучшений · любой член команды подаёт идею здесь или в боте · лучшие идеи внедряются · вознаграждение акциями из <strong style="color:var(--gold);">Фонда развития (5%)</strong>' +
       '</div>' +
+      '<div class="content-card"><div class="card-header"><i class="ti ti-plus"></i> Подать идею</div><div style="padding:12px;">' +
+        '<textarea id="kz-text" class="form-input" rows="3" placeholder="Опиши идею улучшения (что и как сделать лучше)" style="width:100%;resize:vertical"></textarea>' +
+        '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
+          '<select id="kz-cat" class="form-input" style="max-width:200px"><option value="process">Процесс</option><option value="content">Контент</option><option value="tech">Технология</option><option value="other">Другое</option></select>' +
+          '<button class="btn btn-primary" onclick="submitKaizen()"><i class="ti ti-send"></i> Отправить</button>' +
+          '<span id="kz-msg" style="font-size:12px"></span>' +
+        '</div></div></div>' +
       '<div class="kpi-row">' +
       '<div class="kpi-card" style="border-top-color:var(--gold)"><div class="kpi-label">ВСЕГО ПРЕДЛОЖЕНИЙ</div><div class="kpi-value" style="color:var(--gold)">' + total + '</div></div>' +
       '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">НОВЫХ</div><div class="kpi-value" style="color:var(--green)">' + nw + '</div></div>' +
@@ -5180,4 +5197,141 @@ async function loadAdminKE() {
 
   const tiers = [
     {bonus:'+5',label:'<i class="ti ti-flame"></i> Топ 20%',count:d.ke_tier5||0,target:1000,color:'var(--gold)',bg:'rgba(212,168,67,0.08)',border:'var(--gold)'},
-    {bonus:'+4',label:'<i class="ti ti-barbell"></i> Хорошо',count:d.ke_tier4||0,target:1000,color:'var(--blue)',bg:'rgba(88,166,255,0.08)',border:'rgba(88,
+    {bonus:'+4',label:'<i class="ti ti-barbell"></i> Хорошо',count:d.ke_tier4||0,target:1000,color:'var(--blue)',bg:'rgba(88,166,255,0.08)',border:'rgba(88,166,255,0.4)'},
+    {bonus:'+3',label:'<i class="ti ti-circle-check"></i> Средне',count:d.ke_tier3||0,target:1000,color:'var(--green)',bg:'rgba(63,185,80,0.08)',border:'rgba(63,185,80,0.4)'},
+    {bonus:'+2',label:'<i class="ti ti-alert-triangle"></i> Минимум',count:d.ke_tier2||0,target:1000,color:'var(--purple)',bg:'rgba(188,140,255,0.08)',border:'rgba(188,140,255,0.4)'},
+    {bonus:'+1',label:'<i class="ti ti-sparkles"></i> Старт',count:d.ke_tier1||0,target:1000,color:'var(--muted)',bg:'var(--card)',border:'var(--border)'}
+  ];
+
+  page.innerHTML = `
+    <div class="alert" style="background:rgba(88,166,255,0.08);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
+      <strong style="color:var(--text);"><i class="ti ti-bolt"></i> Коэффициент Эффективности (КЭ)</strong> · 5 тиров: +5/+4/+3/+2/+1 акция/год · формула: Просмотры (40%) + Engagement (40%) + Равномерность (20%) · пересчёт 31 декабря
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card" style="border-top:3px solid var(--gold);">
+        <div class="kpi-label">Тиров КЭ</div>
+        <div class="kpi-value" style="color:var(--gold);">5</div>
+        <div style="font-size:11px;color:var(--muted);">от +1 до +5 акц/год</div>
+      </div>
+      <div class="kpi-card" style="border-top:3px solid var(--green);">
+        <div class="kpi-label">Топ-20% (КЭ 5)</div>
+        <div class="kpi-value" style="color:var(--green);">${fmtNum(d.ke_tier5||0)}</div>
+        <div style="font-size:11px;color:var(--green);">+5 акций/год</div>
+      </div>
+      <div class="kpi-card" style="border-top:3px solid var(--blue);">
+        <div class="kpi-label">Акций/год по КЭ</div>
+        <div class="kpi-value" style="color:var(--blue);">15 000</div>
+        <div style="font-size:11px;color:var(--muted);">годы 2-5</div>
+      </div>
+      <div class="kpi-card" style="border-top:3px solid var(--purple);">
+        <div class="kpi-label">Веса формулы</div>
+        <div class="kpi-value" style="color:var(--purple);">40/40/20</div>
+      </div>
+      <div class="kpi-card" style="border-top:3px solid var(--orange);">
+        <div class="kpi-label">Пересчёт</div>
+        <div class="kpi-value" style="color:var(--orange);">31 дек</div>
+        <div style="font-size:11px;color:var(--muted);">2026</div>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-target"></i> 5 тиров КЭ · по 1 000 мейкеров</h3>
+      <div class="tier-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+        ${tiers.map(t => `<div style="background:${t.bg};border:2px solid ${t.border};padding:18px 12px;text-align:center;">
+          <div style="font-size:36px;font-weight:700;color:${t.color};line-height:1;margin-bottom:4px;">${t.bonus}</div>
+          <div style="font-size:10px;color:${t.color};margin-bottom:10px;">акций/год</div>
+          <div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;">${t.label}</div>
+          <div style="border-top:1px solid ${t.border};padding-top:8px;font-size:12px;color:var(--text);font-weight:700;">${fmtNum(t.count)} чел</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:4px;">${fmtNum(t.count * parseInt(t.bonus))} акций/год</div>
+        </div>`).join('')}
+      </div>
+      <div style="margin-top:14px;padding:12px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);font-size:11px;color:var(--text);">
+        <i class="ti ti-chart-bar"></i> <strong>ИТОГО:</strong> 5K + 4K + 3K + 2K + 1K = <strong style="color:var(--gold);">15 000 акций/год</strong> · за 4 года (2-5) = 60 000 + 10 000 стартовых = <strong style="color:var(--gold);">70 000 = 70%</strong> <i class="ti ti-circle-check"></i>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="content-card">
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-calculator"></i> Формула расчёта КЭ</h3>
+        <div style="margin-bottom:14px;padding:14px;background:var(--card);border-left:3px solid var(--gold);">
+          <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;">КЭ = (Просмотры × 0.4) + (Engagement × 0.4) + (Равномерность × 0.2)</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.6;">3 компонента: охват, вовлечённость, стабильность</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:1px;">
+          ${[
+            {n:'01',c:'var(--gold)',title:'Просмотры (40%)',desc:'Сумма 4 платформ через Apify'},
+            {n:'02',c:'var(--blue)',title:'Engagement (40%)',desc:'Лайки + Целевые комменты ×3 + Репосты ×3'},
+            {n:'03',c:'var(--green)',title:'Равномерность (20%)',desc:'Стабильность: 4/4 нед = 100%'},
+            {n:'04',c:'var(--purple)',title:'Ранжирование',desc:'Топ-1000 → +5, далее +4/+3/+2/+1'},
+            {n:'05',c:'var(--gold)',title:'Зачисление (31 дек)',desc:'Акции не сгорают при снижении КЭ'}
+          ].map(s => `<div style="background:var(--card);padding:12px;display:flex;gap:12px;align-items:flex-start;">
+            <div style="font-size:18px;font-weight:700;color:${s.c};min-width:28px;">${s.n}</div>
+            <div>
+              <div style="font-size:12px;color:var(--text);font-weight:700;">${s.title}</div>
+              <div style="font-size:10px;color:var(--muted);">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-chart-bar"></i> Текущее распределение по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">промежуточный</span></h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${tiers.map(t => `<div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+              <span style="color:${t.color};font-weight:700;">${t.label} ${t.bonus}</span>
+              <span style="color:var(--text);font-weight:700;">${fmtNum(t.count)} / 1 000</span>
+            </div>
+            <div class="bar-track" style="height:16px;"><div class="bar-fill" style="width:${Math.min((t.count/t.target*100),100)}%;background:${t.color};"></div></div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-trophy"></i> Топ-15 мейкеров по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">текущий ранг</span></h3>
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Мейкер</th><th>Eng. Rate</th><th>Просм/нед</th><th>КЭ</th><th>Прогноз</th></tr></thead>
+        <tbody>
+          ${topKE.length ? topKE.slice(0,15).map((m,i) => `<tr>
+            <td style="color:${i<3?'var(--gold)':'var(--muted)'};">${i+1}</td>
+            <td style="color:var(--text);">${esc(m.display_name||m.username||'—')}</td>
+            <td style="color:var(--green);font-weight:700;">${(m.engagement_rate||0).toFixed(1)}%</td>
+            <td>${fmtNum(m.views_week||m.total_views||0)}</td>
+            <td style="color:var(--gold);font-weight:700;">${(m.ke_score||0).toFixed(1)}</td>
+            <td><span class="badge" style="background:rgba(212,168,67,0.15);color:var(--gold);">+5</span></td>
+          </tr>`).join('') : '<tr><td colspan="6" style="color:var(--muted);text-align:center;">Нет данных</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="content-card">
+      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-target"></i> Прогноз начислений · 31 декабря 2026</h3>
+      <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:16px;">
+        <div>
+          <div style="font-size:36px;font-weight:700;color:var(--gold);">15 000</div>
+          <div style="font-size:11px;color:var(--muted);">акций к зачислению</div>
+        </div>
+        <div style="margin-left:auto;text-align:right;">
+          <div style="font-size:20px;font-weight:700;color:var(--text);">5 000</div>
+          <div style="font-size:11px;color:var(--muted);">мейкеров получат</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        ${tiers.map(t => `<div style="background:var(--card);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:12px;color:var(--text);">${t.bonus} акций × 1 000 чел</div>
+          <span style="color:${t.color};font-weight:700;">${fmtNum(parseInt(t.bonus)*1000)} акц</span>
+        </div>`).join('')}
+        <div style="background:rgba(212,168,67,0.08);padding:14px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(212,168,67,0.3);">
+          <div style="font-size:13px;color:var(--gold);font-weight:700;"><i class="ti ti-diamond"></i> ИТОГО</div>
+          <span style="color:var(--gold);font-weight:700;font-size:18px;">15 000</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+</script>
+</body>
+</html>
