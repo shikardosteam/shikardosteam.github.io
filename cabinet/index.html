@@ -1761,6 +1761,24 @@ async function loadOffers() {
     var offers = d.items || d.offers || (Array.isArray(d)?d:[]) || [];
     if (!Array.isArray(offers)) offers = [];
 
+    // МЕЙКЕР — простой вид: только своё (оффер недели, мои ссылки, ротация)
+    if (currentUser && currentUser.role === 'maker') {
+      var msc = (currentUser && currentUser.shares_count) || 0;
+      var wk = offers.filter(function(o){return o.is_weekly_offer;})[0];
+      var mfilled = offers.filter(function(o){return o.my_link;}).length;
+      var minR = msc > 0 && mfilled >= offers.length && offers.length > 0;
+      var mh = '<div class="section-title"><i class="ti ti-target"></i> Офферы</div>';
+      mh += '<div class="alert" style="background:rgba(212,168,67,0.08);border:1px solid rgba(212,168,67,0.25);padding:12px;margin-bottom:14px"><strong style="color:var(--gold)">Оффер недели</strong> — тема для твоих видео на этой неделе.</div>';
+      if (wk) { mh += '<div class="content-card"><h3><i class="ti ti-flame"></i> ' + esc(wk.name) + '</h3>' + (wk.description?'<div style="color:var(--muted);font-size:13px;margin-bottom:8px">'+esc(wk.description)+'</div>':'') + (wk.url?'<a href="'+esc(wk.url)+'" target="_blank" style="color:var(--blue)">Открыть сервис →</a>':'') + '</div>'; }
+      var mrot = minR ? '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> Твои ссылки в ротации</span>' : (msc<=0 ? '<span style="color:var(--muted)"><i class="ti ti-clock"></i> Попадут в ротацию после первого видео 4/4</span>' : '<span style="color:var(--red)"><i class="ti ti-x"></i> Заполни реф-ссылки</span>');
+      mh += '<div class="content-card"><h3><i class="ti ti-refresh"></i> Ротация</h3><div style="margin-bottom:8px">'+mrot+'</div><div class="list-row"><span>Заполнено ссылок</span><span>'+mfilled+'/'+offers.length+'</span></div></div>';
+      mh += '<div class="content-card"><h3><i class="ti ti-link"></i> Мои реф-ссылки</h3>';
+      if (offers.length) { for (var mi=0; mi<offers.length; mi++){ var mo=offers[mi]; var mhas=!!mo.my_link; mh += '<div class="list-row"><span>'+(mhas?'<i class="ti ti-circle-check" style="color:var(--green)"></i>':'<i class="ti ti-x" style="color:var(--muted)"></i>')+' '+esc(mo.name)+'</span><span style="color:var(--muted);font-size:12px">'+(mhas?'добавлена':'нет ссылки')+'</span></div>'; } } else { mh += '<div style="color:var(--muted);padding:16px;text-align:center">Офферы появятся скоро</div>'; }
+      mh += '<div class="note-box" style="margin-top:8px"><i class="ti ti-bulb"></i> Загрузи реф-ссылки через бота («Акции» → SaaS ссылки). После первого видео 4/4 они встанут в ротацию и начнут приносить доход.</div></div>';
+      page.innerHTML = mh;
+      return;
+    }
+
     var nichesYear = d.niches_per_year || 250;
     var teamsCount = d.teams_count || 5;
     var makersPerNiche = d.makers_per_niche || 1000;

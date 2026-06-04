@@ -526,8 +526,9 @@ function buildShares(shares) {
   api('/offers').then(function(o) {
     var items = o.items || [];
     var filled = items.filter(function(i){return i.my_link;}).length;
-    var inR = filled >= items.length && items.length > 0;
-    var rH = '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:600;background:' + (inR?'rgba(63,185,80,0.1)':'rgba(248,81,73,0.1)') + ';color:' + (inR?'var(--green)':'var(--red)') + '">' + (inR?'<i class="ti ti-circle-check"></i> В ротации':'<i class="ti ti-x"></i> Не в ротации') + '</div>';
+    var inR = sc > 0 && filled >= items.length && items.length > 0;
+    var rotLabel = inR ? '<i class="ti ti-circle-check"></i> В ротации' : (sc <= 0 ? '<i class="ti ti-clock"></i> После первого видео 4/4' : '<i class="ti ti-x"></i> Заполните ссылки');
+    var rH = '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:600;background:' + (inR?'rgba(63,185,80,0.1)':'rgba(248,81,73,0.1)') + ';color:' + (inR?'var(--green)':(sc<=0?'var(--hint)':'var(--red)')) + '">' + rotLabel + '</div>';
     rH += '<div style="margin-top:6px"><div class="row"><span class="lbl">Заполнено</span><span class="val">' + filled + '/' + items.length + '</span></div>';
     rH += '<div class="prog"><div class="fill" style="width:' + (items.length>0?Math.round(filled/items.length*100):0) + '%;background:var(--green)"></div></div></div>';
     $('sh-rot').innerHTML = rH;
@@ -994,6 +995,27 @@ async function loadOffers(pg, back) {
     var d = await api('/offers') || {};
     var offers = d.items || d.offers || (Array.isArray(d)?d:[]) || [];
     if(!Array.isArray(offers)) offers=[];
+
+    // МЕЙКЕР — простой вид: только своё (оффер недели, мои ссылки, ротация)
+    if (U.profile && U.profile.role === 'maker') {
+      var msc = (U.shares && U.shares.shares_count) || 0;
+      var wk = offers.filter(function(o){return o.is_weekly_offer;})[0];
+      var mfilled = offers.filter(function(o){return o.my_link;}).length;
+      var minR = msc > 0 && mfilled >= offers.length && offers.length > 0;
+      var mh = back;
+      mh += '<div class="card" style="border-left:3px solid var(--gold)"><div style="font-size:12px"><i class="ti ti-target"></i> <b>Оффер недели</b> — тема для твоих видео на этой неделе.</div></div>';
+      if (wk) {
+        mh += '<div class="card"><h3><i class="ti ti-flame"></i> ' + esc(wk.name) + '</h3>' + (wk.description?'<div style="font-size:12px;color:var(--hint);margin-bottom:8px">'+esc(wk.description)+'</div>':'') + (wk.url?'<a href="'+esc(wk.url)+'" target="_blank" style="font-size:12px;color:var(--blue)">Открыть сервис →</a>':'') + '</div>';
+      }
+      var mrot = minR ? '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> Твои ссылки в ротации</span>' : (msc<=0 ? '<span style="color:var(--hint)"><i class="ti ti-clock"></i> Попадут в ротацию после первого видео 4/4</span>' : '<span style="color:var(--red)"><i class="ti ti-x"></i> Заполни реф-ссылки</span>');
+      mh += '<div class="card"><h3><i class="ti ti-refresh"></i> Ротация</h3><div style="font-size:12px;margin-bottom:6px">'+mrot+'</div><div class="row"><span class="lbl">Заполнено ссылок</span><span class="val">'+mfilled+'/'+offers.length+'</span></div></div>';
+      mh += '<div class="card"><h3><i class="ti ti-link"></i> Мои реф-ссылки</h3>';
+      if (offers.length) { offers.forEach(function(o){ var has=!!o.my_link; mh += '<div class="list-item"><span style="font-size:12px">'+(has?'<i class="ti ti-circle-check" style="color:var(--green)"></i>':'<i class="ti ti-x" style="color:var(--hint)"></i>')+' '+esc(o.name)+'</span><span style="font-size:10px;color:var(--hint)">'+(has?'добавлена':'нет ссылки')+'</span></div>'; }); } else { mh += '<div class="empty">Офферы появятся скоро</div>'; }
+      mh += '<div style="font-size:11px;color:var(--hint);margin-top:8px"><i class="ti ti-bulb"></i> Загрузи реф-ссылки через бота («Акции» → SaaS ссылки). После первого видео 4/4 они встанут в ротацию и начнут приносить доход.</div></div>';
+      pg.innerHTML = mh;
+      pg.dataset.loaded = '1';
+      return;
+    }
     var h = back;
     h += '<div class="card" style="border-left:3px solid var(--gold)"><div style="font-size:12px"><i class="ti ti-target"></i> <b>250 ниш/год</b> · 5 команд AI-офферщиков · 1000 мейкеров/нишу</div></div>';
     h += '<div class="kpi-grid">';
