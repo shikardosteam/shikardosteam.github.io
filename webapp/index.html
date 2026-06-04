@@ -433,7 +433,7 @@ function buildHome(profile, shares) {
 
   // KPI
   h += '<div class="kpi-grid">';
-  h += '<div class="kpi"><div class="val' + (frozen ? ' red' : '') + '">' + fmt(sc) + '</div><div class="lbl">Акции</div></div>';
+  h += '<div class="kpi"><div class="val' + (frozen ? ' red' : '') + '">' + fmt(sc) + '</div><div class="lbl">Акции</div><div class="sub">старт 2 + до +5/год</div></div>';
   h += '<div class="kpi"><div class="val green">' + fmtUSD(sc * RATES[0]) + '</div><div class="lbl">Доход / мес</div><div class="sub">Год 1 — $127/акция</div></div>';
   if (role === 'maker') {
     h += '<div class="kpi"><div class="val blue" id="home-vids">—</div><div class="lbl">Видео/нед · норма 3</div></div>';
@@ -516,6 +516,7 @@ function buildShares(shares) {
   h += '<div class="kpi"><div class="val green">' + fmtUSD(sc * RATES[0]) + '</div><div class="lbl">Доход / мес</div></div>';
   h += '</div>';
 
+  h += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:11px;color:var(--hint)"><i class="ti ti-info-circle"></i> <b>Акция</b> = твой слот в ротации: чем больше акций, тем больше показов и дохода. Старт — <b>2 акции</b> (зачисляются после первого видео на всех 4 платформах), далее <b>+1…+5 в год</b> по КЭ. <b>«В ротации»</b> = твои реф-ссылки крутятся в Round Robin после первого видео.</div></div>';
   h += '<div class="card"><h3><i class="ti ti-refresh"></i> Ротация</h3><div id="sh-rot"></div></div>';
   h += '<div class="card"><h3><i class="ti ti-file-text"></i> Транзакции <button class="export-btn" onclick="exportTransactions()" style="float:right"><i class="ti ti-download"></i> CSV</button></h3><div id="sh-hist"><div class="empty">Загрузка...</div></div></div>';
   h += '<div class="card"><h3><i class="ti ti-package"></i> SaaS ссылки</h3><div id="sh-saas"><div class="empty">Загрузка...</div></div></div>';
@@ -567,7 +568,7 @@ async function loadTrends(pg, back) {
     h += '</div>';
     var tv = d.top_videos||[];
     h += '<div class="card"><h3><i class="ti ti-movie"></i> Топ-10 видео</h3>';
-    if(tv.length){ tv.slice(0,10).forEach(function(v,i){ h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + '">' + (i+1) + '.</span> ' + esc(v.maker||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(v.platform||'') + ' · ' + esc(v.niche||'') + '</div></div><span style="font-size:12px;font-weight:700">' + fmt(v.views||0) + '</span></div>'; }); } else { h += '<div class="empty">Нет данных</div>'; }
+    if(tv.length){ tv.slice(0,10).forEach(function(v,i){ h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px"><span style="color:' + (i<3?'var(--gold)':'var(--hint)') + '">' + (i+1) + '.</span> ' + esc(v.maker||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(v.platform||'') + ' платформ · ' + esc(v.niche||'') + '</div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700">' + fmt(v.views||0) + '</div><div style="font-size:9px;color:var(--hint)">просмотров</div></div></div>'; }); } else { h += '<div class="empty">Нет данных</div>'; }
     h += '</div>';
     var pat = d.viral_patterns||[];
     if(pat.length){ h += '<div class="card"><h3><i class="ti ti-dna"></i> Виральные паттерны</h3>'; pat.forEach(function(x,i){ h += '<div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px"><div style="font-size:12px;font-weight:700;color:var(--gold)">' + esc(x.name||'Паттерн '+(i+1)) + '</div><div style="font-size:11px;color:var(--hint);margin-top:3px">' + esc(x.description||'') + '</div><div style="font-size:11px;color:var(--green);margin-top:4px">Успешность: ' + esc(String(x.success_rate||'0%')) + '</div></div>'; }); h += '</div>'; }
