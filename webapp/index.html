@@ -532,7 +532,7 @@ function buildShares(shares) {
     var items = o.items || [];
     var filled = items.filter(function(i){return i.my_link;}).length;
     var inR = sc > 0 && filled >= items.length && items.length > 0;
-    var rotLabel = inR ? '<i class="ti ti-circle-check"></i> В ротации' : (sc <= 0 ? '<i class="ti ti-clock"></i> После первого видео 4/4' : '<i class="ti ti-x"></i> Заполните ссылки');
+    var rotLabel = inR ? '<i class="ti ti-circle-check"></i> В ротации' : (sc <= 0 ? '<i class="ti ti-clock"></i> После первого видео 4/4' : '<i class="ti ti-x"></i> Заполни ссылки');
     var rH = '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:600;background:' + (inR?'rgba(63,185,80,0.1)':'rgba(248,81,73,0.1)') + ';color:' + (inR?'var(--green)':(sc<=0?'var(--hint)':'var(--red)')) + '">' + rotLabel + '</div>';
     rH += '<div style="margin-top:6px"><div class="row"><span class="lbl">Заполнено</span><span class="val">' + filled + '/' + items.length + '</span></div>';
     rH += '<div class="prog"><div class="fill" style="width:' + (items.length>0?Math.round(filled/items.length*100):0) + '%;background:var(--green)"></div></div></div>';
@@ -612,7 +612,7 @@ async function loadHall() {
       h += '</div>';
     }
     if (d.my_rank) {
-      h += '<div class="card" style="text-align:center"><span style="font-size:13px"><i class="ti ti-map-pin"></i> Ваше место: <strong style="color:var(--gold)">#' + d.my_rank + '</strong></span></div>';
+      h += '<div class="card" style="text-align:center"><span style="font-size:13px"><i class="ti ti-map-pin"></i> Твоё место: <strong style="color:var(--gold)">#' + d.my_rank + '</strong></span></div>';
     }
     if (!h) h = '<div class="empty">Нет данных</div>';
     pg.innerHTML = h;
@@ -858,7 +858,7 @@ async function loadVideos(pg, back) {
     var h = back;
 
     // Alert
-    if (total === 0) h += '<div class="alert alert-warn"><i class="ti ti-video"></i> Вы пока не опубликовали ни одного видео.</div>';
+    if (total === 0) h += '<div class="alert alert-warn"><i class="ti ti-video"></i> Ты пока не опубликовали ни одного видео.</div>';
     else if (weeklyCount < 3) h += '<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> За эту неделю: ' + weeklyCount + '/3 видео. Минимум 3 чтобы избежать заморозки.</div>';
 
     // KPI
@@ -1079,7 +1079,7 @@ async function loadHRMakers(pg, back) {
     h += '</div>';
 
     if (frozen > 0) {
-      h += '<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> ' + frozen + ' мейкер(ов) с замороженными акциями. Проверьте их активность.</div>';
+      h += '<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> ' + frozen + ' мейкер(ов) с замороженными акциями. Проверь их активность.</div>';
     }
 
     // Table
@@ -1344,7 +1344,7 @@ async function loadPublications(pg, back) {
     h += '</div>';
 
     // Table
-    h += '<div class="card"><h3><i class="ti ti-edit"></i> Ваш контент</h3>';
+    h += '<div class="card"><h3><i class="ti ti-edit"></i> Твой контент</h3>';
     if (items.length > 0) {
       h += '<div class="m-tbl-wrap"><table class="m-tbl">';
       h += '<tr><th>Название</th><th>Статус</th><th>Дата</th><th>Охват</th></tr>';
@@ -2110,7 +2110,7 @@ async function emailFallbackLogin() {
   var password = document.getElementById('fb-password').value;
   var errEl = document.getElementById('fb-error');
   errEl.textContent = '';
-  if (!email || !password) { errEl.textContent = 'Введите email и пароль'; return; }
+  if (!email || !password) { errEl.textContent = 'Введи email и пароль'; return; }
   try {
     var resp = await fetch(API_BASE + '/auth/email-login', {
       method: 'POST',
@@ -2146,44 +2146,4 @@ async function emailFallbackLogin() {
     }
     if (profile.role === 'founder') roleLabel = 'Founder & CEO';
     $('hd-role').textContent = roleLabel;
-    $('hd-dot').classList.add(profile.status === 'active' ? 'ok' : 'bad');
-    buildHome(profile, shares);
-    buildShares(shares);
-    $('app-error').style.display = 'none';
-    $('app').style.display = 'block';
-  } catch(e) { errEl.textContent = e.message || 'Ошибка подключения'; }
-}
-
-// ===== INIT =====
-async function init() {
-  try {
-    if (!initData && !tg.initDataUnsafe.user) throw new Error('Откройте через Telegram бот');
-    var res = await Promise.all([api('/profile'), api('/shares')]);
-    var profile = res[0];
-    var shares = res[1];
-    U = {profile: profile, shares: shares};
-    $('hd-avatar').textContent = (profile.full_name || '?')[0].toUpperCase();
-    $('hd-name').textContent = profile.full_name || 'Участник';
-    var roleLabel = ROLE_NAMES[profile.role] || profile.role;
-    if (profile.team_role && profile.role === 'team') {
-      var trMap = {cto:'CTO',cmo:'CMO',cfo:'CFO',coo:'COO',hr_director:'HR Dir',pm:'PM',founder:'Founder'};
-      roleLabel = trMap[profile.team_role] || roleLabel;
-    }
-    if (profile.role === 'founder') roleLabel = 'Founder & CEO';
-    $('hd-role').textContent = roleLabel;
-    $('hd-dot').classList.add(profile.status === 'active' ? 'ok' : 'bad');
-    buildHome(profile, shares);
-    buildShares(shares);
-    $('app-loading').style.display = 'none';
-    $('app').style.display = 'block';
-    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-  } catch(err) {
-    $('app-loading').style.display = 'none';
-    $('app-error').style.display = 'block';
-    $('err-text').textContent = err.message || 'Ошибка';
-  }
-}
-init();
-</script>
-</body>
-</html>
+    $('hd-dot').classList.add(profile.

@@ -824,7 +824,7 @@ async function emailLogin() {
   var email = document.getElementById('auth-email').value.trim();
   var password = document.getElementById('auth-password').value;
   if (!email || !password) {
-    document.getElementById('auth-error-choose').textContent = 'Введите email и пароль';
+    document.getElementById('auth-error-choose').textContent = 'Введи email и пароль';
     return;
   }
   showAuthStep('loading');
@@ -883,7 +883,7 @@ async function emailRegister() {
   var password = document.getElementById('reg-password').value;
   var invite = document.getElementById('reg-invite').value.trim();
   var err = document.getElementById('auth-error-choose');
-  if (!name || !email || !password) { err.textContent = 'Заполните имя, email и пароль'; return; }
+  if (!name || !email || !password) { err.textContent = 'Заполни имя, email и пароль'; return; }
   if (password.length < 8) { err.textContent = 'Пароль минимум 8 символов'; return; }
   showAuthStep('loading');
   try {
@@ -1301,7 +1301,7 @@ async function loadHome() {
   try { stats = await api('/stats') || {}; } catch(e) {}
 
   var alertsHtml = '';
-  if (frozen > 0) alertsHtml += '<div class="alert alert-danger"><i class="ti ti-alert-triangle"></i> Ваши акции заморожены. Публикуйте видео чтобы разморозить.</div>';
+  if (frozen > 0) alertsHtml += '<div class="alert alert-danger"><i class="ti ti-alert-triangle"></i> Твои акции заморожены. Публикуйте видео чтобы разморозить.</div>';
   if (status === 'active' && balance > 0) alertsHtml += '<div class="alert alert-success"><i class="ti ti-circle-check"></i> Всё в порядке. Система работает, акции активны.</div>';
 
   var statsExtra = '';
@@ -1583,6 +1583,34 @@ async function saveProfile() {
 }
 
 // ---------- VIDEOS ----------
+async function addVideoCab() {
+  var msg = document.getElementById('nv-msg');
+  var body = {
+    title: (document.getElementById('nv-title').value || '').trim(),
+    youtube_url: (document.getElementById('nv-yt').value || '').trim(),
+    tiktok_url: (document.getElementById('nv-tt').value || '').trim(),
+    instagram_url: (document.getElementById('nv-ig').value || '').trim(),
+    facebook_url: (document.getElementById('nv-fb').value || '').trim()
+  };
+  if (!body.youtube_url && !body.tiktok_url && !body.instagram_url && !body.facebook_url) {
+    msg.style.color = 'var(--red)'; msg.textContent = 'Добавь хотя бы одну ссылку'; return;
+  }
+  msg.style.color = 'var(--muted)'; msg.textContent = 'Добавляю…';
+  var r = await api('/videos', 'POST', body);
+  if (r && (r.ok || r.id)) {
+    msg.style.color = 'var(--green)';
+    msg.innerHTML = '<i class="ti ti-check"></i> Добавлено' + (r.start_shares_granted ? ' (+' + r.start_shares_granted + ' стартовые акции!)' : '');
+    setTimeout(function() { loadVideos(); }, 1200);
+  } else {
+    msg.style.color = 'var(--red)'; msg.textContent = (r && (r.detail || r.error)) || 'Ошибка';
+  }
+}
+async function deleteVideoCab(id) {
+  if (!confirm('Удалить это видео?')) return;
+  var r = await api('/videos/' + id, 'DELETE', {});
+  if (r && (r.ok || r.deleted)) { loadVideos(); }
+  else { alert((r && (r.detail || r.error)) || 'Не удалось удалить'); }
+}
 async function loadVideos() {
   const page = document.getElementById('page-videos');
   const data = await api('/videos');
@@ -1628,18 +1656,36 @@ async function loadVideos() {
   var sorted = Array.isArray(videos) ? videos.slice().sort(function(a,b) { return new Date(b.created_at||0) - new Date(a.created_at||0); }).slice(0, 10) : [];
   var recentHtml = '';
   if (sorted.length > 0) {
-    recentHtml = '<div class="content-card"><h3>\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 \u0432\u0438\u0434\u0435\u043e</h3><div style="overflow-x:auto"><table class="data-table"><thead><tr><th>\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430</th><th>\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b</th><th>\u0414\u0430\u0442\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th></tr></thead><tbody>';
+    recentHtml = '<div class="content-card"><h3>\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 \u0432\u0438\u0434\u0435\u043e</h3><div style="overflow-x:auto"><table class="data-table"><thead><tr><th>\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430</th><th>\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b</th><th>\u0414\u0430\u0442\u0430</th><th>\u0421\u0442\u0430\u0442\u0443\u0441</th><th></th></tr></thead><tbody>';
+    var seenDel = {};
     for (var r = 0; r < sorted.length; r++) {
       var sv = sorted[r];
       var pcell = sv.url ? '<a href="' + esc(sv.url) + '" target="_blank" style="color:var(--blue)">' + esc(sv.platform || '\u2014') + ' \u2197</a>' : esc(sv.platform || '\u2014');
+      var delCell = '';
+      if (sv.id && !seenDel[sv.id] && (sv.status === 'pending' || sv.status === 'revision')) {
+        seenDel[sv.id] = 1;
+        delCell = '<button class="btn-icon" title="\u0423\u0434\u0430\u043b\u0438\u0442\u044c" onclick="deleteVideoCab(' + sv.id + ')" style="color:var(--red);background:none;border:none;cursor:pointer"><i class="ti ti-trash"></i></button>';
+      }
       recentHtml += '<tr><td>' + pcell + '</td><td>' + fmtViews(sv.views || 0) + '</td><td>' + fmtDate(sv.created_at) + '</td>' +
-        '<td><span class="badge badge-' + (sv.status === 'verified' ? 'green' : sv.status === 'rejected' ? 'red' : 'muted') + '">' + (sv.status || 'pending') + '</span></td></tr>';
+        '<td><span class="badge badge-' + (sv.status === 'verified' ? 'green' : sv.status === 'rejected' ? 'red' : 'muted') + '">' + (sv.status || 'pending') + '</span></td>' +
+        '<td>' + delCell + '</td></tr>';
     }
     recentHtml += '</tbody></table></div></div>';
   }
 
   page.innerHTML =
     '<div class="section-title">\u0412\u0438\u0434\u0435\u043e</div>' +
+    '<div class="content-card"><h3><i class="ti ti-plus"></i> \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0432\u0438\u0434\u0435\u043e</h3>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+        '<input id="nv-title" class="form-input" placeholder="\u0422\u0435\u043c\u0430 / \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435" style="grid-column:1/-1">' +
+        '<input id="nv-yt" class="form-input" placeholder="YouTube \u2014 \u0441\u0441\u044b\u043b\u043a\u0430">' +
+        '<input id="nv-tt" class="form-input" placeholder="TikTok \u2014 \u0441\u0441\u044b\u043b\u043a\u0430">' +
+        '<input id="nv-ig" class="form-input" placeholder="Instagram \u2014 \u0441\u0441\u044b\u043b\u043a\u0430">' +
+        '<input id="nv-fb" class="form-input" placeholder="Facebook \u2014 \u0441\u0441\u044b\u043b\u043a\u0430">' +
+      '</div>' +
+      '<div style="margin-top:10px;display:flex;align-items:center;gap:10px"><button class="btn btn-primary" onclick="addVideoCab()"><i class="ti ti-upload"></i> \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c</button><span id="nv-msg" style="font-size:13px"></span></div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:6px">\u0412\u0438\u0434\u0435\u043e \u0437\u0430\u0441\u0447\u0438\u0442\u044b\u0432\u0430\u0435\u0442\u0441\u044f \u0441 4/4 \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c. \u041f\u0435\u0440\u0432\u043e\u0435 \u043f\u043e\u043b\u043d\u043e\u0435 \u0432\u0438\u0434\u0435\u043e \u2014 +2 \u0441\u0442\u0430\u0440\u0442\u043e\u0432\u044b\u0435 \u0430\u043a\u0446\u0438\u0438.</div>' +
+    '</div>' +
     alertHtml +
     '<div class="kpi-row">' +
       '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e \u0432\u0438\u0434\u0435\u043e</div><div class="stat-value blue">' + fmtNum(total) + '</div></div>' +
@@ -1862,6 +1908,17 @@ async function loadContent() {
 }
 
 // ---------- OFFERS ----------
+async function submitSaasLink(offerId) {
+  var inp = document.getElementById('saas-' + offerId);
+  var msg = document.getElementById('saas-msg-' + offerId);
+  var link = (inp.value || '').trim();
+  if (!link) { msg.style.color='var(--red)'; msg.textContent='Вставь ссылку'; return; }
+  if (!/^https?:\/\//.test(link)) { msg.style.color='var(--red)'; msg.textContent='Ссылка должна начинаться с http:// или https://'; return; }
+  msg.style.color='var(--muted)'; msg.textContent='Сохраняю…';
+  var r = await api('/offers/my-links', 'POST', { offer_id: offerId, ref_link: link });
+  if (r && r.ok) { msg.style.color='var(--green)'; msg.innerHTML='<i class="ti ti-check"></i> Сохранено, на проверке'; setTimeout(function(){ loadOffers(); }, 1200); }
+  else { msg.style.color='var(--red)'; msg.textContent=(r && (r.detail||r.error)) || 'Ошибка'; }
+}
 async function loadOffers() {
   var page = document.getElementById('page-offers');
   try {
@@ -1881,8 +1938,21 @@ async function loadOffers() {
       var mrot = minR ? '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> Твои ссылки в ротации</span>' : (msc<=0 ? '<span style="color:var(--muted)"><i class="ti ti-clock"></i> Попадут в ротацию после первого видео 4/4</span>' : '<span style="color:var(--red)"><i class="ti ti-x"></i> Заполни реф-ссылки</span>');
       mh += '<div class="content-card"><h3><i class="ti ti-refresh"></i> Ротация</h3><div style="margin-bottom:8px">'+mrot+'</div><div class="list-row"><span>Заполнено ссылок</span><span>'+mfilled+'/'+offers.length+'</span></div></div>';
       mh += '<div class="content-card"><h3><i class="ti ti-link"></i> Мои реф-ссылки</h3>';
-      if (offers.length) { for (var mi=0; mi<offers.length; mi++){ var mo=offers[mi]; var mhas=!!mo.my_link; mh += '<div class="list-row"><span>'+(mhas?'<i class="ti ti-circle-check" style="color:var(--green)"></i>':'<i class="ti ti-x" style="color:var(--muted)"></i>')+' '+esc(mo.name)+'</span><span style="color:var(--muted);font-size:12px">'+(mhas?'добавлена':'нет ссылки')+'</span></div>'; } } else { mh += '<div style="color:var(--muted);padding:16px;text-align:center">Офферы появятся скоро</div>'; }
-      mh += '<div class="note-box" style="margin-top:8px"><i class="ti ti-bulb"></i> Загрузи реф-ссылки через бота («Акции» → SaaS ссылки). После первого видео 4/4 они встанут в ротацию и начнут приносить доход.</div></div>';
+      if (offers.length) {
+        for (var mi=0; mi<offers.length; mi++){
+          var mo=offers[mi];
+          var mhas=!!mo.my_link;
+          var mval = (mo.my_link && (mo.my_link.ref_url||'')) || '';
+          var mstat = (mo.my_link && mo.my_link.status) || '';
+          var mbadge = mhas ? (mstat==='verified' ? '<span class="badge badge-green">в ротации</span>' : mstat==='rejected' ? '<span class="badge badge-red">отклонена</span>' : '<span class="badge badge-muted">на проверке</span>') : '';
+          mh += '<div style="padding:10px 0;border-bottom:1px solid var(--border)">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><strong>'+esc(mo.name)+'</strong>'+mbadge+(mo.url?' <a href="'+esc(mo.url)+'" target="_blank" style="color:var(--blue);font-size:12px">сервис ↗</a>':'')+'</div>' +
+            '<div style="display:flex;gap:8px"><input id="saas-'+mo.id+'" class="form-input" style="flex:1" placeholder="Твоя реф-ссылка (https://…)" value="'+esc(mval)+'">' +
+            '<button class="btn btn-primary" onclick="submitSaasLink('+mo.id+')">Сохранить</button></div>' +
+            '<span id="saas-msg-'+mo.id+'" style="font-size:12px"></span></div>';
+        }
+      } else { mh += '<div style="color:var(--muted);padding:16px;text-align:center">Офферы появятся скоро</div>'; }
+      mh += '<div class="note-box" style="margin-top:8px"><i class="ti ti-bulb"></i> Вставь свою реф-ссылку и нажми «Сохранить». После проверки и первого видео 4/4 ссылки встанут в ротацию и начнут приносить доход. То же можно из бота.</div></div>';
       page.innerHTML = mh;
       return;
     }
@@ -1987,7 +2057,7 @@ async function loadOffers() {
     page.innerHTML = '<div class="section-title"><i class="ti ti-briefcase"></i> Офферы и ниши</div>' +
       '<div class="alert alert-gold"><i class="ti ti-target"></i> 250 ниш в год · 5 команд AI-офферщиков · 1000 мейкеров на нишу</div>' +
       kpiRow + matrixTable + '<div class="grid-2">' + divCard + compCard + '</div>' + catalog +
-      '<div class="note-box"><i class="ti ti-bulb"></i> Офферы ротируются через Round Robin. Ваши реферальные ссылки участвуют в ротации пропорционально вашим акциям.</div>';
+      '<div class="note-box"><i class="ti ti-bulb"></i> Офферы ротируются через Round Robin. Твои реферальные ссылки участвуют в ротации пропорционально твоим акциям.</div>';
   } catch(e) {
     page.innerHTML = '<div class="section-title"><i class="ti ti-briefcase"></i> Офферы</div>' +
       '<div style="text-align:center;padding:40px;color:var(--muted)">Ошибка загрузки</div>';
@@ -2154,7 +2224,7 @@ function loadCalculator() {
   page.innerHTML = `
     <div class="section-title">Калькулятор дохода</div>
     <div class="content-card" style="text-align:center">
-      <h3>Сколько у вас акций?</h3>
+      <h3>Сколько у тебя акций?</h3>
       <input type="range" class="calc-slider" id="calc-shares-slider"
              min="1" max="500" value="${initShares}">
       <div style="font-size:14px;color:var(--muted);margin-bottom:8px">
@@ -2600,7 +2670,7 @@ async function loadHallOfFame() {
     });
     if (!vH) vH = '<div style="padding:20px;text-align:center;color:var(--muted)">Нет данных</div>';
 
-    var myR = d.my_rank ? '<i class="ti ti-star"></i> Ваше место: #' + d.my_rank : '';
+    var myR = d.my_rank ? '<i class="ti ti-star"></i> Твоё место: #' + d.my_rank : '';
 
     // 4 status cards (static content from project rules)
     var statusCards = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">' +
@@ -4429,17 +4499,6 @@ function loadSettings() {
       '</span></div>';
   }
 
-  h += '<div class="card"><div class="card-header"><i class="ti ti-settings"></i> \u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438</div>' +
-    toggleRow('animations', '<i class="ti ti-sparkles"></i>', '\u0410\u043D\u0438\u043C\u0430\u0446\u0438\u0438') +
-    toggleRow('sounds', '<i class="ti ti-volume"></i>', '\u0417\u0432\u0443\u043A\u0438 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u0439') +
-    toggleRow('autoRefresh', '<i class="ti ti-refresh"></i>', '\u0410\u0432\u0442\u043E-\u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 (60\u0441)') +
-    toggleRow('compactTables', '<i class="ti ti-ruler"></i>', '\u041A\u043E\u043C\u043F\u0430\u043A\u0442\u043D\u044B\u0435 \u0442\u0430\u0431\u043B\u0438\u0446\u044B') +
-    toggleRow('hidePrivate', '<i class="ti ti-lock"></i>', '\u0421\u043A\u0440\u044B\u0432\u0430\u0442\u044C \u043F\u0440\u0438\u0432\u0430\u0442\u043D\u044B\u0435 \u043A\u0430\u0440\u0442\u044B') +
-    '<div class="list-row"><span><i class="ti ti-letter-case"></i> \u0420\u0430\u0437\u043C\u0435\u0440 \u0448\u0440\u0438\u0444\u0442\u0430</span>' +
-    '<span style="display:flex;align-items:center;gap:8px">' +
-    '<input id="stg-fontsize" type="range" min="12" max="18" value="' + stg.fontSize + '" style="width:100px;accent-color:var(--gold)">' +
-    '<span id="stg-fontsize-val" style="min-width:30px;font-size:12px">' + stg.fontSize + 'px</span></span></div>' +
-    '</div>';
 
   // --- Notifications ---
   function notifSelect(key, icon, label) {
@@ -5121,141 +5180,4 @@ async function loadAdminKE() {
 
   const tiers = [
     {bonus:'+5',label:'<i class="ti ti-flame"></i> Топ 20%',count:d.ke_tier5||0,target:1000,color:'var(--gold)',bg:'rgba(212,168,67,0.08)',border:'var(--gold)'},
-    {bonus:'+4',label:'<i class="ti ti-barbell"></i> Хорошо',count:d.ke_tier4||0,target:1000,color:'var(--blue)',bg:'rgba(88,166,255,0.08)',border:'rgba(88,166,255,0.4)'},
-    {bonus:'+3',label:'<i class="ti ti-circle-check"></i> Средне',count:d.ke_tier3||0,target:1000,color:'var(--green)',bg:'rgba(63,185,80,0.08)',border:'rgba(63,185,80,0.4)'},
-    {bonus:'+2',label:'<i class="ti ti-alert-triangle"></i> Минимум',count:d.ke_tier2||0,target:1000,color:'var(--purple)',bg:'rgba(188,140,255,0.08)',border:'rgba(188,140,255,0.4)'},
-    {bonus:'+1',label:'<i class="ti ti-sparkles"></i> Старт',count:d.ke_tier1||0,target:1000,color:'var(--muted)',bg:'var(--card)',border:'var(--border)'}
-  ];
-
-  page.innerHTML = `
-    <div class="alert" style="background:rgba(88,166,255,0.08);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--text);">
-      <strong style="color:var(--text);"><i class="ti ti-bolt"></i> Коэффициент Эффективности (КЭ)</strong> · 5 тиров: +5/+4/+3/+2/+1 акция/год · формула: Просмотры (40%) + Engagement (40%) + Равномерность (20%) · пересчёт 31 декабря
-    </div>
-
-    <div class="kpi-row">
-      <div class="kpi-card" style="border-top:3px solid var(--gold);">
-        <div class="kpi-label">Тиров КЭ</div>
-        <div class="kpi-value" style="color:var(--gold);">5</div>
-        <div style="font-size:11px;color:var(--muted);">от +1 до +5 акц/год</div>
-      </div>
-      <div class="kpi-card" style="border-top:3px solid var(--green);">
-        <div class="kpi-label">Топ-20% (КЭ 5)</div>
-        <div class="kpi-value" style="color:var(--green);">${fmtNum(d.ke_tier5||0)}</div>
-        <div style="font-size:11px;color:var(--green);">+5 акций/год</div>
-      </div>
-      <div class="kpi-card" style="border-top:3px solid var(--blue);">
-        <div class="kpi-label">Акций/год по КЭ</div>
-        <div class="kpi-value" style="color:var(--blue);">15 000</div>
-        <div style="font-size:11px;color:var(--muted);">годы 2-5</div>
-      </div>
-      <div class="kpi-card" style="border-top:3px solid var(--purple);">
-        <div class="kpi-label">Веса формулы</div>
-        <div class="kpi-value" style="color:var(--purple);">40/40/20</div>
-      </div>
-      <div class="kpi-card" style="border-top:3px solid var(--orange);">
-        <div class="kpi-label">Пересчёт</div>
-        <div class="kpi-value" style="color:var(--orange);">31 дек</div>
-        <div style="font-size:11px;color:var(--muted);">2026</div>
-      </div>
-    </div>
-
-    <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-target"></i> 5 тиров КЭ · по 1 000 мейкеров</h3>
-      <div class="tier-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
-        ${tiers.map(t => `<div style="background:${t.bg};border:2px solid ${t.border};padding:18px 12px;text-align:center;">
-          <div style="font-size:36px;font-weight:700;color:${t.color};line-height:1;margin-bottom:4px;">${t.bonus}</div>
-          <div style="font-size:10px;color:${t.color};margin-bottom:10px;">акций/год</div>
-          <div style="font-size:11px;color:var(--text);font-weight:700;margin-bottom:6px;">${t.label}</div>
-          <div style="border-top:1px solid ${t.border};padding-top:8px;font-size:12px;color:var(--text);font-weight:700;">${fmtNum(t.count)} чел</div>
-          <div style="font-size:9px;color:var(--muted);margin-top:4px;">${fmtNum(t.count * parseInt(t.bonus))} акций/год</div>
-        </div>`).join('')}
-      </div>
-      <div style="margin-top:14px;padding:12px;background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);font-size:11px;color:var(--text);">
-        <i class="ti ti-chart-bar"></i> <strong>ИТОГО:</strong> 5K + 4K + 3K + 2K + 1K = <strong style="color:var(--gold);">15 000 акций/год</strong> · за 4 года (2-5) = 60 000 + 10 000 стартовых = <strong style="color:var(--gold);">70 000 = 70%</strong> <i class="ti ti-circle-check"></i>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-calculator"></i> Формула расчёта КЭ</h3>
-        <div style="margin-bottom:14px;padding:14px;background:var(--card);border-left:3px solid var(--gold);">
-          <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;">КЭ = (Просмотры × 0.4) + (Engagement × 0.4) + (Равномерность × 0.2)</div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.6;">3 компонента: охват, вовлечённость, стабильность</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:1px;">
-          ${[
-            {n:'01',c:'var(--gold)',title:'Просмотры (40%)',desc:'Сумма 4 платформ через Apify'},
-            {n:'02',c:'var(--blue)',title:'Engagement (40%)',desc:'Лайки + Целевые комменты ×3 + Репосты ×3'},
-            {n:'03',c:'var(--green)',title:'Равномерность (20%)',desc:'Стабильность: 4/4 нед = 100%'},
-            {n:'04',c:'var(--purple)',title:'Ранжирование',desc:'Топ-1000 → +5, далее +4/+3/+2/+1'},
-            {n:'05',c:'var(--gold)',title:'Зачисление (31 дек)',desc:'Акции не сгорают при снижении КЭ'}
-          ].map(s => `<div style="background:var(--card);padding:12px;display:flex;gap:12px;align-items:flex-start;">
-            <div style="font-size:18px;font-weight:700;color:${s.c};min-width:28px;">${s.n}</div>
-            <div>
-              <div style="font-size:12px;color:var(--text);font-weight:700;">${s.title}</div>
-              <div style="font-size:10px;color:var(--muted);">${s.desc}</div>
-            </div>
-          </div>`).join('')}
-        </div>
-      </div>
-
-      <div class="content-card">
-        <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-chart-bar"></i> Текущее распределение по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">промежуточный</span></h3>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          ${tiers.map(t => `<div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
-              <span style="color:${t.color};font-weight:700;">${t.label} ${t.bonus}</span>
-              <span style="color:var(--text);font-weight:700;">${fmtNum(t.count)} / 1 000</span>
-            </div>
-            <div class="bar-track" style="height:16px;"><div class="bar-fill" style="width:${Math.min((t.count/t.target*100),100)}%;background:${t.color};"></div></div>
-          </div>`).join('')}
-        </div>
-      </div>
-    </div>
-
-    <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-trophy"></i> Топ-15 мейкеров по КЭ <span class="badge" style="background:var(--border);color:var(--muted);font-size:10px;">текущий ранг</span></h3>
-      <table class="data-table">
-        <thead><tr><th>#</th><th>Мейкер</th><th>Eng. Rate</th><th>Просм/нед</th><th>КЭ</th><th>Прогноз</th></tr></thead>
-        <tbody>
-          ${topKE.length ? topKE.slice(0,15).map((m,i) => `<tr>
-            <td style="color:${i<3?'var(--gold)':'var(--muted)'};">${i+1}</td>
-            <td style="color:var(--text);">${esc(m.display_name||m.username||'—')}</td>
-            <td style="color:var(--green);font-weight:700;">${(m.engagement_rate||0).toFixed(1)}%</td>
-            <td>${fmtNum(m.views_week||m.total_views||0)}</td>
-            <td style="color:var(--gold);font-weight:700;">${(m.ke_score||0).toFixed(1)}</td>
-            <td><span class="badge" style="background:rgba(212,168,67,0.15);color:var(--gold);">+5</span></td>
-          </tr>`).join('') : '<tr><td colspan="6" style="color:var(--muted);text-align:center;">Нет данных</td></tr>'}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="content-card">
-      <h3 style="color:var(--gold);margin:0 0 14px;"><i class="ti ti-target"></i> Прогноз начислений · 31 декабря 2026</h3>
-      <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:16px;">
-        <div>
-          <div style="font-size:36px;font-weight:700;color:var(--gold);">15 000</div>
-          <div style="font-size:11px;color:var(--muted);">акций к зачислению</div>
-        </div>
-        <div style="margin-left:auto;text-align:right;">
-          <div style="font-size:20px;font-weight:700;color:var(--text);">5 000</div>
-          <div style="font-size:11px;color:var(--muted);">мейкеров получат</div>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:1px;">
-        ${tiers.map(t => `<div style="background:var(--card);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:12px;color:var(--text);">${t.bonus} акций × 1 000 чел</div>
-          <span style="color:${t.color};font-weight:700;">${fmtNum(parseInt(t.bonus)*1000)} акц</span>
-        </div>`).join('')}
-        <div style="background:rgba(212,168,67,0.08);padding:14px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(212,168,67,0.3);">
-          <div style="font-size:13px;color:var(--gold);font-weight:700;"><i class="ti ti-diamond"></i> ИТОГО</div>
-          <span style="color:var(--gold);font-weight:700;font-size:18px;">15 000</span>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-</script>
-</body>
-</html>
+    {bonus:'+4',label:'<i class="ti ti-barbell"></i> Хорошо',count:d.ke_tier4||0,target:1000,color:'var(--blue)',bg:'rgba(88,166,255,0.08)',border:'rgba(88,
