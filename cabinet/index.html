@@ -1374,10 +1374,11 @@ async function loadShares() {
   const frozen = s.shares_frozen ? (s.shares_count ?? 0) : 0;
   const available = balance - frozen;
   var mults = [127, 254, 508, 1018, 2036];
+  var grow = (currentUser && currentUser.role === 'maker') ? 3 : 0;
   var monthlyNow = balance * mults[0];
   var yearlyNow = monthlyNow * 12;
   var total5y = 0;
-  for (var y = 0; y < 5; y++) total5y += balance * mults[y] * 12;
+  for (var y = 0; y < 5; y++) total5y += (balance + grow * y) * mults[y] * 12;
 
   var historyRows = '';
   if (Array.isArray(history) && history.length > 0) {
@@ -1423,7 +1424,7 @@ async function loadShares() {
     type: 'bar',
     data: {
       labels: ['\u0413\u043e\u04341','\u0413\u043e\u04342','\u0413\u043e\u04343','\u0413\u043e\u04344','\u0413\u043e\u04345'],
-      datasets: [{ label: '$/\u043c\u0435\u0441', data: mults.map(function(m){return balance*m;}), backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d6a528','#bc8cff'], borderRadius: 4 }]
+      datasets: [{ label: '$/\u043c\u0435\u0441', data: mults.map(function(m,y){return (balance+grow*y)*m;}), backgroundColor: ['#d4a843','#58a6ff','#3fb950','#d6a528','#bc8cff'], borderRadius: 4 }]
     },
     options: { responsive: true, plugins:{ legend:{ display:false } }, scales: { x:{ ticks:{ color:'#8a8a93' }, grid:{ display:false } }, y:{ ticks:{ color:'#8a8a93', callback: function(v){return '$'+v.toLocaleString();} }, grid:{ color:'rgba(48,54,61,0.5)' } } } }
   });
