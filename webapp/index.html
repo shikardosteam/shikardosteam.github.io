@@ -544,6 +544,7 @@ function buildShares(shares) {
 
 // ===== TRENDS PAGE =====
 async function loadTrends(pg, back) {
+  pg = pg || $('pg-trends'); back = back || '';
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var d = await api('/trends') || {};
