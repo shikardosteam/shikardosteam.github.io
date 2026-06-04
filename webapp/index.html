@@ -459,7 +459,7 @@ function buildHome(profile, shares) {
   h += '<div class="card"><h3><i class="ti ti-trending-up"></i> Прогноз дохода</h3><div class="chart-box"><canvas id="ch-income"></canvas></div>';
   var grow = (role === 'maker') ? 3 : 0;
   h += '<table class="inc-tbl" style="margin-top:6px">';
-  h += '<tr><th>Год</th><th>Акций</th><th>$/акц/мес</th><th>Доход/мес</th><th>Доход/год</th></tr>';
+  h += '<tr><th>Год</th><th>Акций</th><th>Доход с 1 акции/мес</th><th>Доход/мес</th><th>Доход/год</th></tr>';
   for (var i = 0; i < 5; i++) { var ys = sc + grow * i; h += '<tr><td>Год ' + (i+1) + '</td><td>' + ys + '</td><td>$' + fmt(RATES[i]) + '</td><td style="color:var(--gold);font-weight:600">' + fmtUSD(ys * RATES[i]) + '</td><td>' + fmtUSD(ys * RATES[i] * 12) + '</td></tr>'; }
   h += '</table>';
   if (grow > 0) h += '<div style="font-size:10px;color:var(--hint);margin-top:4px">Прогноз при среднем тире +3 акц/год. Топ-тир (+5/год) — ещё больше.</div>';
@@ -1229,7 +1229,7 @@ function loadPortfolio(pg, back) {
 
   // ROI table
   h += '<div class="card"><h3><i class="ti ti-chart-bar"></i> Детальный прогноз</h3><div class="m-tbl-wrap"><table class="m-tbl">';
-  h += '<tr><th>Год</th><th>$/акц/мес</th><th>Доход/мес</th><th>Доход/год</th><th>Цена</th></tr>';
+  h += '<tr><th>Год</th><th>Доход с 1 акции/мес</th><th>Доход/мес</th><th>Доход/год</th><th>Цена</th></tr>';
   for (var i = 0; i < 5; i++) {
     h += '<tr><td>Год ' + (i+1) + '</td><td>$' + fmt(RATES[i]) + '</td>';
     h += '<td style="color:var(--gold);font-weight:600">$' + fmt(sc * RATES[i]) + '</td>';
