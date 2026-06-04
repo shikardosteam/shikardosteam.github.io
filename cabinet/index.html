@@ -471,6 +471,16 @@ h3 { font-size:18px; }
         <input type="email" id="auth-email" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
         <input type="password" id="auth-password" placeholder="Пароль (мин. 8 символов)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
         <button onclick="emailLogin()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:#000;font-weight:600;font-size:14px;cursor:pointer">Войти по Email</button>
+        <div style="text-align:center;margin-top:10px;font-size:13px"><a href="#" onclick="toggleEmailRegister(true);return false" style="color:var(--gold)">Нет аккаунта? Зарегистрироваться по email</a></div>
+      </div>
+
+      <div id="email-register-form" style="margin-top:12px;display:none">
+        <input type="text" id="reg-name" placeholder="Имя и фамилия" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+        <input type="email" id="reg-email" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+        <input type="password" id="reg-password" placeholder="Пароль (мин. 8 символов)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+        <input type="text" id="reg-refcode" placeholder="Реф-код (необязательно)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+        <button onclick="emailRegister()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:#000;font-weight:600;font-size:14px;cursor:pointer">Зарегистрироваться</button>
+        <div style="text-align:center;margin-top:10px;font-size:13px"><a href="#" onclick="toggleEmailRegister(false);return false" style="color:var(--gold)">← Уже есть аккаунт? Войти</a></div>
       </div>
 
       <div id="auth-error-choose" class="auth-error"></div>
@@ -840,6 +850,50 @@ async function emailLogin() {
   } catch(e) {
     showAuthStep('choose');
     document.getElementById('auth-error-choose').textContent = 'Ошибка подключения';
+  }
+}
+
+function toggleEmailRegister(show) {
+  document.getElementById('email-login-form').style.display = show ? 'none' : 'block';
+  document.getElementById('email-register-form').style.display = show ? 'block' : 'none';
+  document.getElementById('auth-error-choose').textContent = '';
+}
+
+async function emailRegister() {
+  var name = document.getElementById('reg-name').value.trim();
+  var email = document.getElementById('reg-email').value.trim();
+  var password = document.getElementById('reg-password').value;
+  var refcode = document.getElementById('reg-refcode').value.trim();
+  var err = document.getElementById('auth-error-choose');
+  if (!name || !email || !password) { err.textContent = 'Заполните имя, email и пароль'; return; }
+  if (password.length < 8) { err.textContent = 'Пароль минимум 8 символов'; return; }
+  showAuthStep('loading');
+  try {
+    var resp = await fetch(API_BASE + '/auth/email-register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({full_name: name, email: email, password: password, ref_code: refcode})
+    });
+    var data = await resp.json();
+    if (!resp.ok) {
+      showAuthStep('choose');
+      toggleEmailRegister(true);
+      err.textContent = data.detail || 'Ошибка регистрации';
+      return;
+    }
+    token = data.token;
+    localStorage.setItem('st_token', token);
+    currentUser = await api('/auth/me');
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('cabinet').style.display = 'block';
+    renderTopbar();
+    renderSidebar();
+    renderPages();
+    navigateTo('home');
+  } catch(e) {
+    showAuthStep('choose');
+    toggleEmailRegister(true);
+    err.textContent = 'Ошибка подключения';
   }
 }
 
