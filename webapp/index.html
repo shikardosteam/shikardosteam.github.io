@@ -465,12 +465,6 @@ function buildHome(profile, shares) {
   if (grow > 0) h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.5">* Расчёт из среднего +3 акции/год (тир 3). На деле от +1 (тир 5) до +5 (тир 1) — зависит от твоего КЭ (качество, просмотры, топ). Пример роста, не гарантия.</div>';
   h += '</div>';
 
-  // Tier system
-  h += '<div class="card"><h3><i class="ti ti-target"></i> Система тиров (акции/год)</h3>';
-  h += '<div class="tier-grid">';
-  var tiers = [{n:'T1',s:'+5',d:'Топ 20%'},{n:'T2',s:'+4',d:'20-40%'},{n:'T3',s:'+3',d:'40-60%'},{n:'T4',s:'+2',d:'60-80%'},{n:'T5',s:'+1',d:'80-100%'}];
-  for (var t = 0; t < tiers.length; t++) h += '<div class="tier-card"><strong>' + tiers[t].n + '</strong><div style="color:var(--gold);font-weight:700">' + tiers[t].s + '</div><div style="font-size:9px;color:var(--hint)">' + tiers[t].d + '</div></div>';
-  h += '</div></div>';
 
   $('pg-home').innerHTML = h;
 

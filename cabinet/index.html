@@ -4406,9 +4406,10 @@ function loadSettings() {
     '<div class="list-row"><span>Telegram</span><span>@' + (u.telegram_username || u.username || '\u2014') + '</span></div>' +
     '<div class="list-row"><span>Email</span><span><input id="stg-email" type="email" value="' + ((u.email || '').replace(/"/g,'\x26quot;')) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:200px;font-family:inherit" /></span></div>' +
     '<div class="list-row"><span><i class="ti ti-map-pin"></i> \u041B\u043E\u043A\u0430\u0446\u0438\u044F</span><span><input id="stg-location" type="text" value="' + ((u.location || u.country || '').replace(/"/g,'\x26quot;')) + '" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:200px;font-family:inherit" /></span></div>' +
+    '<div class="list-row"><span><i class="ti ti-key"></i> \u041D\u043E\u0432\u044B\u0439 \u043F\u0430\u0440\u043E\u043B\u044C</span><span><input id="stg-password" type="password" autocomplete="new-password" placeholder="\u22658, \u043F\u0443\u0441\u0442\u043E \u2014 \u043D\u0435 \u043C\u0435\u043D\u044F\u0442\u044C" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:200px;font-family:inherit" /></span></div>' +
     '<div class="list-row"><span><i class="ti ti-lock"></i> 2FA</span><span style="color:var(--green)"><i class="ti ti-circle-check"></i> Telegram</span></div>' +
     '<div class="list-row"><span><i class="ti ti-clock"></i> \u041F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0439 \u0432\u0445\u043E\u0434</span><span style="color:var(--muted)">' + (u.last_login || new Date().toLocaleString()) + '</span></div>' +
-    '<div class="list-row"><span><i class="ti ti-calendar"></i> \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F</span><span style="color:var(--muted)">' + (u.registered || u.created_at || '\u2014') + '</span></div>' +
+    '<div class="list-row"><span><i class="ti ti-calendar"></i> \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F</span><span style="color:var(--muted)">' + ((u.created_at || u.registered_at) ? fmtDate(u.created_at || u.registered_at) : (u.registered || '\u2014')) + '</span></div>' +
     '<div style="padding:12px;text-align:right"><button id="stg-save-profile" style="padding:8px 20px;background:var(--gold);color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-family:inherit"><i class="ti ti-device-floppy"></i> \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button></div></div>';
 
   // --- Theme ---
@@ -4541,22 +4542,34 @@ function loadSettings() {
   // Profile save
   var saveBtn = document.getElementById('stg-save-profile');
   if (saveBtn) {
-    saveBtn.addEventListener('click', function() {
+    saveBtn.addEventListener('click', async function() {
       var newName = document.getElementById('stg-name').value;
       var newEmail = document.getElementById('stg-email').value;
       var newLoc = document.getElementById('stg-location').value;
-      api('/profile', 'PUT', { full_name: newName, email: newEmail, location: newLoc })
-        .then(function() {
-          saveBtn.textContent = '<i class="ti ti-circle-check"></i> \u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E';
-          saveBtn.style.background = 'var(--green)';
-          if (currentUser) { currentUser.full_name = newName; currentUser.email = newEmail; currentUser.location = newLoc; }
-          setTimeout(function(){ saveBtn.textContent = '<i class="ti ti-device-floppy"></i> \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C'; saveBtn.style.background = 'var(--gold)'; }, 2000);
-        })
-        .catch(function() {
-          saveBtn.textContent = '<i class="ti ti-x"></i> \u041E\u0448\u0438\u0431\u043A\u0430';
-          saveBtn.style.background = 'var(--red)';
-          setTimeout(function(){ saveBtn.textContent = '<i class="ti ti-device-floppy"></i> \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C'; saveBtn.style.background = 'var(--gold)'; }, 2000);
-        });
+      var passEl = document.getElementById('stg-password');
+      var newPass = passEl ? passEl.value : '';
+      if (newPass && newPass.length < 8) {
+        saveBtn.textContent = '\u041F\u0430\u0440\u043E\u043B\u044C \u22658 \u0441\u0438\u043C\u0432\u043E\u043B\u043E\u0432';
+        saveBtn.style.background = 'var(--red)';
+        setTimeout(function(){ saveBtn.innerHTML = '<i class="ti ti-device-floppy"></i> \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C'; saveBtn.style.background = 'var(--gold)'; }, 2000);
+        return;
+      }
+      try {
+        await api('/profile', 'PUT', { full_name: newName, email: newEmail, location: newLoc });
+        if (newPass) {
+          var pr = await api('/auth/set-password', 'POST', { password: newPass });
+          if (pr && (pr.error || pr.detail)) throw new Error(pr.error || pr.detail);
+          if (passEl) passEl.value = '';
+        }
+        saveBtn.innerHTML = '<i class="ti ti-circle-check"></i> \u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E' + (newPass ? ' (\u043F\u0430\u0440\u043E\u043B\u044C \u043E\u0431\u043D\u043E\u0432\u043B\u0451\u043D)' : '');
+        saveBtn.style.background = 'var(--green)';
+        if (currentUser) { currentUser.full_name = newName; currentUser.email = newEmail; currentUser.location = newLoc; }
+        setTimeout(function(){ saveBtn.innerHTML = '<i class="ti ti-device-floppy"></i> \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C'; saveBtn.style.background = 'var(--gold)'; }, 2000);
+      } catch(e) {
+        saveBtn.innerHTML = '<i class="ti ti-x"></i> \u041E\u0448\u0438\u0431\u043A\u0430';
+        saveBtn.style.background = 'var(--red)';
+        setTimeout(function(){ saveBtn.innerHTML = '<i class="ti ti-device-floppy"></i> \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C'; saveBtn.style.background = 'var(--gold)'; }, 2000);
+      }
     });
   }
 
@@ -4567,11 +4580,11 @@ function loadSettings() {
   if (lightBtn) lightBtn.addEventListener('click', function() { stg.theme = 'light'; saveSt(); applyTheme('light'); loadSettings(); });
 
   // Toggle switches
-  var toggleRows = page.querySelectorAll('[data-toggle]');
+  var toggleRows = page.querySelectorAll('.stg-toggle');
   for (var ti = 0; ti < toggleRows.length; ti++) {
     (function(row) {
       row.addEventListener('click', function() {
-        var key = row.getAttribute('data-toggle');
+        var key = row.getAttribute('data-key');
         stg[key] = !stg[key];
         saveSt();
         loadSettings();
