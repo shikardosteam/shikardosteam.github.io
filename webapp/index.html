@@ -491,8 +491,8 @@ function buildHome(profile, shares) {
     api('/stats/project').then(function(s) {
       if ($('home-users')) $('home-users').textContent = fmt(s.total_users || 0);
       if ($('home-makers')) $('home-makers').textContent = fmt(s.total_makers || 0);
-      if ($('home-videos-total')) $('home-videos-total').textContent = fmt(s.videos_this_week || 0);
-      if ($('home-offers')) $('home-offers').textContent = s.total_offers || 0;
+      if ($('home-videos-total')) $('home-videos-total').textContent = fmt(s.total_videos || s.videos_this_week || 0);
+      if ($('home-offers')) $('home-offers').textContent = s.offers_count || s.total_offers || 0;
     }).catch(function(){});
   }
 }
@@ -1104,7 +1104,7 @@ async function loadTasks(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var data = await api('/team/tasks');
-    var tasks = data.tasks || data || [];
+    var tasks = data.items || data.tasks || data || [];
     if (!Array.isArray(tasks)) tasks = [];
 
     var total = tasks.length;
@@ -2035,7 +2035,7 @@ function exportTransactions() {
 
 function exportTasks() {
   api('/team/tasks').then(function(data) {
-    var tasks = data.tasks || data || [];
+    var tasks = data.items || data.tasks || data || [];
     if (!Array.isArray(tasks) || tasks.length === 0) { toast('Нет задач', 'warn'); return; }
     var rows = tasks.map(function(t) {
       return [t.title||'', t.status||'', t.priority||'', t.assignee||'', t.due_date||t.deadline||''];
