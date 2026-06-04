@@ -293,12 +293,13 @@ var PRICES = [5000, 10000, 20000, 40000, 80000];
 var ROLE_NAMES = {maker:'Мейкер', hr:'HR-менеджер', investor:'Инвестор', blogger:'Блогер', team:'Команда', advisor:'Адвизор', founder:'Founder & CEO'};
 var STATUS_NAMES = {active:'Активен', frozen:'Заморожен', pending:'Ожидание', waitlist:'В очереди'};
 var initData = tg.initData || '';
+var authBearer = ''; // JWT для email-fallback
 var U = {}; // current user
 var charts = {};
 
 // ===== TEAM ROLE ACCESS =====
 var TEAM_ROLE_ACCESS = {
-  _common: ['home','shares','profile','trends','hall','settings','referrals','kaizen'],
+  _common: ['home','shares','profile','trends','hall','settings','referrals','kaizen','knowledge','support','exchange'],
   _team: ['tasks','team-members','team-pulse','pain-points','contests','content','admin-ke','risk-zone'],
   cto: ['infrastructure','ai-automators','quality','admin','content','admin-ke','risk-zone','ops-center'],
   cmo: ['content','bloggers','admin'],
@@ -372,6 +373,20 @@ async function api(path) {
   var r = await fetch(API_BASE + path, {headers: {'X-Telegram-Init-Data': initData}});
   if (!r.ok) throw new Error('API ' + r.status);
   return r.json();
+}
+
+// Не-кидающий хелпер для действий (POST/GET) — возвращает {ok, status, data}
+async function apiAct(path, method, body) {
+  try {
+    var opts = { method: method || (body ? 'POST' : 'GET'), headers: {} };
+    if (authBearer) opts.headers['Authorization'] = 'Bearer ' + authBearer;
+    else opts.headers['X-Telegram-Init-Data'] = initData;
+    if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+    var r = await fetch(API_BASE + path, opts);
+    var data = {};
+    try { data = await r.json(); } catch(e) {}
+    return { ok: r.ok, status: r.status, data: data };
+  } catch(e) { return { ok: false, status: 0, data: {} }; }
 }
 
 function toast(msg, type) {
@@ -628,6 +643,9 @@ function buildMoreMenu() {
   var allItems = [
     {id:'profile', ico:'<i class="ti ti-user"></i>', name:'Профиль', access:'profile'},
     {id:'kaizen', ico:'<i class="ti ti-bulb"></i>', name:'Кайдзен', access:'kaizen'},
+    {id:'exchange', ico:'<i class="ti ti-arrows-exchange"></i>', name:'Биржа', access:'exchange'},
+    {id:'knowledge', ico:'<i class="ti ti-book"></i>', name:'База знаний', access:'knowledge'},
+    {id:'support', ico:'<i class="ti ti-lifebuoy"></i>', name:'Поддержка', access:'support'},
     {id:'contests', ico:'<i class="ti ti-medal"></i>', name:'Конкурсы', access:'contests'},
     {id:'referrals', ico:'<i class="ti ti-link"></i>', name:'Рефералы', access:'referrals'},
     {id:'tasks', ico:'<i class="ti ti-clipboard"></i>', name:'Задачи', access:'tasks'},
@@ -683,6 +701,9 @@ async function loadSubPage(id) {
 
   if (id === 'profile') { loadProfile(pg, back); }
   else if (id === 'kaizen') { loadKaizen(pg, back); }
+  else if (id === 'exchange') { loadExchangeW(pg, back); }
+  else if (id === 'knowledge') { loadKnowledgeW(pg, back); }
+  else if (id === 'support') { loadSupportW(pg, back); }
   else if (id === 'contests') { loadContests(pg, back); }
   else if (id === 'referrals') { loadReferrals(pg, back); }
   else if (id === 'videos') { loadVideos(pg, back); }
@@ -738,7 +759,13 @@ async function loadKaizen(pg, back) {
     var catM={process:'Процесс',content:'Контент',tech:'Технология',other:'Другое'};
     var stM={'new':'Новое',reviewed:'Рассм.',approved:'Одобрено',rejected:'Отклонено',implemented:'Внедрено'};
     var h = back;
-    h += '<div class="card" style="border-left:3px solid var(--gold)"><div style="font-size:12px"><i class="ti ti-bulb"></i> <b>Кайдзен</b> · идеи через бота · лучшие внедряются · награда акциями из Фонда развития (5%)</div></div>';
+    h += '<div class="card" style="border-left:3px solid var(--gold)"><div style="font-size:12px"><i class="ti ti-bulb"></i> <b>Кайдзен</b> · идеи здесь или в боте · лучшие внедряются · награда акциями из Фонда развития (5%)</div></div>';
+    var KINP = 'width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;outline:none';
+    h += '<div class="card"><h3><i class="ti ti-plus"></i> Подать идею</h3>' +
+      '<textarea id="wk-text" rows="3" placeholder="Опиши идею улучшения" style="' + KINP + ';resize:vertical;margin-bottom:6px"></textarea>' +
+      '<select id="wk-cat" style="' + KINP + ';margin-bottom:6px"><option value="process">Процесс</option><option value="content">Контент</option><option value="tech">Технология</option><option value="other">Другое</option></select>' +
+      '<button onclick="wSubmitKaizen()" style="width:100%;padding:11px;background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;font-weight:600;font-size:14px"><i class="ti ti-send"></i> Отправить</button>' +
+      ' <span id="wk-msg" style="font-size:11px"></span></div>';
     h += '<div class="kpi-grid">';
     h += '<div class="kpi"><div class="val gold">' + total + '</div><div class="lbl">Всего</div></div>';
     h += '<div class="kpi"><div class="val green">' + nw + '</div><div class="lbl">Новых</div></div>';
@@ -857,6 +884,17 @@ async function loadVideos(pg, back) {
 
     var h = back;
 
+    // Форма добавления видео
+    var WINP = 'width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;margin-bottom:6px;outline:none';
+    h += '<div class="card"><h3><i class="ti ti-plus"></i> Добавить видео</h3>' +
+      '<input id="wv-title" placeholder="Тема / название" style="' + WINP + '">' +
+      '<input id="wv-yt" placeholder="YouTube — ссылка" style="' + WINP + '">' +
+      '<input id="wv-tt" placeholder="TikTok — ссылка" style="' + WINP + '">' +
+      '<input id="wv-ig" placeholder="Instagram — ссылка" style="' + WINP + '">' +
+      '<input id="wv-fb" placeholder="Facebook — ссылка" style="' + WINP + '">' +
+      '<button onclick="wAddVideo()" style="width:100%;padding:11px;background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;font-weight:600;font-size:14px"><i class="ti ti-upload"></i> Добавить</button>' +
+      '<div style="font-size:10px;color:var(--hint);margin-top:6px">С 4/4 платформ засчитывается. Первое полное видео — +2 стартовые акции.</div></div>';
+
     // Alert
     if (total === 0) h += '<div class="alert alert-warn"><i class="ti ti-video"></i> Ты пока не опубликовали ни одного видео.</div>';
     else if (weeklyCount < 3) h += '<div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> За эту неделю: ' + weeklyCount + '/3 видео. Минимум 3 чтобы избежать заморозки.</div>';
@@ -893,13 +931,16 @@ async function loadVideos(pg, back) {
     var sorted = videos.slice().sort(function(a,b) { return new Date(b.created_at||0) - new Date(a.created_at||0); }).slice(0, 10);
     if (sorted.length > 0) {
       h += '<div class="card"><h3><i class="ti ti-movie"></i> Последние видео</h3><div class="m-tbl-wrap"><table class="m-tbl">';
-      h += '<tr><th>Платф.</th><th>Просм.</th><th>Дата</th><th>Статус</th></tr>';
+      h += '<tr><th>Платф.</th><th>Просм.</th><th>Дата</th><th>Статус</th><th></th></tr>';
+      var wSeenDel = {};
       for (var r = 0; r < sorted.length; r++) {
         var sv = sorted[r];
         var stCls = sv.status === 'verified' ? 'green' : sv.status === 'rejected' ? 'red' : 'muted';
         var pcell = sv.url ? '<a href="' + esc(sv.url) + '" target="_blank" style="color:var(--blue)">' + esc(sv.platform||'—') + ' <i class="ti ti-external-link" style="font-size:10px"></i></a>' : esc(sv.platform||'—');
+        var wDel = '';
+        if (sv.id && !wSeenDel[sv.id] && (sv.status === 'pending' || sv.status === 'revision')) { wSeenDel[sv.id] = 1; wDel = '<span onclick="wDeleteVideo(' + sv.id + ')" style="color:var(--red);cursor:pointer"><i class="ti ti-trash"></i></span>'; }
         h += '<tr><td>' + pcell + '</td><td>' + fmtViews(sv.views||0) + '</td><td>' + fmtDate(sv.created_at) + '</td>';
-        h += '<td><span class="badge ' + stCls + '">' + esc(sv.status||'pending') + '</span></td></tr>';
+        h += '<td><span class="badge ' + stCls + '">' + esc(sv.status||'pending') + '</span></td><td>' + wDel + '</td></tr>';
       }
       h += '</table></div></div>';
     }
@@ -1022,7 +1063,24 @@ async function loadOffers(pg, back) {
       if (wk) {
         mh += '<div class="card"><h3><i class="ti ti-flame"></i> ' + esc(wk.name) + '</h3>' + (wk.description?'<div style="font-size:12px;color:var(--hint);margin-bottom:8px">'+esc(wk.description)+'</div>':'') + (wk.url?'<a href="'+esc(wk.url)+'" target="_blank" style="font-size:12px;color:var(--blue)">Открыть сервис →</a>':'') + '</div>';
       }
-      mh += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:11px;color:var(--hint)"><i class="ti ti-info-circle"></i> Твои реф-ссылки и статус ротации — в разделе <b>«Акции»</b>. После первого видео 4/4 они встают в ротацию и начинают приносить доход.</div></div>';
+      var mrot = minR ? '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> Твои ссылки в ротации</span>' : (msc<=0 ? '<span style="color:var(--hint)"><i class="ti ti-clock"></i> Попадут в ротацию после первого видео 4/4</span>' : '<span style="color:var(--red)"><i class="ti ti-x"></i> Заполни реф-ссылки</span>');
+      mh += '<div class="card"><h3><i class="ti ti-refresh"></i> Ротация</h3><div style="font-size:12px;margin-bottom:6px">' + mrot + '</div><div style="font-size:11px;color:var(--hint)">Заполнено ссылок: ' + mfilled + '/' + offers.length + '</div></div>';
+      var SINP = 'width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;outline:none';
+      mh += '<div class="card"><h3><i class="ti ti-link"></i> Мои реф-ссылки</h3>';
+      if (offers.length) {
+        offers.forEach(function(o){
+          var has = !!o.my_link;
+          var val = (o.my_link && (o.my_link.ref_url||'')) || '';
+          var st = (o.my_link && o.my_link.status) || '';
+          var badge = has ? (st==='verified'?'<span class="badge green">в ротации</span>':st==='rejected'?'<span class="badge red">отклонена</span>':'<span class="badge muted">на проверке</span>') : '';
+          mh += '<div style="padding:8px 0;border-bottom:1px solid var(--border)">' +
+            '<div style="font-size:12px;font-weight:600;margin-bottom:4px">' + esc(o.name) + ' ' + badge + '</div>' +
+            '<input id="ws-' + o.id + '" placeholder="Твоя реф-ссылка (https://…)" value="' + esc(val) + '" style="' + SINP + ';margin-bottom:5px">' +
+            '<button onclick="wSubmitSaas(' + o.id + ')" style="padding:8px 14px;background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;font-weight:600;font-size:13px">Сохранить</button>' +
+            ' <span id="ws-msg-' + o.id + '" style="font-size:11px"></span></div>';
+        });
+      } else { mh += '<div class="empty">Офферы появятся скоро</div>'; }
+      mh += '<div style="font-size:10px;color:var(--hint);margin-top:6px">После проверки и первого видео 4/4 ссылки встают в ротацию и приносят доход.</div></div>';
       pg.innerHTML = mh;
       pg.dataset.loaded = '1';
       return;
@@ -1190,9 +1248,13 @@ async function loadTasks(pg, back) {
         h += '<div class="list-item"><div style="flex:1;min-width:0">';
         h += '<div style="font-weight:600;font-size:12px">' + esc(t.title||'—') + '</div>';
         h += '<div style="font-size:10px;color:var(--hint)">' + esc(t.assignee||'') + (t.due_date || t.deadline ? ' · ' + fmtDate(t.due_date || t.deadline) : '') + '</div>';
-        h += '</div><div style="display:flex;gap:4px">';
+        h += '</div><div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end">';
         h += '<span class="badge ' + statusColor + '">' + esc(t.status||'—') + '</span>';
         h += '<span class="badge ' + prioColor + '">' + esc(t.priority||'') + '</span>';
+        if (t.status !== 'done') {
+          if (t.status === 'new') h += '<button onclick="wTaskTake(' + t.id + ')" style="padding:4px 8px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Взять</button>';
+          h += '<button onclick="wTaskDone(' + t.id + ')" style="padding:4px 8px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:11px">Выполнить</button>';
+        }
         h += '</div></div>';
       }
     } else { h += '<div class="empty">Нет задач</div>'; }
@@ -1200,6 +1262,163 @@ async function loadTasks(pg, back) {
 
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка загрузки задач</div>'; }
+}
+
+// ---------- PARITY ACTIONS (видео/SaaS/кайдзен/задачи) ----------
+function wVal(id) { var e = $(id); return e ? (e.value || '').trim() : ''; }
+
+async function wAddVideo() {
+  var body = { title: wVal('wv-title'), youtube_url: wVal('wv-yt'), tiktok_url: wVal('wv-tt'), instagram_url: wVal('wv-ig'), facebook_url: wVal('wv-fb') };
+  if (!body.youtube_url && !body.tiktok_url && !body.instagram_url && !body.facebook_url) { toast('Добавь хотя бы одну ссылку', 'error'); return; }
+  var r = await apiAct('/videos', 'POST', body);
+  if (r.ok) { toast('Видео добавлено' + (r.data.start_shares_granted ? ' (+' + r.data.start_shares_granted + ' акции)' : ''), 'success'); loadSubPage('videos'); }
+  else toast(r.data.detail || 'Ошибка', 'error');
+}
+async function wDeleteVideo(id) {
+  if (!confirm('Удалить это видео?')) return;
+  var r = await apiAct('/videos/' + id, 'DELETE');
+  if (r.ok) { toast('Удалено', 'success'); loadSubPage('videos'); }
+  else toast(r.data.detail || 'Ошибка', 'error');
+}
+async function wSubmitSaas(offerId) {
+  var link = wVal('ws-' + offerId);
+  var msg = $('ws-msg-' + offerId);
+  if (!link) { if (msg) msg.textContent = 'Вставь ссылку'; return; }
+  if (!/^https?:\/\//.test(link)) { if (msg) msg.textContent = 'Ссылка должна начинаться с http(s)://'; return; }
+  var r = await apiAct('/offers/my-links', 'POST', { offer_id: offerId, ref_link: link });
+  if (r.ok) { toast('Сохранено, на проверке', 'success'); loadSubPage('offers'); }
+  else toast(r.data.detail || 'Ошибка', 'error');
+}
+async function wSubmitKaizen() {
+  var txt = wVal('wk-text');
+  var cat = ($('wk-cat') || {}).value || 'other';
+  if (txt.length < 10) { toast('Идея слишком короткая (мин. 10 символов)', 'error'); return; }
+  var r = await apiAct('/kaizen', 'POST', { text: txt, category: cat });
+  if (r.ok) { toast('Идея отправлена', 'success'); loadSubPage('kaizen'); }
+  else toast(r.data.detail || 'Ошибка', 'error');
+}
+async function wTaskTake(id) {
+  var r = await apiAct('/team/tasks/' + id + '/take', 'POST', {});
+  if (r.ok) { toast('Задача взята', 'success'); loadSubPage('tasks'); }
+  else toast(r.data.detail || 'Ошибка', 'error');
+}
+async function wTaskDone(id) {
+  if (!confirm('Отметить задачу выполненной?')) return;
+  var r = await apiAct('/team/tasks/' + id + '/done', 'POST', {});
+  if (r.ok) { toast('Задача выполнена', 'success'); loadSubPage('tasks'); }
+  else toast(r.data.detail || 'Ошибка', 'error');
+}
+
+// ---------- EXCHANGE (биржа) ----------
+function wExMoney(n) { return '$' + fmt(Math.round(n || 0)); }
+function wExTradeSt(s) { var m = {'pending_payment':'<span class="badge muted">ждёт оплаты</span>','paid':'<span class="badge blue">оплачено</span>','confirmed':'<span class="badge green">завершено</span>','disputed':'<span class="badge red">спор</span>','cancelled':'<span class="badge muted">отменено</span>'}; return m[s] || '<span class="badge muted">' + esc(s||'') + '</span>'; }
+function wExOrderSt(s) { var m = {'active':'<span class="badge green">активен</span>','matched':'<span class="badge blue">в сделке</span>','cancelled':'<span class="badge muted">отменён</span>','expired':'<span class="badge muted">истёк</span>'}; return m[s] || '<span class="badge muted">' + esc(s||'') + '</span>'; }
+
+async function loadExchangeW(pg, back) {
+  pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
+  try {
+    var dR = await apiAct('/exchange'); var d = dR.data || {};
+    var obR = await apiAct('/exchange/orderbook'); var ob = (obR.data && obR.data.items) || [];
+    var moR = await apiAct('/exchange/my-orders'); var mo = (moR.data && moR.data.items) || [];
+    var mtR = await apiAct('/exchange/my-trades'); var mt = (mtR.data && mtR.data.items) || [];
+    var h = back;
+    h += '<div class="card" style="border-left:3px solid var(--blue)"><div style="font-size:11px;color:var(--hint)">Вторичный рынок P2P. Оплата USDT (TRON TRC-20). Акции переходят после подтверждения обеих сторон.</div></div>';
+    h += '<div class="kpi-grid">';
+    h += '<div class="kpi"><div class="val blue">' + fmt(d.sell_count||0) + '</div><div class="lbl">Ордеров</div></div>';
+    h += '<div class="kpi"><div class="val gold">' + fmt(d.total_shares||0) + '</div><div class="lbl">Акций в стакане</div></div>';
+    h += '<div class="kpi"><div class="val green">' + (d.avg_price?wExMoney(d.avg_price):'—') + '</div><div class="lbl">Ср. цена</div></div>';
+    h += '<div class="kpi"><div class="val">' + fmt(d.my_shares||0) + '</div><div class="lbl">Мои акции</div></div>';
+    h += '</div>';
+    var EINP = 'width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;outline:none;margin-bottom:6px';
+    if (d.shares_frozen) {
+      h += '<div class="card"><h3><i class="ti ti-snowflake"></i> Продажа недоступна</h3><div style="font-size:12px;color:var(--hint)">Акции заморожены (нет видео за неделю).</div></div>';
+    } else if ((d.my_shares||0) > 0) {
+      h += '<div class="card"><h3><i class="ti ti-upload"></i> Продать акции</h3>' +
+        '<input id="wex-amount" type="number" min="1" max="' + (d.my_shares||0) + '" placeholder="Кол-во (до ' + (d.my_shares||0) + ')" style="' + EINP + '">' +
+        '<input id="wex-price" type="number" min="' + (d.min_price||100) + '" placeholder="Цена за 1 акцию $" style="' + EINP + '">' +
+        '<button onclick="wExSell()" style="width:100%;padding:11px;background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;font-weight:600">Выставить</button>' +
+        '<div style="font-size:10px;color:var(--hint);margin-top:6px">Мин. ${' + (d.min_price||100) + '}/акция. Escrow до продажи/отмены. Ордер 30 дней.</div></div>';
+    } else {
+      h += '<div class="card"><h3><i class="ti ti-upload"></i> Продать акции</h3><div style="font-size:12px;color:var(--hint)">У тебя пока нет акций.</div></div>';
+    }
+    h += '<div class="card"><h3><i class="ti ti-book-2"></i> Стакан ордеров</h3>';
+    if (ob.length) { ob.forEach(function(o){ var act = o.is_mine ? '<span style="font-size:10px;color:var(--hint)">твой</span>' : '<button onclick="wExBuy(' + o.id + ')" style="padding:5px 10px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Купить</button>'; h += '<div class="list-item"><div style="flex:1;font-size:12px">#' + o.id + ' · ' + fmt(o.shares_amount) + ' × ' + wExMoney(o.price_per_share) + ' = <b style="color:var(--gold)">' + wExMoney(o.total) + '</b><div style="font-size:10px;color:var(--hint)">' + esc(o.seller) + '</div></div>' + act + '</div>'; }); } else { h += '<div class="empty">Нет активных ордеров</div>'; }
+    h += '</div>';
+    h += '<div class="card"><h3><i class="ti ti-list"></i> Мои ордера</h3>';
+    if (mo.length) { mo.forEach(function(m){ var ca = m.status==='active' ? '<button onclick="wExCancelOrder(' + m.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Отменить</button>' : ''; h += '<div class="list-item"><div style="flex:1;font-size:12px">#' + m.id + ' · ' + fmt(m.shares_amount) + ' × ' + wExMoney(m.price_per_share) + ' ' + wExOrderSt(m.status) + '</div>' + ca + '</div>'; }); } else { h += '<div class="empty">Нет ордеров</div>'; }
+    h += '</div>';
+    h += '<div class="card"><h3><i class="ti ti-refresh"></i> Мои сделки</h3>';
+    if (mt.length) { mt.forEach(function(t){ var a=''; if(t.status==='pending_payment'&&t.role==='buy') a='<button onclick="wExPaid(' + t.id + ')" style="padding:4px 8px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Оплатил</button> <button onclick="wExCancelTrade(' + t.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Отмена</button>'; else if(t.status==='paid'&&t.role==='sell') a='<button onclick="wExConfirm(' + t.id + ')" style="padding:4px 8px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Получил</button>'; else if(t.status==='paid'&&t.role==='buy') a='<button onclick="wExDispute(' + t.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Спор</button>'; h += '<div class="list-item"><div style="flex:1;font-size:12px">#' + t.id + ' · ' + (t.role==='buy'?'покупка':'продажа') + ' ' + fmt(t.shares_amount) + ' · <b style="color:var(--gold)">' + wExMoney(t.total_usd) + '</b> ' + wExTradeSt(t.status) + '</div>' + a + '</div>'; }); } else { h += '<div class="empty">Нет сделок</div>'; }
+    h += '</div>';
+    pg.innerHTML = h;
+  } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка загрузки биржи</div>'; }
+}
+async function wExSell() {
+  var amount = parseInt(($('wex-amount')||{}).value, 10);
+  var price = parseFloat(($('wex-price')||{}).value);
+  if (!amount || amount < 1) { toast('Укажи количество', 'error'); return; }
+  if (!price || price <= 0) { toast('Укажи цену', 'error'); return; }
+  var r = await apiAct('/exchange/sell', 'POST', { shares_amount: amount, price_per_share: price });
+  if (r.ok) { toast('Ордер создан', 'success'); loadSubPage('exchange'); } else toast(r.data.detail || 'Ошибка', 'error');
+}
+async function wExBuy(id) { if (!confirm('Создать сделку на покупку?')) return; var r = await apiAct('/exchange/buy', 'POST', { order_id: id }); if (r.ok) { toast('Сделка создана — оплати и нажми «Оплатил»', 'success'); loadSubPage('exchange'); } else toast(r.data.detail || 'Ошибка', 'error'); }
+async function wExCancelOrder(id) { if (!confirm('Отменить ордер? Акции вернутся.')) return; var r = await apiAct('/exchange/orders/' + id + '/cancel', 'POST', {}); if (r.ok) { toast('Отменён', 'success'); loadSubPage('exchange'); } else toast(r.data.detail || 'Ошибка', 'error'); }
+async function wExCancelTrade(id) { if (!confirm('Отменить сделку?')) return; var r = await apiAct('/exchange/trades/' + id + '/cancel', 'POST', {}); if (r.ok) { toast('Отменено', 'success'); loadSubPage('exchange'); } else toast(r.data.detail || 'Ошибка', 'error'); }
+async function wExPaid(id) { var p = prompt('TXID транзакции USDT TRC-20 или ссылка на скриншот'); if (!p) return; var r = await apiAct('/exchange/trades/' + id + '/paid', 'POST', { proof: p.trim() }); if (r.ok) { toast('Оплата отмечена', 'success'); loadSubPage('exchange'); } else toast(r.data.detail || 'Ошибка', 'error'); }
+async function wExConfirm(id) { if (!confirm('Подтвердить получение оплаты? Акции перейдут покупателю.')) return; var r = await apiAct('/exchange/trades/' + id + '/confirm', 'POST', {}); if (r.ok) { toast('Сделка завершена', 'success'); loadSubPage('exchange'); } else toast(r.data.detail || 'Ошибка', 'error'); }
+async function wExDispute(id) { if (!confirm('Открыть спор?')) return; var r = await apiAct('/exchange/trades/' + id + '/dispute', 'POST', {}); if (r.ok) { toast('Спор открыт', 'success'); loadSubPage('exchange'); } else toast(r.data.detail || 'Ошибка', 'error'); }
+
+// ---------- KNOWLEDGE (база знаний) ----------
+function loadKnowledgeW(pg, back) {
+  var isTeam = U.profile && (U.profile.role === 'team' || U.profile.role === 'founder' || U.profile.team_role === 'founder' || U.profile.is_admin);
+  var h = back;
+  h += '<div class="card"><h3><i class="ti ti-robot"></i> AI-инструменты</h3><div style="font-size:12px;line-height:1.7;color:var(--text)"><b>Видео:</b> Kling AI, Runway ML, Pika, HeyGen.<br><b>Контент:</b> ChatGPT/Claude, Midjourney, ElevenLabs, CapCut.<br><b>Автоматизация:</b> Apify, n8n/Make, Syntx.</div></div>';
+  h += '<div class="card"><h3><i class="ti ti-movie"></i> Шаблоны видео</h3><div style="font-size:12px;line-height:1.8;color:var(--text)">1. Проблема→Решение (30-60с)<br>2. До/После (15-30с)<br>3. Топ-5 AI-инструментов (60-90с)<br>4. Как я заработал на AI (60с)<br>5. Разоблачение (30-60с)</div></div>';
+  h += '<div class="card"><h3><i class="ti ti-ruler"></i> Регламенты</h3><div style="font-size:12px;line-height:1.8;color:var(--text)">3 видео/нед × 4 платформы, ссылка на общий домен, без дублей.<br>Флаги: 🟡 1 нед · 🟠 2 нед · 🔴 3+ → заморозка.<br>Акции по КЭ, пересчёт 31 декабря.</div></div>';
+  if (isTeam) {
+    h += '<div class="card"><h3><i class="ti ti-message"></i> Скрипты HR <span class="badge muted">команда</span></h3><div style="font-size:12px;line-height:1.7;color:var(--text)"><b>Холодное:</b> <i>«Ищем контент-мейкеров в AI-нише. 3 видео/нед, доход через акции.»</i><br><b>«Это пирамида?»:</b> <i>«Нет. Доход от SaaS-партнёрок, не от взносов.»</i></div></div>';
+  }
+  h += '<div class="card"><h3><i class="ti ti-briefcase"></i> Офферы</h3><div style="font-size:12px;color:var(--hint)">Каталог и реф-ссылки — в разделе «Офферы».</div></div>';
+  h += '<div class="card"><h3><i class="ti ti-trophy"></i> Лучшие практики</h3><div style="font-size:12px;color:var(--hint)">Пополняется топ-5% видео каждого месяца.</div></div>';
+  pg.innerHTML = h;
+}
+
+// ---------- SUPPORT (жалобы + баги) ----------
+async function loadSupportW(pg, back) {
+  var SUI = 'width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;outline:none;margin-bottom:6px';
+  var h = back;
+  h += '<div class="card"><h3><i class="ti ti-flag"></i> Сообщить о нарушении</h3>' +
+    '<textarea id="wvr-text" rows="3" placeholder="Опиши нарушение" style="' + SUI + ';resize:vertical"></textarea>' +
+    '<input id="wvr-user" placeholder="@нарушитель (если есть)" style="' + SUI + '">' +
+    '<input id="wvr-ev" placeholder="Ссылка-доказательство (если есть)" style="' + SUI + '">' +
+    '<button onclick="wSubmitViolation()" style="width:100%;padding:11px;background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;font-weight:600">Отправить</button></div>';
+  h += '<div class="card"><h3><i class="ti ti-bug"></i> Сообщить о баге</h3>' +
+    '<textarea id="wbg-text" rows="3" placeholder="Что сделал, что ожидал, что произошло" style="' + SUI + ';resize:vertical"></textarea>' +
+    '<button onclick="wSubmitBug()" style="width:100%;padding:11px;background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;font-weight:600">Отправить</button></div>';
+  h += '<div class="card"><h3><i class="ti ti-flag"></i> Мои жалобы</h3><div id="wvr-list"><div class="empty">Загрузка…</div></div></div>';
+  h += '<div class="card"><h3><i class="ti ti-bug"></i> Мои баги</h3><div id="wbg-list"><div class="empty">Загрузка…</div></div></div>';
+  pg.innerHTML = h;
+  wRefreshSupport();
+}
+function wSupBadge(s) { var m = {'new':'<span class="badge blue">новое</span>','investigating':'<span class="badge muted">расследуется</span>','in_progress':'<span class="badge muted">в работе</span>','resolved':'<span class="badge green">решено</span>','dismissed':'<span class="badge red">отклонено</span>'}; return m[s] || '<span class="badge muted">' + esc(s||'') + '</span>'; }
+async function wRefreshSupport() {
+  var vrR = await apiAct('/violations/my'); var vr = (vrR.data && vrR.data.items) || [];
+  var bgR = await apiAct('/bugs/my'); var bg = (bgR.data && bgR.data.items) || [];
+  var vrEl = $('wvr-list'), bgEl = $('wbg-list');
+  if (vrEl) vrEl.innerHTML = vr.length ? vr.map(function(r){ return '<div class="list-item"><span style="flex:1;font-size:12px">' + esc((r.text||'').slice(0,70)) + '</span>' + wSupBadge(r.status) + '</div>'; }).join('') : '<div class="empty">Пока нет</div>';
+  if (bgEl) bgEl.innerHTML = bg.length ? bg.map(function(r){ return '<div class="list-item"><span style="flex:1;font-size:12px">' + esc((r.text||'').slice(0,70)) + '</span>' + wSupBadge(r.status) + '</div>'; }).join('') : '<div class="empty">Пока нет</div>';
+}
+async function wSubmitViolation() {
+  var text = wVal('wvr-text');
+  if (text.length < 10) { toast('Опиши подробнее (мин. 10 символов)', 'error'); return; }
+  var r = await apiAct('/violations', 'POST', { text: text, reported_username: wVal('wvr-user'), evidence_url: wVal('wvr-ev') });
+  if (r.ok) { toast('Жалоба отправлена', 'success'); var a=$('wvr-text'); if(a)a.value=''; wRefreshSupport(); } else toast(r.data.detail || 'Ошибка', 'error');
+}
+async function wSubmitBug() {
+  var text = wVal('wbg-text');
+  if (text.length < 10) { toast('Опиши подробнее (мин. 10 символов)', 'error'); return; }
+  var r = await apiAct('/bugs', 'POST', { text: text });
+  if (r.ok) { toast('Баг отправлен', 'success'); var a=$('wbg-text'); if(a)a.value=''; wRefreshSupport(); } else toast(r.data.detail || 'Ошибка', 'error');
 }
 
 // ---------- PORTFOLIO (ENHANCED) ----------
@@ -2122,6 +2341,7 @@ async function emailFallbackLogin() {
     // Got JWT — use it for all API calls
     initData = '';
     var jwtToken = data.token;
+    authBearer = data.token;
     // Override api function to use JWT
     window._origApi = api;
     api = async function(path, method, body) {
@@ -2146,4 +2366,44 @@ async function emailFallbackLogin() {
     }
     if (profile.role === 'founder') roleLabel = 'Founder & CEO';
     $('hd-role').textContent = roleLabel;
-    $('hd-dot').classList.add(profile.
+    $('hd-dot').classList.add(profile.status === 'active' ? 'ok' : 'bad');
+    buildHome(profile, shares);
+    buildShares(shares);
+    $('app-error').style.display = 'none';
+    $('app').style.display = 'block';
+  } catch(e) { errEl.textContent = e.message || 'Ошибка подключения'; }
+}
+
+// ===== INIT =====
+async function init() {
+  try {
+    if (!initData && !tg.initDataUnsafe.user) throw new Error('Откройте через Telegram бот');
+    var res = await Promise.all([api('/profile'), api('/shares')]);
+    var profile = res[0];
+    var shares = res[1];
+    U = {profile: profile, shares: shares};
+    $('hd-avatar').textContent = (profile.full_name || '?')[0].toUpperCase();
+    $('hd-name').textContent = profile.full_name || 'Участник';
+    var roleLabel = ROLE_NAMES[profile.role] || profile.role;
+    if (profile.team_role && profile.role === 'team') {
+      var trMap = {cto:'CTO',cmo:'CMO',cfo:'CFO',coo:'COO',hr_director:'HR Dir',pm:'PM',founder:'Founder'};
+      roleLabel = trMap[profile.team_role] || roleLabel;
+    }
+    if (profile.role === 'founder') roleLabel = 'Founder & CEO';
+    $('hd-role').textContent = roleLabel;
+    $('hd-dot').classList.add(profile.status === 'active' ? 'ok' : 'bad');
+    buildHome(profile, shares);
+    buildShares(shares);
+    $('app-loading').style.display = 'none';
+    $('app').style.display = 'block';
+    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+  } catch(err) {
+    $('app-loading').style.display = 'none';
+    $('app-error').style.display = 'block';
+    $('err-text').textContent = err.message || 'Ошибка';
+  }
+}
+init();
+</script>
+</body>
+</html>
