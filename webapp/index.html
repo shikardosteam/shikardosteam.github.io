@@ -815,12 +815,21 @@ async function loadReferrals(pg, back) {
     var h = back + '<div class="card"><h3><i class="ti ti-link"></i> Реферальная программа</h3>';
     h += '<div class="row"><span class="lbl">Мой код</span><span class="val" style="color:var(--gold)">' + esc(r.referral_code||'—') + '</span></div>';
     h += '<div class="row"><span class="lbl">Привлечено</span><span class="val">' + (r.total_referrals||0) + '</span></div>';
-    if (r.referrals && r.referrals.length) {
-      r.referrals.forEach(function(ref) {
-        h += '<div class="list-item"><span>' + esc(ref.full_name) + '</span><span class="badge gold">' + (ROLE_NAMES[ref.role]||ref.role) + '</span></div>';
-      });
-    }
     h += '</div>';
+    if (r.referrals && r.referrals.length) {
+      h += '<div class="card"><h3><i class="ti ti-users"></i> Мои рефералы (' + (r.total_referrals||r.referrals.length) + ')</h3>';
+      h += '<div style="font-size:11px;color:var(--hint);margin-bottom:8px"><i class="ti ti-bulb"></i> Напиши тем, кого ты привёл — познакомься, помоги, усильте друг друга.</div>';
+      r.referrals.forEach(function(ref) {
+        var uname = ref.username ? '@' + ref.username : '';
+        var contact = ref.username
+          ? '<a href="https://t.me/' + esc(ref.username) + '" target="_blank" class="badge" style="background:var(--green);color:#fff;white-space:nowrap"><i class="ti ti-brand-telegram"></i> Написать</a>'
+          : '<span style="font-size:10px;color:var(--hint)">нет @username</span>';
+        h += '<div class="list-item"><div style="flex:1"><div style="font-size:12px">' + esc(ref.full_name||'—') + (uname ? ' <span style="color:var(--hint);font-size:10px">' + esc(uname) + '</span>' : '') + '</div><div style="font-size:10px;color:var(--hint)">' + (ROLE_NAMES[ref.role]||ref.role||'') + ' · ' + (STATUS_NAMES[ref.status]||ref.status||'') + '</div></div>' + contact + '</div>';
+      });
+      h += '</div>';
+    } else {
+      h += '<div class="card"><div class="empty">Пока никого не привёл. Поделись своим кодом или ссылкой — приглашённые появятся здесь, и сможешь написать каждому.</div></div>';
+    }
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка</div>'; }
 }
