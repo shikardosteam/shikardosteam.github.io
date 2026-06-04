@@ -436,7 +436,8 @@ function buildHome(profile, shares) {
   h += '<div class="kpi"><div class="val' + (frozen ? ' red' : '') + '">' + fmt(sc) + '</div><div class="lbl">Акции</div></div>';
   h += '<div class="kpi"><div class="val green">' + fmtUSD(sc * RATES[0]) + '</div><div class="lbl">Доход / мес</div><div class="sub">Год 1 — $127/акция</div></div>';
   if (role === 'maker') {
-    h += '<div class="kpi"><div class="val blue" id="home-vids">—</div><div class="lbl">Видео за неделю · план 3</div></div>';
+    h += '<div class="kpi"><div class="val blue" id="home-vids">—</div><div class="lbl">Видео/нед · норма 3</div></div>';
+    h += '<div class="kpi"><div class="val blue" id="home-pubs">—</div><div class="lbl">Публикации/нед · норма 12</div></div>';
     h += '<div class="kpi"><div class="val" id="home-ke" style="color:var(--gold)">—</div><div class="lbl">КЭ тир</div></div>';
   }
   h += '<div class="kpi"><div class="val">' + esc(ROLE_NAMES[role] || role) + '</div><div class="lbl">Роль</div>' + (profile.team_role ? '<div class="sub">' + esc(profile.team_role) + '</div>' : '') + '</div>';
@@ -482,7 +483,14 @@ function buildHome(profile, shares) {
 
   // Maker-specific
   if (role === 'maker') {
-    api('/videos').then(function(v) { var it=(v&&v.items)||[]; var wa=Date.now()-7*24*3600*1000; var wc=it.filter(function(x){return x.created_at && new Date(x.created_at).getTime()>wa;}).length; var el=$('home-vids'); el.textContent = wc>=3 ? (wc+' из 3 ✓') : (wc+' из 3'); el.className = 'val ' + (wc>=3?'green':'blue'); }).catch(function(){});
+    api('/videos').then(function(v) {
+      var it=(v&&v.items)||[]; var wa=Date.now()-7*24*3600*1000;
+      var ids={}; var pubs=0;
+      it.forEach(function(x){ if(x.created_at && new Date(x.created_at).getTime()>wa){ if(x.id) ids[x.id]=1; if(x.url) pubs++; } });
+      var vids=Object.keys(ids).length;
+      var ve=$('home-vids'); ve.textContent = vids+' / 3' + (vids>=3?' ✓':''); ve.className='val '+(vids>=3?'green':'blue');
+      var pe=$('home-pubs'); pe.textContent = pubs+' / 12' + (pubs>=12?' ✓':''); pe.className='val '+(pubs>=12?'green':'blue');
+    }).catch(function(){});
     api('/ke/my').then(function(k) { $('home-ke').textContent = k.estimated_tier ? 'Тир '+k.estimated_tier : '—'; }).catch(function(){});
   }
 
@@ -813,20 +821,21 @@ async function loadVideos(pg, back) {
     if (!Array.isArray(videos)) videos = [];
 
     var platforms = {};
-    var weeklyCount = 0;
     var now = Date.now();
     var weekAgo = now - 7*24*3600*1000;
     var totalViews = 0;
+    var ids = {}, weekIds = {}, pubs = 0, weekPubs = 0;
     for (var i = 0; i < videos.length; i++) {
       var v = videos[i];
       var p = v.platform || 'Other';
-      if (!platforms[p]) platforms[p] = {count:0, views:0};
-      platforms[p].count++;
-      platforms[p].views += (v.views || 0);
+      if (p !== '—') { if (!platforms[p]) platforms[p] = {count:0, views:0}; platforms[p].count++; platforms[p].views += (v.views || 0); }
       totalViews += (v.views || 0);
-      if (v.created_at && new Date(v.created_at).getTime() > weekAgo) weeklyCount++;
+      if (v.id) ids[v.id] = 1;
+      if (v.url) pubs++;
+      if (v.created_at && new Date(v.created_at).getTime() > weekAgo) { if (v.id) weekIds[v.id] = 1; if (v.url) weekPubs++; }
     }
-    var total = videos.length;
+    var total = Object.keys(ids).length;
+    var weeklyCount = Object.keys(weekIds).length;
     var avgViews = total > 0 ? Math.round(totalViews / total) : 0;
     var platLabels = Object.keys(platforms);
 
@@ -840,9 +849,10 @@ async function loadVideos(pg, back) {
     h += '<button class="export-btn" onclick="exportVideos()"><i class="ti ti-download"></i> CSV</button>';
     h += '<div class="kpi-grid">';
     h += '<div class="kpi"><div class="val blue">' + fmt(total) + '</div><div class="lbl">Всего видео</div></div>';
+    h += '<div class="kpi"><div class="val">' + fmt(pubs) + '</div><div class="lbl">Публикаций</div><div class="sub">на платформах</div></div>';
     h += '<div class="kpi"><div class="val green">' + fmtViews(totalViews) + '</div><div class="lbl">Просмотры</div></div>';
     h += '<div class="kpi"><div class="val">' + fmtViews(avgViews) + '</div><div class="lbl">Среднее</div><div class="sub">просм/видео</div></div>';
-    h += '<div class="kpi"><div class="val' + (weeklyCount < 3 ? ' red' : '') + '">' + weeklyCount + '/3</div><div class="lbl">За неделю</div></div>';
+    h += '<div class="kpi"><div class="val' + (weeklyCount < 3 ? ' red' : ' green') + '">' + weeklyCount + ' / 3' + (weeklyCount>=3?' ✓':'') + '</div><div class="lbl">Видео за неделю</div><div class="sub">публикаций ' + weekPubs + '/12</div></div>';
     h += '</div>';
 
     // Platform bars

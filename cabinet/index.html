@@ -1485,18 +1485,20 @@ async function loadVideos() {
   var weeklyCount = 0;
   var now = Date.now();
   var weekAgo = now - 7*24*3600*1000;
+  var ids = {}, weekIds = {}, pubs = 0, weekPubs = 0;
   if (Array.isArray(videos)) {
     for (var i = 0; i < videos.length; i++) {
       var v = videos[i];
       var p = v.platform || 'Другое';
-      if (!platforms[p]) platforms[p] = { count: 0, views: 0 };
-      platforms[p].count++;
-      platforms[p].views += (v.views || 0);
-      if (v.created_at && new Date(v.created_at).getTime() > weekAgo) weeklyCount++;
+      if (p !== '—') { if (!platforms[p]) platforms[p] = { count: 0, views: 0 }; platforms[p].count++; platforms[p].views += (v.views || 0); }
+      if (v.id) ids[v.id] = 1;
+      if (v.url) pubs++;
+      if (v.created_at && new Date(v.created_at).getTime() > weekAgo) { if (v.id) weekIds[v.id] = 1; if (v.url) weekPubs++; }
     }
   }
 
-  var total = Array.isArray(videos) ? videos.length : 0;
+  var total = Object.keys(ids).length;
+  weeklyCount = Object.keys(weekIds).length;
   var totalViews = 0;
   var platLabels = Object.keys(platforms);
   for (var k = 0; k < platLabels.length; k++) totalViews += platforms[platLabels[k]].views;
@@ -1535,8 +1537,8 @@ async function loadVideos() {
       '<div class="kpi-card"><div class="stat-label">\u0412\u0441\u0435\u0433\u043e \u0432\u0438\u0434\u0435\u043e</div><div class="stat-value blue">' + fmtNum(total) + '</div></div>' +
       '<div class="kpi-card"><div class="stat-label">\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b</div><div class="stat-value green">' + fmtViews(totalViews) + '</div></div>' +
       '<div class="kpi-card"><div class="stat-label">\u0421\u0440\u0435\u0434\u043d\u0435\u0435</div><div class="stat-value">' + fmtViews(avgViews) + '</div><div class="stat-sub">\u043f\u0440\u043e\u0441\u043c/\u0432\u0438\u0434\u0435\u043e</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">\u0417\u0430 \u043d\u0435\u0434\u0435\u043b\u044e</div><div class="stat-value' + (weeklyCount < 3 ? '" style="color:var(--red)"' : ' gold"') + '>' + weeklyCount + '/3</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">\u041f\u043b\u0430\u0442\u0444\u043e\u0440\u043c</div><div class="stat-value">' + platLabels.length + '</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u041f\u0443\u0431\u043b\u0438\u043a\u0430\u0446\u0438\u0439</div><div class="stat-value">' + fmtNum(pubs) + '</div><div class="stat-sub">\u043d\u0430 \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430\u0445</div></div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0412\u0438\u0434\u0435\u043e \u0437\u0430 \u043d\u0435\u0434\u0435\u043b\u044e</div><div class="stat-value' + (weeklyCount < 3 ? '" style="color:var(--red)"' : ' gold"') + '>' + weeklyCount + ' / 3' + (weeklyCount>=3?' \u2713':'') + '</div><div class="stat-sub">\u043f\u0443\u0431\u043b\u0438\u043a\u0430\u0446\u0438\u0439 ' + weekPubs + '/12</div></div>' +
     '</div>' +
     '<div class="grid-2">' +
       '<div class="content-card"><h3>\u041f\u043e \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430\u043c</h3>' + (barsHtml || '<p style="color:var(--muted)">\u041d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445</p>') + '</div>' +
