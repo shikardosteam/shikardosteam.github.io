@@ -1122,7 +1122,6 @@ function buildNavSections() {
       label: 'Команда',
       items: [
         { id:'tasks', icon:'<i class="ti ti-clipboard"></i>', name:'Задачи' },
-          { id:'kaizen', icon:'<i class="ti ti-bulb"></i>', name:'Кайдзен' },
           { id:'team-members', icon:'<i class="ti ti-building"></i>', name:'Команда' },
           { id:'team-pulse', icon:'<i class="ti ti-trending-up"></i>', name:'Пульс команды' },
           { id:'pain-points', icon:'<i class="ti ti-search"></i>', name:'Боли и потребности' }
@@ -1134,6 +1133,7 @@ function buildNavSections() {
   sections.push({
     label: 'Помощь',
     items: [
+      { id:'kaizen', icon:'<i class="ti ti-bulb"></i>', name:'Кайдзен' },
       { id:'knowledge', icon:'<i class="ti ti-book"></i>', name:'База знаний' },
       { id:'support', icon:'<i class="ti ti-lifebuoy"></i>', name:'Поддержка' }
     ]
@@ -1636,7 +1636,7 @@ async function loadExchange() {
         '<button class="btn btn-primary" onclick="exSell()"><i class="ti ti-check"></i> Выставить</button>' +
         '<span id="ex-msg" style="font-size:12px"></span>' +
       '</div>' +
-      '<div style="font-size:11px;color:var(--muted);margin-top:6px">Минимум ${' + (d.min_price||100) + '}/акция. Акции замораживаются в escrow до продажи или отмены. Ордер живёт 30 дней.</div></div>';
+      '<div style="font-size:11px;color:var(--muted);margin-top:6px">Минимум $' + fmtNum(d.min_price||5000) + ' за акцию (текущая стоимость раунда). Акции замораживаются в escrow до продажи или отмены. Ордер живёт 30 дней.</div></div>';
   } else {
     h += '<div class="content-card"><h3><i class="ti ti-upload"></i> Продать акции</h3><div style="color:var(--muted);font-size:13px">У тебя пока нет акций для продажи.</div></div>';
   }
@@ -1647,10 +1647,11 @@ async function loadExchange() {
   for (var i=0;i<obItems.length;i++){
     var o = obItems[i];
     var act = o.is_mine ? '<span style="color:var(--muted);font-size:11px">твой ордер</span>' : '<button class="btn btn-sm btn-primary" onclick="exBuy(' + o.id + ')"><i class="ti ti-download"></i> Купить</button>';
-    obRows += '<tr><td>#' + o.id + '</td><td>' + fmtNum(o.shares_amount) + '</td><td>' + exMoney(o.price_per_share) + '</td><td style="color:var(--gold)">' + exMoney(o.total) + '</td><td>' + esc(o.seller) + '</td><td>' + act + '</td></tr>';
+    var sellerCell = esc(o.seller) + (o.seller_username && !o.is_mine ? ' <a href="https://t.me/' + esc(o.seller_username) + '" target="_blank" style="color:var(--blue);font-size:11px">@' + esc(o.seller_username) + '</a>' : '');
+    obRows += '<tr><td>№' + o.id + '</td><td>' + fmtNum(o.shares_amount) + '</td><td>' + exMoney(o.price_per_share) + '</td><td style="color:var(--gold)">' + exMoney(o.total) + '</td><td>' + sellerCell + '</td><td>' + act + '</td></tr>';
   }
   h += '<div class="content-card"><h3><i class="ti ti-book-2"></i> Стакан ордеров</h3>' +
-    (obRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>#</th><th>Акций</th><th>Цена</th><th>Итого</th><th>Продавец</th><th></th></tr></thead><tbody>' + obRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет активных ордеров на продажу.</div>') +
+    (obRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>№</th><th>Акций</th><th>Цена</th><th>Итого</th><th>Продавец</th><th></th></tr></thead><tbody>' + obRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет активных ордеров на продажу.</div>') +
     '</div>';
 
   // Мои ордера
@@ -1659,7 +1660,7 @@ async function loadExchange() {
   for (var j=0;j<moItems.length;j++){
     var m = moItems[j];
     var ca = m.status === 'active' ? '<button class="btn btn-sm" style="color:var(--red)" onclick="exCancelOrder(' + m.id + ')">Отменить</button>' : '';
-    moRows += '<tr><td>#' + m.id + '</td><td>' + (m.order_type==='sell'?'Продажа':'Покупка') + '</td><td>' + fmtNum(m.shares_amount) + '</td><td>' + exMoney(m.price_per_share) + '</td><td>' + exOrderStatus(m.status) + '</td><td>' + ca + '</td></tr>';
+    moRows += '<tr><td>№' + m.id + '</td><td>' + (m.order_type==='sell'?'Продажа':'Покупка') + '</td><td>' + fmtNum(m.shares_amount) + '</td><td>' + exMoney(m.price_per_share) + '</td><td>' + exOrderStatus(m.status) + '</td><td>' + ca + '</td></tr>';
   }
   // Мои сделки
   var mtItems = mt.items || [];
@@ -1670,11 +1671,12 @@ async function loadExchange() {
     if (t.status === 'pending_payment' && t.role === 'buy') act2 = '<button class="btn btn-sm btn-primary" onclick="exPaid(' + t.id + ')">Оплатил</button> <button class="btn btn-sm" style="color:var(--red)" onclick="exCancelTrade(' + t.id + ')">Отмена</button>';
     else if (t.status === 'paid' && t.role === 'sell') act2 = '<button class="btn btn-sm btn-primary" onclick="exConfirm(' + t.id + ')">Получил оплату</button>';
     else if (t.status === 'paid' && t.role === 'buy') act2 = '<button class="btn btn-sm" style="color:var(--red)" onclick="exDispute(' + t.id + ')">Спор</button>';
-    mtRows += '<tr><td>#' + t.id + '</td><td>' + (t.role==='buy'?'Покупка':'Продажа') + '</td><td>' + fmtNum(t.shares_amount) + '</td><td style="color:var(--gold)">' + exMoney(t.total_usd) + '</td><td>' + exTradeStatus(t.status) + '</td><td>' + act2 + '</td></tr>';
+    var cp = t.counterparty ? (esc(t.counterparty) + (t.counterparty_username ? ' <a href="https://t.me/' + esc(t.counterparty_username) + '" target="_blank" style="color:var(--blue)">@' + esc(t.counterparty_username) + '</a>' : '')) : '—';
+    mtRows += '<tr><td>№' + t.id + '</td><td>' + (t.role==='buy'?'Покупка':'Продажа') + '</td><td>' + fmtNum(t.shares_amount) + '</td><td style="color:var(--gold)">' + exMoney(t.total_usd) + '</td><td style="font-size:11px">' + cp + '</td><td>' + exTradeStatus(t.status) + '</td><td>' + act2 + '</td></tr>';
   }
   h += '<div class="grid-2">' +
-    '<div class="content-card"><h3><i class="ti ti-list"></i> Мои ордера</h3>' + (moRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>#</th><th>Тип</th><th>Акций</th><th>Цена</th><th>Статус</th><th></th></tr></thead><tbody>' + moRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет ордеров</div>') + '</div>' +
-    '<div class="content-card"><h3><i class="ti ti-refresh"></i> Мои сделки</h3>' + (mtRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>#</th><th>Роль</th><th>Акций</th><th>Сумма</th><th>Статус</th><th></th></tr></thead><tbody>' + mtRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет сделок</div>') + '</div>' +
+    '<div class="content-card"><h3><i class="ti ti-list"></i> Мои ордера</h3>' + (moRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>№</th><th>Тип</th><th>Акций</th><th>Цена</th><th>Статус</th><th></th></tr></thead><tbody>' + moRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет ордеров</div>') + '</div>' +
+    '<div class="content-card"><h3><i class="ti ti-refresh"></i> Мои сделки</h3>' + (mtRows ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>№</th><th>Роль</th><th>Акций</th><th>Сумма</th><th>Контрагент</th><th>Статус</th><th></th></tr></thead><tbody>' + mtRows + '</tbody></table></div>' : '<div style="color:var(--muted);font-size:13px">Нет сделок</div>') + '</div>' +
     '</div>';
 
   page.innerHTML = h;
@@ -1836,6 +1838,10 @@ async function submitBug() {
 }
 
 // ---------- VIDEOS ----------
+function videoStatusRu(s) {
+  var m = { pending: 'На проверке', verified: 'Одобрено', approved: 'Одобрено', rejected: 'Отклонено', revision: 'На доработке' };
+  return m[s] || (s || 'На проверке');
+}
 async function addVideoCab() {
   var msg = document.getElementById('nv-msg');
   var body = {
@@ -1920,7 +1926,7 @@ async function loadVideos() {
         delCell = '<button class="btn-icon" title="\u0423\u0434\u0430\u043b\u0438\u0442\u044c" onclick="deleteVideoCab(' + sv.id + ')" style="color:var(--red);background:none;border:none;cursor:pointer"><i class="ti ti-trash"></i></button>';
       }
       recentHtml += '<tr><td>' + pcell + '</td><td>' + fmtViews(sv.views || 0) + '</td><td>' + fmtDate(sv.created_at) + '</td>' +
-        '<td><span class="badge badge-' + (sv.status === 'verified' ? 'green' : sv.status === 'rejected' ? 'red' : 'muted') + '">' + (sv.status || 'pending') + '</span></td>' +
+        '<td><span class="badge badge-' + (sv.status === 'verified' || sv.status === 'approved' ? 'green' : sv.status === 'rejected' ? 'red' : 'muted') + '">' + videoStatusRu(sv.status) + '</span></td>' +
         '<td>' + delCell + '</td></tr>';
     }
     recentHtml += '</tbody></table></div></div>';
@@ -2197,7 +2203,7 @@ async function loadOffers() {
           var mhas=!!mo.my_link;
           var mval = (mo.my_link && (mo.my_link.ref_url||'')) || '';
           var mstat = (mo.my_link && mo.my_link.status) || '';
-          var mbadge = mhas ? (mstat==='verified' ? '<span class="badge badge-green">в ротации</span>' : mstat==='rejected' ? '<span class="badge badge-red">отклонена</span>' : '<span class="badge badge-muted">на проверке</span>') : '';
+          var mbadge = mhas ? ((mstat==='verified'||mstat==='active') ? '<span class="badge badge-green">активна</span>' : mstat==='rejected' ? '<span class="badge badge-red">отклонена</span>' : '<span class="badge badge-muted">на проверке</span>') : '';
           mh += '<div style="padding:10px 0;border-bottom:1px solid var(--border)">' +
             '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><strong>'+esc(mo.name)+'</strong>'+mbadge+(mo.url?' <a href="'+esc(mo.url)+'" target="_blank" style="color:var(--blue);font-size:12px">сервис ↗</a>':'')+'</div>' +
             '<div style="display:flex;gap:8px"><input id="saas-'+mo.id+'" class="form-input" style="flex:1" placeholder="Твоя реф-ссылка (https://…)" value="'+esc(mval)+'">' +

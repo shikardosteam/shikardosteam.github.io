@@ -856,6 +856,10 @@ async function loadReferrals(pg, back) {
 }
 
 // ---------- VIDEOS (ENHANCED) ----------
+function wVideoSt(s) {
+  var m = { pending: 'На проверке', verified: 'Одобрено', approved: 'Одобрено', rejected: 'Отклонено', revision: 'На доработке' };
+  return m[s] || (s || 'На проверке');
+}
 async function loadVideos(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
@@ -940,7 +944,7 @@ async function loadVideos(pg, back) {
         var wDel = '';
         if (sv.id && !wSeenDel[sv.id] && (sv.status === 'pending' || sv.status === 'revision')) { wSeenDel[sv.id] = 1; wDel = '<span onclick="wDeleteVideo(' + sv.id + ')" style="color:var(--red);cursor:pointer"><i class="ti ti-trash"></i></span>'; }
         h += '<tr><td>' + pcell + '</td><td>' + fmtViews(sv.views||0) + '</td><td>' + fmtDate(sv.created_at) + '</td>';
-        h += '<td><span class="badge ' + stCls + '">' + esc(sv.status||'pending') + '</span></td><td>' + wDel + '</td></tr>';
+        h += '<td><span class="badge ' + stCls + '">' + wVideoSt(sv.status) + '</span></td><td>' + wDel + '</td></tr>';
       }
       h += '</table></div></div>';
     }
@@ -1072,7 +1076,7 @@ async function loadOffers(pg, back) {
           var has = !!o.my_link;
           var val = (o.my_link && (o.my_link.ref_url||'')) || '';
           var st = (o.my_link && o.my_link.status) || '';
-          var badge = has ? (st==='verified'?'<span class="badge green">в ротации</span>':st==='rejected'?'<span class="badge red">отклонена</span>':'<span class="badge muted">на проверке</span>') : '';
+          var badge = has ? ((st==='verified'||st==='active')?'<span class="badge green">активна</span>':st==='rejected'?'<span class="badge red">отклонена</span>':'<span class="badge muted">на проверке</span>') : '';
           mh += '<div style="padding:8px 0;border-bottom:1px solid var(--border)">' +
             '<div style="font-size:12px;font-weight:600;margin-bottom:4px">' + esc(o.name) + ' ' + badge + '</div>' +
             '<input id="ws-' + o.id + '" placeholder="Твоя реф-ссылка (https://…)" value="' + esc(val) + '" style="' + SINP + ';margin-bottom:5px">' +
@@ -1337,18 +1341,18 @@ async function loadExchangeW(pg, back) {
         '<input id="wex-amount" type="number" min="1" max="' + (d.my_shares||0) + '" placeholder="Кол-во (до ' + (d.my_shares||0) + ')" style="' + EINP + '">' +
         '<input id="wex-price" type="number" min="' + (d.min_price||100) + '" placeholder="Цена за 1 акцию $" style="' + EINP + '">' +
         '<button onclick="wExSell()" style="width:100%;padding:11px;background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;font-weight:600">Выставить</button>' +
-        '<div style="font-size:10px;color:var(--hint);margin-top:6px">Мин. ${' + (d.min_price||100) + '}/акция. Escrow до продажи/отмены. Ордер 30 дней.</div></div>';
+        '<div style="font-size:10px;color:var(--hint);margin-top:6px">Мин. $' + fmt(d.min_price||5000) + ' за акцию (стоимость раунда). Escrow до продажи/отмены. Ордер 30 дней.</div></div>';
     } else {
       h += '<div class="card"><h3><i class="ti ti-upload"></i> Продать акции</h3><div style="font-size:12px;color:var(--hint)">У тебя пока нет акций.</div></div>';
     }
     h += '<div class="card"><h3><i class="ti ti-book-2"></i> Стакан ордеров</h3>';
-    if (ob.length) { ob.forEach(function(o){ var act = o.is_mine ? '<span style="font-size:10px;color:var(--hint)">твой</span>' : '<button onclick="wExBuy(' + o.id + ')" style="padding:5px 10px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Купить</button>'; h += '<div class="list-item"><div style="flex:1;font-size:12px">#' + o.id + ' · ' + fmt(o.shares_amount) + ' × ' + wExMoney(o.price_per_share) + ' = <b style="color:var(--gold)">' + wExMoney(o.total) + '</b><div style="font-size:10px;color:var(--hint)">' + esc(o.seller) + '</div></div>' + act + '</div>'; }); } else { h += '<div class="empty">Нет активных ордеров</div>'; }
+    if (ob.length) { ob.forEach(function(o){ var act = o.is_mine ? '<span style="font-size:10px;color:var(--hint)">твой</span>' : '<button onclick="wExBuy(' + o.id + ')" style="padding:5px 10px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Купить</button>'; var sc = esc(o.seller) + (o.seller_username && !o.is_mine ? ' <a href="https://t.me/' + esc(o.seller_username) + '" target="_blank" style="color:var(--blue)">@' + esc(o.seller_username) + '</a>' : ''); h += '<div class="list-item"><div style="flex:1;font-size:12px">№' + o.id + ' · ' + fmt(o.shares_amount) + ' × ' + wExMoney(o.price_per_share) + ' = <b style="color:var(--gold)">' + wExMoney(o.total) + '</b><div style="font-size:10px;color:var(--hint)">' + sc + '</div></div>' + act + '</div>'; }); } else { h += '<div class="empty">Нет активных ордеров</div>'; }
     h += '</div>';
     h += '<div class="card"><h3><i class="ti ti-list"></i> Мои ордера</h3>';
-    if (mo.length) { mo.forEach(function(m){ var ca = m.status==='active' ? '<button onclick="wExCancelOrder(' + m.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Отменить</button>' : ''; h += '<div class="list-item"><div style="flex:1;font-size:12px">#' + m.id + ' · ' + fmt(m.shares_amount) + ' × ' + wExMoney(m.price_per_share) + ' ' + wExOrderSt(m.status) + '</div>' + ca + '</div>'; }); } else { h += '<div class="empty">Нет ордеров</div>'; }
+    if (mo.length) { mo.forEach(function(m){ var ca = m.status==='active' ? '<button onclick="wExCancelOrder(' + m.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Отменить</button>' : ''; h += '<div class="list-item"><div style="flex:1;font-size:12px">№' + m.id + ' · ' + fmt(m.shares_amount) + ' × ' + wExMoney(m.price_per_share) + ' ' + wExOrderSt(m.status) + '</div>' + ca + '</div>'; }); } else { h += '<div class="empty">Нет ордеров</div>'; }
     h += '</div>';
     h += '<div class="card"><h3><i class="ti ti-refresh"></i> Мои сделки</h3>';
-    if (mt.length) { mt.forEach(function(t){ var a=''; if(t.status==='pending_payment'&&t.role==='buy') a='<button onclick="wExPaid(' + t.id + ')" style="padding:4px 8px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Оплатил</button> <button onclick="wExCancelTrade(' + t.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Отмена</button>'; else if(t.status==='paid'&&t.role==='sell') a='<button onclick="wExConfirm(' + t.id + ')" style="padding:4px 8px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Получил</button>'; else if(t.status==='paid'&&t.role==='buy') a='<button onclick="wExDispute(' + t.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Спор</button>'; h += '<div class="list-item"><div style="flex:1;font-size:12px">#' + t.id + ' · ' + (t.role==='buy'?'покупка':'продажа') + ' ' + fmt(t.shares_amount) + ' · <b style="color:var(--gold)">' + wExMoney(t.total_usd) + '</b> ' + wExTradeSt(t.status) + '</div>' + a + '</div>'; }); } else { h += '<div class="empty">Нет сделок</div>'; }
+    if (mt.length) { mt.forEach(function(t){ var a=''; if(t.status==='pending_payment'&&t.role==='buy') a='<button onclick="wExPaid(' + t.id + ')" style="padding:4px 8px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Оплатил</button> <button onclick="wExCancelTrade(' + t.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Отмена</button>'; else if(t.status==='paid'&&t.role==='sell') a='<button onclick="wExConfirm(' + t.id + ')" style="padding:4px 8px;background:var(--gold);color:#1a1a1a;border:none;border-radius:6px;font-size:11px;font-weight:600">Получил</button>'; else if(t.status==='paid'&&t.role==='buy') a='<button onclick="wExDispute(' + t.id + ')" style="padding:4px 8px;background:var(--card);color:var(--red);border:1px solid var(--border);border-radius:6px;font-size:11px">Спор</button>'; var cpw = t.counterparty ? ('<div style="font-size:10px;color:var(--hint)">' + esc(t.counterparty) + (t.counterparty_username ? ' <a href="https://t.me/' + esc(t.counterparty_username) + '" target="_blank" style="color:var(--blue)">@' + esc(t.counterparty_username) + '</a>' : '') + '</div>') : ''; h += '<div class="list-item"><div style="flex:1;font-size:12px">№' + t.id + ' · ' + (t.role==='buy'?'покупка':'продажа') + ' ' + fmt(t.shares_amount) + ' · <b style="color:var(--gold)">' + wExMoney(t.total_usd) + '</b> ' + wExTradeSt(t.status) + cpw + '</div>' + a + '</div>'; }); } else { h += '<div class="empty">Нет сделок</div>'; }
     h += '</div>';
     pg.innerHTML = h;
   } catch(e) { pg.innerHTML = back + '<div class="empty">Ошибка загрузки биржи</div>'; }
