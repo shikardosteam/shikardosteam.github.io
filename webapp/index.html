@@ -980,7 +980,7 @@ async function loadOffers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var d = await api('/offers') || {};
-    var offers = d.offers || (Array.isArray(d)?d:[]) || [];
+    var offers = d.items || d.offers || (Array.isArray(d)?d:[]) || [];
     if(!Array.isArray(offers)) offers=[];
     var h = back;
     h += '<div class="card" style="border-left:3px solid var(--gold)"><div style="font-size:12px"><i class="ti ti-target"></i> <b>250 ниш/год</b> · 5 команд AI-офферщиков · 1000 мейкеров/нишу</div></div>';

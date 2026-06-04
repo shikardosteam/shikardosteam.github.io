@@ -1756,7 +1756,7 @@ async function loadOffers() {
   var page = document.getElementById('page-offers');
   try {
     var d = await api('/offers') || {};
-    var offers = d.offers || d || [];
+    var offers = d.items || d.offers || (Array.isArray(d)?d:[]) || [];
     if (!Array.isArray(offers)) offers = [];
 
     var nichesYear = d.niches_per_year || 250;
