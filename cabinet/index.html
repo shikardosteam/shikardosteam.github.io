@@ -1267,11 +1267,12 @@ async function loadHome() {
   const page = document.getElementById('page-home');
   const u = currentUser;
   const sharesData = await api('/shares');
-  const shares = sharesData?.shares || sharesData || {};
-  const balance = shares.balance ?? shares.total ?? 0;
-  const frozen = shares.frozen ?? 0;
+  const shares = sharesData || {};
+  const balance = shares.shares_count ?? shares.balance ?? 0;
+  const frozen = shares.shares_frozen ? (shares.shares_count ?? 0) : 0;
   const status = u.status || 'active';
   const monthlyIncome = balance * 127;
+  const grow = (u.role === 'maker') ? 3 : 0;
   var stats = {};
   try { stats = await api('/stats') || {}; } catch(e) {}
 
@@ -1298,7 +1299,7 @@ async function loadHome() {
 
   var incomeTable = '<div class="content-card"><h3>\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0434\u043e\u0445\u043e\u0434\u0430 \u043f\u043e \u0433\u043e\u0434\u0430\u043c</h3><table class="data-table"><thead><tr><th>\u0413\u043e\u0434</th><th>$/\u0430\u043a\u0446/\u043c\u0435\u0441</th><th>\u0412\u0430\u0448 \u0434\u043e\u0445\u043e\u0434/\u043c\u0435\u0441</th><th>\u0412\u0430\u0448 \u0434\u043e\u0445\u043e\u0434/\u0433\u043e\u0434</th></tr></thead><tbody>';
   var mults = [127, 254, 508, 1018, 2036];
-  for (var y = 0; y < 5; y++) incomeTable += '<tr><td>\u0413\u043e\u0434 ' + (y+1) + '</td><td>$' + fmtNum(mults[y]) + '</td><td class="gold">$' + fmtNum(balance * mults[y]) + '</td><td>$' + fmtNum(balance * mults[y] * 12) + '</td></tr>';
+  for (var y = 0; y < 5; y++) { var ys = balance + grow * y; incomeTable += '<tr><td>\u0413\u043e\u0434 ' + (y+1) + '</td><td>$' + fmtNum(mults[y]) + '</td><td class="gold">$' + fmtNum(ys * mults[y]) + '</td><td>$' + fmtNum(ys * mults[y] * 12) + '</td></tr>'; }
   incomeTable += '</tbody></table></div>';
 
   page.innerHTML =
@@ -1315,7 +1316,7 @@ async function loadHome() {
     incomeTable +
     tierInfo;
 
-  renderForecastChart(balance);
+  renderForecastChart(balance, grow);
 }
 
 
@@ -1327,10 +1328,11 @@ function fmtViews(n) {
   return String(n);
 }
 
-function renderForecastChart(shares) {
+function renderForecastChart(shares, grow) {
   if (charts['forecast']) charts['forecast'].destroy();
+  grow = grow || 0;
   const multipliers = [127, 254, 508, 1018, 2036];
-  const data = multipliers.map(m => shares * m);
+  const data = multipliers.map((m, y) => (shares + grow * y) * m);
 
   charts['forecast'] = new Chart(document.getElementById('chart-forecast'), {
     type: 'line',
