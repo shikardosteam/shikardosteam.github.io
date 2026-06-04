@@ -975,7 +975,7 @@ function getStatusLabel(status) {
 
 // ===== GRANULAR C-LEVEL ACCESS =====
 var TEAM_ROLE_ACCESS = {
-  _common: ['home','shares','profile','trends','hall-of-fame','settings','referrals','kaizen'],
+  _common: ['home','shares','profile','trends','hall-of-fame','settings','referrals','kaizen','knowledge','support'],
   _team: ['tasks','team-members','team-pulse','pain-points','contests','content','admin-ke','risk-zone'],
   cto: ['infrastructure','ai-automators','quality','admin-overview','content','admin-ke','risk-zone','ops-center'],
   cmo: ['content','bloggers','admin-overview'],
@@ -1129,6 +1129,15 @@ function buildNavSections() {
     });
   }
 
+  // Помощь — для всех ролей
+  sections.push({
+    label: 'Помощь',
+    items: [
+      { id:'knowledge', icon:'<i class="ti ti-book"></i>', name:'База знаний' },
+      { id:'support', icon:'<i class="ti ti-lifebuoy"></i>', name:'Поддержка' }
+    ]
+  });
+
   // Management section — granular by team_role
   var mgmtItems = [
     { id:'admin-overview', icon:'<i class="ti ti-tool"></i>', name:'\u041E\u0431\u0437\u043E\u0440 \u0441\u0438\u0441\u0442\u0435\u043C\u044B' },
@@ -1234,7 +1243,8 @@ function renderPages() {
     'publications',
     'tasks',
     'admin-overview','admin-makers','admin-hr','admin-shares','admin-ke','admin-users',
-    'trends','hall-of-fame','kaizen','team-members','risk-zone','contests','infrastructure','ai-automators','quality','team-pulse','pain-points','investors','ops-center','content','bloggers','settings'
+    'trends','hall-of-fame','kaizen','team-members','risk-zone','contests','infrastructure','ai-automators','quality','team-pulse','pain-points','investors','ops-center','content','bloggers','settings',
+    'knowledge','support'
   ];
 
   pages.forEach(id => {
@@ -1283,6 +1293,8 @@ async function loadPageData(pageId) {
     case 'content': await loadContent(); break;
     case 'bloggers': await loadBloggers(); break;
     case 'settings': loadSettings(); break;
+    case 'knowledge': loadKnowledge(); break;
+    case 'support': loadSupport(); break;
   }
 }
 
@@ -1580,6 +1592,114 @@ async function saveProfile() {
   if (name) { currentUser.display_name = name; currentUser.full_name = name; }
   if (email) currentUser.email = email;
   setTimeout(function() { cancelProfileEdit(); loadProfile(); }, 1200);
+}
+
+// ---------- KNOWLEDGE BASE ----------
+function loadKnowledge() {
+  var page = document.getElementById('page-knowledge');
+  var isTeam = currentUser && (currentUser.role === 'team' || currentUser.role === 'founder' || currentUser.team_role === 'founder' || currentUser.is_admin);
+  var h = '<div class="section-title"><i class="ti ti-book"></i> База знаний</div>';
+
+  h += '<div class="content-card"><h3><i class="ti ti-robot"></i> AI-инструменты</h3>' +
+    '<div style="font-size:13px;line-height:1.8;color:var(--text)">' +
+    '<strong>Для видео:</strong> Kling AI (видео из текста/фото), Runway ML (Gen-2, motion brush), Pika (короткие), HeyGen (аватары, клон голоса).<br>' +
+    '<strong>Для контента:</strong> ChatGPT/Claude (сценарии), Midjourney (обложки), ElevenLabs (озвучка), CapCut (монтаж + авто-субтитры).<br>' +
+    '<strong>Для автоматизации:</strong> Apify (парсинг), n8n / Make (воркфлоу), Syntx (mass-posting).' +
+    '</div></div>';
+
+  h += '<div class="content-card"><h3><i class="ti ti-movie"></i> Шаблоны видео · топ-форматы 2026</h3>' +
+    '<div style="font-size:13px;line-height:1.9;color:var(--text)">' +
+    '1. <strong>«Проблема → Решение»</strong> (30-60 сек): хук 3 сек → боль → AI-решение → CTA.<br>' +
+    '2. <strong>«До/После»</strong> (15-30 сек): показать результат AI-инструмента.<br>' +
+    '3. <strong>«Топ-5 AI-инструментов»</strong> (60-90 сек): листалка с демо.<br>' +
+    '4. <strong>«Как я заработал на AI»</strong> (60 сек): личная история + доказательства.<br>' +
+    '5. <strong>«Разоблачение»</strong> (30-60 сек): «Вам врут про AI…» → правда → CTA.' +
+    '</div><div class="note-box" style="margin-top:8px"><i class="ti ti-bulb"></i> Топ-5% видео месяца автоматически попадают в эту базу.</div></div>';
+
+  h += '<div class="content-card"><h3><i class="ti ti-ruler"></i> Регламенты</h3>' +
+    '<div style="font-size:13px;line-height:1.9;color:var(--text)">' +
+    '<strong>Для мейкеров:</strong> 3 уникальных видео/нед, каждое на 4 платформы (YT, TT, IG, FB), ссылка на общий домен в описании, запрет дублей и рерайта чужого.<br>' +
+    '<strong>Флаги:</strong> 🟡 1 пропущенная неделя · 🟠 2 недели подряд · 🔴 3+ недель → заморозка.<br>' +
+    '<strong>Акции:</strong> по КЭ (просмотры × конверсия × стабильность), пересчёт 31 декабря.' +
+    '</div></div>';
+
+  if (isTeam) {
+    h += '<div class="content-card"><h3><i class="ti ti-message"></i> Скрипты HR <span class="badge badge-muted">команда</span></h3>' +
+      '<div style="font-size:13px;line-height:1.8;color:var(--text)">' +
+      '<strong>Холодное приглашение:</strong> <i>«Привет! Ищем контент-мейкеров в AI-нише. 3 видео/нед, пассивный доход через акции. Интересно? Расскажу подробнее.»</i><br><br>' +
+      '<strong>Тёплое:</strong> <i>«Помнишь говорил про AI? Есть проект — команда 5000 мейкеров, система акций. Я уже внутри, могу провести.»</i><br><br>' +
+      '<strong>«Это пирамида?»:</strong> <i>«Нет. Доход от SaaS-партнёрок, не от взносов. Контент → просмотры → клики → деньги от рекламодателей.»</i><br><br>' +
+      '<strong>Onboarding-чеклист:</strong> объяснить акции · показать бота и базу знаний · первое задание 1 видео за 3 дня · добавить в чат мейкеров.' +
+      '</div></div>';
+  }
+
+  h += '<div class="content-card"><h3><i class="ti ti-briefcase"></i> Офферы (ниши)</h3>' +
+    '<div style="font-size:13px;color:var(--muted)">Актуальный каталог SaaS-офферов и твои реф-ссылки — в разделе <a href="#" onclick="navigateTo(\'offers\');return false" style="color:var(--blue)">SaaS офферы</a>.</div></div>';
+
+  h += '<div class="content-card"><h3><i class="ti ti-trophy"></i> Лучшие практики</h3>' +
+    '<div style="font-size:13px;color:var(--muted)">Раздел пополняется автоматически топ-5% видео каждого месяца (транскрибация → анализ → выборка). Заполнится после первого месяца работы системы.</div></div>';
+
+  page.innerHTML = h;
+}
+
+// ---------- SUPPORT (жалобы + баги) ----------
+async function loadSupport() {
+  var page = document.getElementById('page-support');
+  page.innerHTML = '<div class="section-title"><i class="ti ti-lifebuoy"></i> Поддержка</div>' +
+    '<div class="content-card"><h3><i class="ti ti-flag"></i> Сообщить о нарушении</h3>' +
+      '<textarea id="vr-text" class="form-input" rows="3" placeholder="Опиши нарушение" style="width:100%;resize:vertical"></textarea>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">' +
+        '<input id="vr-user" class="form-input" placeholder="@нарушитель (если есть)">' +
+        '<input id="vr-evidence" class="form-input" placeholder="Ссылка-доказательство (если есть)">' +
+      '</div>' +
+      '<div style="margin-top:8px;display:flex;align-items:center;gap:10px"><button class="btn btn-primary" onclick="submitViolation()"><i class="ti ti-send"></i> Отправить</button><span id="vr-msg" style="font-size:12px"></span></div>' +
+    '</div>' +
+    '<div class="content-card"><h3><i class="ti ti-bug"></i> Сообщить о баге</h3>' +
+      '<textarea id="bg-text" class="form-input" rows="3" placeholder="Опиши баг: что сделал, что ожидал, что произошло" style="width:100%;resize:vertical"></textarea>' +
+      '<div style="margin-top:8px;display:flex;align-items:center;gap:10px"><button class="btn btn-primary" onclick="submitBug()"><i class="ti ti-send"></i> Отправить</button><span id="bg-msg" style="font-size:12px"></span></div>' +
+    '</div>' +
+    '<div class="grid-2">' +
+      '<div class="content-card"><h3><i class="ti ti-flag"></i> Мои жалобы</h3><div id="vr-list"><div style="color:var(--muted);font-size:13px">Загрузка…</div></div></div>' +
+      '<div class="content-card"><h3><i class="ti ti-bug"></i> Мои баги</h3><div id="bg-list"><div style="color:var(--muted);font-size:13px">Загрузка…</div></div></div>' +
+    '</div>';
+  refreshSupportLists();
+}
+
+function supportStatusBadge(s) {
+  var m = { 'new':'<span class="badge badge-blue">новое</span>', 'investigating':'<span class="badge badge-muted">расследуется</span>', 'in_progress':'<span class="badge badge-muted">в работе</span>', 'resolved':'<span class="badge badge-green">решено</span>', 'dismissed':'<span class="badge badge-red">отклонено</span>' };
+  return m[s] || '<span class="badge badge-muted">' + esc(s||'') + '</span>';
+}
+async function refreshSupportLists() {
+  var vr = await api('/violations/my') || {};
+  var bg = await api('/bugs/my') || {};
+  var vrEl = document.getElementById('vr-list');
+  var bgEl = document.getElementById('bg-list');
+  if (vrEl) {
+    var vi = vr.items || [];
+    vrEl.innerHTML = vi.length ? vi.map(function(r){ return '<div class="list-row"><span style="flex:1;font-size:12px">' + esc((r.text||'').slice(0,80)) + '</span>' + supportStatusBadge(r.status) + '</div>'; }).join('') : '<div style="color:var(--muted);font-size:13px">Пока нет</div>';
+  }
+  if (bgEl) {
+    var bi = bg.items || [];
+    bgEl.innerHTML = bi.length ? bi.map(function(r){ return '<div class="list-row"><span style="flex:1;font-size:12px">' + esc((r.text||'').slice(0,80)) + '</span>' + supportStatusBadge(r.status) + '</div>'; }).join('') : '<div style="color:var(--muted);font-size:13px">Пока нет</div>';
+  }
+}
+async function submitViolation() {
+  var msg = document.getElementById('vr-msg');
+  var text = (document.getElementById('vr-text').value || '').trim();
+  if (text.length < 10) { msg.style.color='var(--red)'; msg.textContent='Опиши подробнее (минимум 10 символов)'; return; }
+  msg.style.color='var(--muted)'; msg.textContent='Отправляю…';
+  var r = await api('/violations', 'POST', { text: text, reported_username: (document.getElementById('vr-user').value||'').trim(), evidence_url: (document.getElementById('vr-evidence').value||'').trim() });
+  if (r && (r.ok || r.id)) { msg.style.color='var(--green)'; msg.innerHTML='<i class="ti ti-check"></i> Отправлено'; document.getElementById('vr-text').value=''; document.getElementById('vr-user').value=''; document.getElementById('vr-evidence').value=''; refreshSupportLists(); }
+  else { msg.style.color='var(--red)'; msg.textContent=(r && (r.detail||r.error)) || 'Ошибка'; }
+}
+async function submitBug() {
+  var msg = document.getElementById('bg-msg');
+  var text = (document.getElementById('bg-text').value || '').trim();
+  if (text.length < 10) { msg.style.color='var(--red)'; msg.textContent='Опиши подробнее (минимум 10 символов)'; return; }
+  msg.style.color='var(--muted)'; msg.textContent='Отправляю…';
+  var r = await api('/bugs', 'POST', { text: text });
+  if (r && (r.ok || r.id)) { msg.style.color='var(--green)'; msg.innerHTML='<i class="ti ti-check"></i> Отправлено'; document.getElementById('bg-text').value=''; refreshSupportLists(); }
+  else { msg.style.color='var(--red)'; msg.textContent=(r && (r.detail||r.error)) || 'Ошибка'; }
 }
 
 // ---------- VIDEOS ----------
