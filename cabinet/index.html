@@ -1324,7 +1324,7 @@ async function loadHome() {
   var incomeTable = '<div class="content-card"><h3>\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0434\u043e\u0445\u043e\u0434\u0430 \u043f\u043e \u0433\u043e\u0434\u0430\u043c</h3><table class="data-table"><thead><tr><th>\u0413\u043e\u0434</th><th>\u0410\u043a\u0446\u0438\u0439</th><th>\u0414\u043e\u0445\u043e\u0434 \u0441 1 \u0430\u043a\u0446\u0438\u0438/\u043c\u0435\u0441</th><th>\u0412\u0430\u0448 \u0434\u043e\u0445\u043e\u0434/\u043c\u0435\u0441</th><th>\u0412\u0430\u0448 \u0434\u043e\u0445\u043e\u0434/\u0433\u043e\u0434</th></tr></thead><tbody>';
   var mults = [127, 254, 508, 1018, 2036];
   for (var y = 0; y < 5; y++) { var ys = balance + grow * y; incomeTable += '<tr><td>\u0413\u043e\u0434 ' + (y+1) + '</td><td>' + ys + (grow > 0 && y > 0 ? ' <span style="color:var(--muted);font-size:11px">(+' + (grow*y) + ')</span>' : '') + '</td><td>$' + fmtNum(mults[y]) + '</td><td class="gold">$' + fmtNum(ys * mults[y]) + '</td><td>$' + fmtNum(ys * mults[y] * 12) + '</td></tr>'; }
-  incomeTable += '</tbody></table></div>';
+  incomeTable += '</tbody></table>' + (grow > 0 ? '<div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">* Прогноз показан из расчёта <b>среднего +3 акции/год</b> (тир 3). На деле это может быть от <b>+1</b> (тир 5) до <b>+5</b> (тир 1) — всё зависит от твоего КЭ: качества контента, просмотров и попадания в топ. Это пример роста, а не гарантия.</div>' : '') + '</div>';
 
   page.innerHTML =
     '<div class="section-title">\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c, ' + esc(u.display_name || u.username || '\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a') + '</div>' +

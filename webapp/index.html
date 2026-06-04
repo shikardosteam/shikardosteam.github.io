@@ -462,7 +462,7 @@ function buildHome(profile, shares) {
   h += '<tr><th>Год</th><th>Акций</th><th>Доход с 1 акции/мес</th><th>Доход/мес</th><th>Доход/год</th></tr>';
   for (var i = 0; i < 5; i++) { var ys = sc + grow * i; h += '<tr><td>Год ' + (i+1) + '</td><td>' + ys + '</td><td>$' + fmt(RATES[i]) + '</td><td style="color:var(--gold);font-weight:600">' + fmtUSD(ys * RATES[i]) + '</td><td>' + fmtUSD(ys * RATES[i] * 12) + '</td></tr>'; }
   h += '</table>';
-  if (grow > 0) h += '<div style="font-size:10px;color:var(--hint);margin-top:4px">Прогноз при среднем тире +3 акц/год. Топ-тир (+5/год) — ещё больше.</div>';
+  if (grow > 0) h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.5">* Расчёт из среднего +3 акции/год (тир 3). На деле от +1 (тир 5) до +5 (тир 1) — зависит от твоего КЭ (качество, просмотры, топ). Пример роста, не гарантия.</div>';
   h += '</div>';
 
   // Tier system
