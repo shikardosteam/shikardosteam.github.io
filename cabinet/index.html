@@ -2249,8 +2249,9 @@ async function loadAdminUsers() {
   const page = document.getElementById('page-admin-users');
   const data = await api('/admin/overview');
   const o = data || {};
-  const byRole = o.users_by_role || o.roles || {};
+  const byRole = o.users_by_role || o.roles || o.role_counts || {};
   var users = o.recent_users || o.users || [];
+  if (!users.length) { try { const ru = await api('/admin/users?role=maker&limit=50'); users = (ru && ru.users) || []; } catch(e) {} }
 
   var roleKeys = Object.keys(byRole);
   var roleGrid = '';
@@ -4970,7 +4971,11 @@ async function loadAdminShares() {
 async function loadAdminKE() {
   const page = document.getElementById('page-admin-ke');
   let d = {};
-  try { d = await api('/admin/stats'); } catch(e) {}
+  try {
+    const ke = await api('/admin/ke') || {};
+    const td = ke.tier_distribution || {};
+    d = { ke_tier5: td.tier_1 || 0, ke_tier4: td.tier_2 || 0, ke_tier3: td.tier_3 || 0, ke_tier2: td.tier_4 || 0, ke_tier1: td.tier_5 || 0, avg_score: ke.avg_score || 0, calculated_count: ke.calculated_count || 0 };
+  } catch(e) {}
 
   let topKE = [];
   try { const r = await api('/admin/users?role=maker&limit=15&sort=ke'); topKE = r.users || r || []; } catch(e) {}

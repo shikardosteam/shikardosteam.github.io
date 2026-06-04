@@ -1769,7 +1769,7 @@ async function loadAdminShares(pg, back) {
 async function loadAdminKE(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
-    var d = await api('/admin/stats').catch(function(){return {};}) || {};
+    var d = {}; try { var ke = await api('/admin/ke') || {}; var td = ke.tier_distribution || {}; d = {ke_tier5:td.tier_1||0, ke_tier4:td.tier_2||0, ke_tier3:td.tier_3||0, ke_tier2:td.tier_4||0, ke_tier1:td.tier_5||0, avg_score:ke.avg_score||0, calculated_count:ke.calculated_count||0}; } catch(e){}
     var top=[]; try{ var rr=await api('/admin/users?role=maker&limit=15&sort=ke'); top=(rr&&rr.users)||[]; }catch(e){}
     var tiers=[['+5','<i class="ti ti-flame"></i> Топ 20%',d.ke_tier5||0,'var(--gold)'],['+4','<i class="ti ti-barbell"></i> Хорошо',d.ke_tier4||0,'var(--blue)'],['+3','<i class="ti ti-circle-check"></i> Средне',d.ke_tier3||0,'var(--green)'],['+2','<i class="ti ti-alert-triangle"></i> Минимум',d.ke_tier2||0,'var(--purple)'],['+1','<i class="ti ti-sparkles"></i> Старт',d.ke_tier1||0,'var(--hint)']];
     var h = back;
@@ -1802,8 +1802,9 @@ async function loadAdminUsers(pg, back) {
   pg.innerHTML = back + '<div class="loading" style="min-height:30vh"><div class="spinner"></div></div>';
   try {
     var o = await api('/admin/overview').catch(function(){return {};}) || {};
-    var byRole = o.users_by_role || o.roles || {};
+    var byRole = o.users_by_role || o.roles || o.role_counts || {};
     var users = o.recent_users || o.users || [];
+    if(!users.length){ try{ var ru=await api('/admin/users?role=maker&limit=50'); users=(ru&&ru.users)||[]; }catch(e){} }
     var h = back;
     h += '<div class="kpi-grid"><div class="kpi"><div class="val gold">' + fmt(o.total_users||0) + '</div><div class="lbl">Всего</div></div><div class="kpi"><div class="val green">' + fmt(o.active_users||0) + '</div><div class="lbl">Активных</div></div></div>';
     var rk=Object.keys(byRole);
