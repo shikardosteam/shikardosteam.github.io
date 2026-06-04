@@ -436,7 +436,7 @@ function buildHome(profile, shares) {
   h += '<div class="kpi"><div class="val' + (frozen ? ' red' : '') + '">' + fmt(sc) + '</div><div class="lbl">Акции</div></div>';
   h += '<div class="kpi"><div class="val green">' + fmtUSD(sc * RATES[0]) + '</div><div class="lbl">Доход / мес</div><div class="sub">Год 1 — $127/акция</div></div>';
   if (role === 'maker') {
-    h += '<div class="kpi"><div class="val blue" id="home-vids">—</div><div class="lbl">Видео / нед</div></div>';
+    h += '<div class="kpi"><div class="val blue" id="home-vids">—</div><div class="lbl">Видео за неделю · план 3</div></div>';
     h += '<div class="kpi"><div class="val" id="home-ke" style="color:var(--gold)">—</div><div class="lbl">КЭ тир</div></div>';
   }
   h += '<div class="kpi"><div class="val">' + esc(ROLE_NAMES[role] || role) + '</div><div class="lbl">Роль</div>' + (profile.team_role ? '<div class="sub">' + esc(profile.team_role) + '</div>' : '') + '</div>';
@@ -482,7 +482,7 @@ function buildHome(profile, shares) {
 
   // Maker-specific
   if (role === 'maker') {
-    api('/videos').then(function(v) { var it=(v&&v.items)||[]; var wa=Date.now()-7*24*3600*1000; var wc=it.filter(function(x){return x.created_at && new Date(x.created_at).getTime()>wa;}).length; $('home-vids').textContent = wc+'/3'; }).catch(function(){});
+    api('/videos').then(function(v) { var it=(v&&v.items)||[]; var wa=Date.now()-7*24*3600*1000; var wc=it.filter(function(x){return x.created_at && new Date(x.created_at).getTime()>wa;}).length; var el=$('home-vids'); el.textContent = wc>=3 ? (wc+' из 3 ✓') : (wc+' из 3'); el.className = 'val ' + (wc>=3?'green':'blue'); }).catch(function(){});
     api('/ke/my').then(function(k) { $('home-ke').textContent = k.estimated_tier ? 'Тир '+k.estimated_tier : '—'; }).catch(function(){});
   }
 
