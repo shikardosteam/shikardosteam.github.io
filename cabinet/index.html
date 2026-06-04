@@ -1337,8 +1337,7 @@ async function loadHome() {
     '</div>' +
     statsExtra +
     '<div class="content-card"><h3>\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0434\u043e\u0445\u043e\u0434\u0430 \u043d\u0430 5 \u043b\u0435\u0442</h3><div class="chart-wrap" style="max-width:700px"><canvas id="chart-forecast"></canvas></div></div>' +
-    incomeTable +
-    tierInfo;
+    incomeTable;
 
   renderForecastChart(balance, grow);
 }
@@ -1427,7 +1426,7 @@ async function loadShares() {
       '<div class="kpi-card"><div class="stat-label">\u0417\u0430\u043c\u043e\u0440\u043e\u0436\u0435\u043d\u043e</div><div class="stat-value" style="color:' + (frozen > 0 ? 'var(--red)' : 'var(--muted)') + '">' + fmtNum(frozen) + '</div></div>' +
       '<div class="kpi-card"><div class="stat-label">\u0414\u043e\u0445\u043e\u0434/\u043c\u0435\u0441 (\u0413\u043e\u04341)</div><div class="stat-value green">$' + fmtNum(monthlyNow) + '</div></div>' +
       '<div class="kpi-card"><div class="stat-label">\u0414\u043e\u0445\u043e\u0434/\u0433\u043e\u0434</div><div class="stat-value">$' + fmtNum(yearlyNow) + '</div></div>' +
-      '<div class="kpi-card"><div class="stat-label">\u0417\u0430 5 \u043b\u0435\u0442</div><div class="stat-value gold">$' + fmtNum(total5y) + '</div>' + (grow > 0 ? '<div class="stat-sub">\u043f\u0440\u0438 ~' + (balance + grow * 4) + ' \u0430\u043a\u0446 \u043a \u04135</div>' : '') + '</div>' +
+      '<div class="kpi-card"><div class="stat-label">\u0417\u0430 5 \u043b\u0435\u0442</div><div class="stat-value gold">$' + fmtNum(total5y) + '</div>' + (grow > 0 ? '<div class="stat-sub">\u043f\u0440\u0438 ' + (balance + grow * 4) + ' \u0430\u043a\u0446\u0438\u044f\u0445 \u043a 5 \u0433\u043e\u0434\u0443</div>' : '') + '</div>' +
     '</div>' +
     '<div class="grid-2">' +
       '<div class="content-card"><h3>\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0434\u043e\u0445\u043e\u0434\u0430</h3><div class="chart-wrap"><canvas id="chart-shares-forecast"></canvas></div></div>' +
@@ -1499,6 +1498,8 @@ async function loadProfile() {
           '<input id="edit-name" class="form-input" value="' + esc(u.display_name || u.full_name || '') + '">' +
           '<label style="font-size:13px;color:var(--muted)">Email</label>' +
           '<input id="edit-email" class="form-input" value="' + esc(u.email || '') + '">' +
+          '<label style="font-size:13px;color:var(--muted)">\u041d\u043e\u0432\u044b\u0439 \u043f\u0430\u0440\u043e\u043b\u044c <span style="opacity:.7">(\u043f\u0443\u0441\u0442\u043e \u2014 \u043d\u0435 \u043c\u0435\u043d\u044f\u0442\u044c)</span></label>' +
+          '<input id="edit-password" type="password" class="form-input" placeholder="\u041c\u0438\u043d\u0438\u043c\u0443\u043c 8 \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432" value="" autocomplete="new-password">' +
           '<div style="display:flex;gap:8px;margin-top:8px">' +
             '<button class="btn btn-primary" onclick="saveProfile()">\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c</button>' +
             '<button class="btn" onclick="cancelProfileEdit()">\u041e\u0442\u043c\u0435\u043d\u0430</button>' +
@@ -1550,20 +1551,35 @@ function cancelProfileEdit() {
 async function saveProfile() {
   var name = document.getElementById('edit-name').value.trim();
   var email = document.getElementById('edit-email').value.trim();
+  var passEl = document.getElementById('edit-password');
+  var password = passEl ? passEl.value : '';
   var msg = document.getElementById('profile-msg');
+  if (password && password.length < 8) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = 'Пароль минимум 8 символов';
+    return;
+  }
   msg.style.color = 'var(--muted)';
   msg.textContent = 'Сохранение...';
   var res = await api('/profile', 'PUT', { display_name: name, email: email });
-  if (res && !res.error) {
-    msg.style.color = 'var(--green)';
-    msg.innerHTML = '<i class="ti ti-check"></i> Сохранено';
-    if (name) { currentUser.display_name = name; currentUser.full_name = name; }
-    if (email) currentUser.email = email;
-    setTimeout(function() { cancelProfileEdit(); loadProfile(); }, 1000);
-  } else {
+  if (!res || res.error) {
     msg.style.color = 'var(--red)';
     msg.textContent = (res && (res.error || res.detail)) || 'Ошибка';
+    return;
   }
+  if (password) {
+    var pres = await api('/auth/set-password', 'POST', { password: password });
+    if (!pres || pres.error || pres.detail) {
+      msg.style.color = 'var(--red)';
+      msg.textContent = (pres && (pres.error || pres.detail)) || 'Профиль сохранён, но пароль не изменён';
+      return;
+    }
+  }
+  msg.style.color = 'var(--green)';
+  msg.innerHTML = '<i class="ti ti-check"></i> Сохранено' + (password ? ' (пароль обновлён)' : '');
+  if (name) { currentUser.display_name = name; currentUser.full_name = name; }
+  if (email) currentUser.email = email;
+  setTimeout(function() { cancelProfileEdit(); loadProfile(); }, 1200);
 }
 
 // ---------- VIDEOS ----------
