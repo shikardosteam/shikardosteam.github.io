@@ -4042,6 +4042,22 @@ async function loadOpsCenter() {
     }
     h += '<div class="card"><div class="card-header"><i class="ti ti-file-text"></i> Хроника событий (24ч)</div>' + evH + '</div>';
 
+    // --- Журнал действий (action_logs, реальные данные) ---
+    var acts = d.recent_actions || [];
+    var jH = '';
+    if (acts.length > 0) {
+      jH = '<table class="data-table"><thead><tr><th>Время</th><th>Действие</th><th>Пользователь</th><th>Детали</th></tr></thead><tbody>';
+      for (var ji = 0; ji < acts.length; ji++) {
+        var ac = acts[ji];
+        var t = ac.at ? new Date(ac.at).toLocaleString('ru-RU') : '—';
+        jH += '<tr><td style="color:var(--muted);font-size:11px;white-space:nowrap">' + t + '</td><td style="font-size:11px"><span class="badge badge-blue">' + esc(ac.type || '—') + '</span></td><td style="font-size:11px">' + esc(ac.user || '—') + '</td><td style="font-size:11px;color:var(--muted)">' + esc(ac.details || '') + '</td></tr>';
+      }
+      jH += '</tbody></table>';
+    } else {
+      jH = '<div class="empty-state" style="padding:20px"><div class="empty-state-icon"><i class="ti ti-clipboard"></i></div><div class="empty-state-text">Журнал пуст</div></div>';
+    }
+    h += '<div class="card"><div class="card-header"><i class="ti ti-clipboard-list"></i> Журнал действий (последние 30)</div><div style="overflow-x:auto">' + jH + '</div></div>';
+
     // --- Quick actions ---
     var actions = [
       {icon:'<i class="ti ti-player-stop"></i>', label:'Стоп ротацию', color:'red', endpoint:'/admin/rotation/stop'},

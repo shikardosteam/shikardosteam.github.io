@@ -1966,6 +1966,10 @@ async function loadOpsCenter(pg, back) {
     h += '<div class="card"><h3><i class="ti ti-file-text"></i> Хроника (24ч)</h3>';
     if(events.length){ events.forEach(function(ev){ h += '<div class="list-item"><span style="font-size:10px;color:var(--hint);min-width:54px">' + esc(ev.time||'') + '</span><span style="flex:1;font-size:12px">' + esc(ev.message||'') + '</span></div>'; }); } else { h += '<div class="empty">Нет событий за 24ч</div>'; }
     h += '</div>';
+    var jacts=d.recent_actions||[];
+    h += '<div class="card"><h3><i class="ti ti-clipboard-list"></i> Журнал действий</h3>';
+    if(jacts.length){ jacts.forEach(function(a){ var t=a.at?new Date(a.at).toLocaleString('ru-RU'):'—'; h += '<div class="list-item"><div style="flex:1"><div style="font-size:11px"><span class="badge" style="background:rgba(128,128,128,0.12);color:var(--blue)">' + esc(a.type||'—') + '</span> ' + esc(a.user||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(a.details||'') + '</div></div><span style="font-size:9px;color:var(--hint);white-space:nowrap">' + esc(t) + '</span></div>'; }); } else { h += '<div class="empty">Журнал пуст</div>'; }
+    h += '</div>';
     var acts=[['<i class="ti ti-player-stop"></i> Стоп ротацию','/admin/rotation/stop'],['<i class="ti ti-refresh"></i> Резерв API','/admin/reserve-api'],['<i class="ti ti-device-floppy"></i> Force бэкап','/admin/backup'],['<i class="ti ti-speakerphone"></i> Push команде','/admin/push-team'],['<i class="ti ti-alert-triangle"></i> Эскалация CEO','/admin/escalate'],['<i class="ti ti-bell-off"></i> Тихий режим','/admin/silent-mode']];
     h += '<div class="card"><h3><i class="ti ti-bolt"></i> Быстрые действия</h3><div style="display:flex;flex-wrap:wrap;gap:8px">';
     acts.forEach(function(a){ h += '<button class="badge" style="border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;padding:8px 10px" onclick="opsAction(\'' + a[0].replace(/<[^>]+>/g,'').trim() + '\',\'' + a[1] + '\')">' + a[0] + '</button>'; });
