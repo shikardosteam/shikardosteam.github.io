@@ -36,8 +36,9 @@ body.light{--bg:#f4f3ee;--card:#ffffff;--card2:#faf9f5;--border:#e2e0d6;--text:#
 body.light .bar-track{background:rgba(0,0,0,0.06)}
 
 * { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { font-family:'Manrope',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; min-height:100vh; }
+html { scroll-behavior:smooth; overflow-x:hidden; max-width:100%; }
+body { font-family:'Manrope',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; max-width:100%; min-height:100vh; }
+*, *::before, *::after { box-sizing:border-box; }
 
 /* ===== TYPOGRAPHY ===== */
 h1,h2,h3,.stat-value,.section-title { font-family:'Bebas Neue',sans-serif; letter-spacing:1.5px; }
@@ -395,6 +396,12 @@ h3 { font-size:18px; }
   .role-badge { display:none; }
   .user-name { max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .topbar-title { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .kpi-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .section-title { overflow-wrap:anywhere; word-break:break-word; }
+  .main-content { max-width:100%; overflow-x:hidden; }
+}
+@media (max-width:400px) {
+  .kpi-row { grid-template-columns:1fr; }
 }
 @media (max-width:480px) {
   .page { padding:16px; }
@@ -479,16 +486,17 @@ h3 { font-size:18px; }
 
       <div id="email-login-form" style="margin-top:12px">
         <input type="email" id="auth-email" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
-        <input type="password" id="auth-password" placeholder="Пароль (мин. 8 символов)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+        <div style="position:relative;margin-bottom:8px"><input type="password" id="auth-password" placeholder="Пароль (мин. 8 символов)" style="width:100%;padding:10px 40px 10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;outline:none"><span onclick="togglePw('auth-password',this)" style="position:absolute;right:12px;top:9px;cursor:pointer;color:var(--muted)"><i class="ti ti-eye"></i></span></div>
         <button onclick="emailLogin()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:#000;font-weight:600;font-size:14px;cursor:pointer">Войти по Email</button>
         <div style="text-align:center;margin-top:10px;font-size:13px"><a href="#" onclick="toggleEmailRegister(true);return false" style="color:var(--gold)">Нет аккаунта? Зарегистрироваться по email</a></div>
+        <div style="text-align:center;margin-top:6px;font-size:12px"><a href="#" onclick="showForgotPw();return false" style="color:var(--muted)">Забыли пароль?</a></div>
       </div>
 
       <div id="email-register-form" style="margin-top:12px;display:none">
         <input type="text" id="reg-name" placeholder="Имя и фамилия" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
         <input type="text" id="reg-telegram" placeholder="Telegram @логин (для входа в бот)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
         <input type="email" id="reg-email" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
-        <input type="password" id="reg-password" placeholder="Пароль (мин. 8 символов — вход на сайт без Telegram)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
+        <div style="position:relative;margin-bottom:8px"><input type="password" id="reg-password" placeholder="Пароль (мин. 8 символов — вход на сайт без Telegram)" style="width:100%;padding:10px 40px 10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;outline:none"><span onclick="togglePw('reg-password',this)" style="position:absolute;right:12px;top:9px;cursor:pointer;color:var(--muted)"><i class="ti ti-eye"></i></span></div>
         <input type="text" id="reg-invite" placeholder="Инвайт-код (по приглашению)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;margin-bottom:8px;outline:none">
         <button onclick="emailRegister()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--gold);color:#000;font-weight:600;font-size:14px;cursor:pointer">Зарегистрироваться</button>
         <div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">Регистрация по приглашению. Без инвайт-кода — заявка в лист ожидания.</div>
@@ -1523,7 +1531,7 @@ async function loadProfile() {
           '<label style="font-size:13px;color:var(--muted)">Email</label>' +
           '<input id="edit-email" class="form-input" value="' + esc(u.email || '') + '">' +
           '<label style="font-size:13px;color:var(--muted)">\u041d\u043e\u0432\u044b\u0439 \u043f\u0430\u0440\u043e\u043b\u044c <span style="opacity:.7">(\u043f\u0443\u0441\u0442\u043e \u2014 \u043d\u0435 \u043c\u0435\u043d\u044f\u0442\u044c)</span></label>' +
-          '<input id="edit-password" type="password" class="form-input" placeholder="\u041c\u0438\u043d\u0438\u043c\u0443\u043c 8 \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432" value="" autocomplete="new-password">' +
+          '<div style="position:relative"><input id="edit-password" type="password" class="form-input" placeholder="\u041c\u0438\u043d\u0438\u043c\u0443\u043c 8 \u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432" value="" autocomplete="new-password" style="padding-right:40px"><span onclick="togglePw(\'edit-password\',this)" style="position:absolute;right:12px;top:9px;cursor:pointer;color:var(--muted)"><i class="ti ti-eye"></i></span></div>' +
           '<div style="display:flex;gap:8px;margin-top:8px">' +
             '<button class="btn btn-primary" onclick="saveProfile()">\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c</button>' +
             '<button class="btn" onclick="cancelProfileEdit()">\u041e\u0442\u043c\u0435\u043d\u0430</button>' +
@@ -1556,6 +1564,15 @@ async function loadProfile() {
 }
 
 
+function showForgotPw() {
+  alert('Сброс пароля:\n\n1) Если Telegram уже привязан — открой @ShikardosTeamBot и отправь команду /setpassword, задай новый пароль.\n\n2) Если Telegram не привязан — напиши в поддержку @Shikardos_V, восстановим доступ вручную.\n\n(Сброс по email-ссылке появится позже.)');
+}
+function togglePw(id, btn) {
+  var i = document.getElementById(id);
+  if (!i) return;
+  if (i.type === 'password') { i.type = 'text'; btn.innerHTML = '<i class="ti ti-eye-off"></i>'; }
+  else { i.type = 'password'; btn.innerHTML = '<i class="ti ti-eye"></i>'; }
+}
 function copyRefCode() {
   const code = document.getElementById('ref-code-value')?.textContent;
   if (code && code !== '—') {
