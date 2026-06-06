@@ -271,12 +271,14 @@ h3 { font-size:18px; }
 }
 .ref-code {
   font-family:monospace; font-size:16px; color:var(--gold);
-  flex:1; letter-spacing:2px;
+  flex:1; min-width:0; letter-spacing:2px;
+  overflow-wrap:anywhere; word-break:break-all;
 }
 .copy-btn {
   background:var(--gold); color:#0c0c0f; border:none;
   padding:6px 14px; border-radius:6px; cursor:pointer;
   font-size:12px; font-weight:700; font-family:'Manrope',sans-serif;
+  flex-shrink:0; white-space:nowrap;
 }
 .copy-btn:hover { opacity:0.9; }
 
