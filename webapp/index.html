@@ -1758,7 +1758,7 @@ async function loadInfra(pg, back) {
     h += '<div class="card"><h3><i class="ti ti-plug-connected"></i> Статус интеграций</h3>';
     integ.forEach(function(x){ h += '<div class="list-item"><span style="font-size:12px"><i class="ti ti-point-filled" style="color:' + (x[1]?'var(--green)':'var(--red)') + '"></i> ' + x[0] + '</span><span style="font-size:11px;color:' + (x[1]?'var(--green)':'var(--red)') + '">' + (x[1]?'OK':'ERR') + '</span></div>'; });
     h += '</div>';
-    var apiT=d.api_response_times||{avg:45,p95:120,p99:250};
+    var apiT=d.api_response_times||{avg:'—',p95:'—',p99:'—'};
     h += '<div class="card"><h3><i class="ti ti-clock"></i> API Response Time</h3><div class="kpi-grid three"><div class="kpi"><div class="val green">' + (apiT.avg||45) + 'ms</div><div class="lbl">AVG</div></div><div class="kpi"><div class="val blue">' + (apiT.p95||120) + 'ms</div><div class="lbl">P95</div></div><div class="kpi"><div class="val gold">' + (apiT.p99||250) + 'ms</div><div class="lbl">P99</div></div></div></div>';
     pg.innerHTML = h;
   } catch(e){ console.error('infra',e); pg.innerHTML = back + '<div class="empty">Ошибка загрузки</div>'; }
@@ -2239,7 +2239,7 @@ async function loadOpsCenter(pg, back) {
     if(jacts.length){ jacts.forEach(function(a){ var t=a.at?new Date(a.at).toLocaleString('ru-RU'):'—'; h += '<div class="list-item"><div style="flex:1"><div style="font-size:11px"><span class="badge" style="background:rgba(128,128,128,0.12);color:var(--blue)">' + esc(a.type||'—') + '</span> ' + esc(a.user||'—') + '</div><div style="font-size:10px;color:var(--hint)">' + esc(a.details||'') + '</div></div><span style="font-size:9px;color:var(--hint);white-space:nowrap">' + esc(t) + '</span></div>'; }); } else { h += '<div class="empty">Журнал пуст</div>'; }
     h += '</div>';
     var acts=[['<i class="ti ti-player-stop"></i> Стоп ротацию','/admin/rotation/stop'],['<i class="ti ti-refresh"></i> Резерв API','/admin/reserve-api'],['<i class="ti ti-device-floppy"></i> Force бэкап','/admin/backup'],['<i class="ti ti-speakerphone"></i> Push команде','/admin/push-team'],['<i class="ti ti-alert-triangle"></i> Эскалация CEO','/admin/escalate'],['<i class="ti ti-bell-off"></i> Тихий режим','/admin/silent-mode']];
-    h += '<div class="card"><h3><i class="ti ti-bolt"></i> Быстрые действия</h3><div style="display:flex;flex-wrap:wrap;gap:8px">';
+    h += '<div class="card"><h3><i class="ti ti-bolt"></i> Сигналы оператора</h3><div style="font-size:10px;color:var(--hint);margin-bottom:6px">журнал + алерт админам, не авто-исполнение</div><div style="display:flex;flex-wrap:wrap;gap:8px">';
     acts.forEach(function(a){ h += '<button class="badge" style="border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;padding:8px 10px" onclick="opsAction(\'' + a[0].replace(/<[^>]+>/g,'').trim() + '\',\'' + a[1] + '\')">' + a[0] + '</button>'; });
     h += '</div></div>';
     var load=d.server_load||{cpu:0,ram:0,net:0,disk:0,db:0,redis:0};
@@ -2252,9 +2252,10 @@ async function loadOpsCenter(pg, back) {
 }
 
 async function opsAction(label, endpoint) {
-  if(!confirm(label + '?')) return;
-  try { await api(endpoint, 'POST', {}); if(typeof toast==='function') toast(label + ' — выполнено'); }
-  catch(e){ if(typeof toast==='function') toast('Ошибка', 'error'); else alert('Ошибка'); }
+  if(!confirm('Отправить сигнал: ' + label + '? (журнал + алерт админам)')) return;
+  var r = await apiAct('/admin/ops-action', 'POST', { action: label });
+  if (r.ok) { if(typeof toast==='function') toast(label + ' — сигнал отправлен'); }
+  else { if(typeof toast==='function') toast(r.data.detail || 'Ошибка', 'error'); }
 }
 
 function loadSettingsPage(pg, back) {
