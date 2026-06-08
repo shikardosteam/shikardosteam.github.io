@@ -2140,9 +2140,10 @@ async function loadInvestors(pg, back) {
     h += '<div class="card"><h3><i class="ti ti-trending-down"></i> Pipeline</h3>';
     fn.forEach(function(f){ h += '<div class="bar-row"><span style="min-width:120px;font-size:12px">' + f.stage + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + (f.pct||0) + '%;background:var(--purple);height:100%"></div></div><span style="min-width:26px;text-align:right;font-size:12px">' + (f.count||0) + '</span></div>'; });
     h += '</div>';
-    var geo=d.investor_geography||[{r:'СНГ',p:40},{r:'Европа',p:25},{r:'Азия',p:15},{r:'Ближний Восток',p:12},{r:'Другие',p:8}];
+    var geo=d.investor_geography||[];
     h += '<div class="card"><h3><i class="ti ti-world"></i> География инвесторов</h3>';
-    geo.forEach(function(g){ h += '<div class="bar-row"><span style="min-width:120px;font-size:12px">' + esc(g.r) + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + g.p + '%;background:var(--gold);height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + g.p + '%</span></div>'; });
+    if (geo.length) { geo.forEach(function(g){ h += '<div class="bar-row"><span style="min-width:120px;font-size:12px">' + esc(g.r) + '</span><div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="width:' + g.p + '%;background:var(--gold);height:100%"></div></div><span style="min-width:34px;text-align:right;font-size:12px">' + g.p + '%</span></div>'; }); }
+    else { h += '<div class="empty">Нет данных</div>'; }
     h += '</div>';
     h += '<div class="card"><h3><i class="ti ti-phone"></i> Контакты для инвесторов</h3><div class="row"><span class="lbl">CFO/CCO/COO</span><span class="val">Назначается</span></div><div class="row"><span class="lbl">CEO</span><span class="val"><a href="https://t.me/Shikardos_V" style="color:var(--link)">@Shikardos_V</a></span></div></div>';
     pg.innerHTML = h;

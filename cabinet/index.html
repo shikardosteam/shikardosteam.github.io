@@ -4739,11 +4739,12 @@ async function loadInvestors() {
 
 
     // --- 2 new blocks (29.05.2026) ---
-    var invGeo = d.investor_geography || [{r:'\u0421\u041D\u0413',p:40},{r:'\u0415\u0432\u0440\u043E\u043F\u0430',p:25},{r:'\u0410\u0437\u0438\u044F',p:15},{r:'\u0411\u043B\u0438\u0436\u043D\u0438\u0439 \u0412\u043E\u0441\u0442\u043E\u043A',p:12},{r:'\u0414\u0440\u0443\u0433\u0438\u0435',p:8}];
+    var invGeo = d.investor_geography || [];
     var igRows = '';
     for (var igi=0;igi<invGeo.length;igi++) {
       igRows += '<div class="bar-row"><div class="bar-label" style="min-width:130px;font-size:12px">' + invGeo[igi].r + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + invGeo[igi].p + '%;background:var(--gold)"></div></div><div style="min-width:40px;text-align:right;font-size:12px;font-weight:700">' + invGeo[igi].p + '%</div></div>';
     }
+    if (!igRows) igRows = '<div style="text-align:center;color:var(--muted);padding:16px;font-size:12px">\u041D\u0435\u0442 \u0434\u0430\u043D\u043D\u044B\u0445</div>';
     var invGeoBlock = '<div class="content-card"><h3><i class="ti ti-world"></i> \u0413\u0435\u043E\u0433\u0440\u0430\u0444\u0438\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432</h3><div class="bar-chart">' + igRows + '</div></div>';
 
     var invTimeline = '<div class="content-card"><h3><i class="ti ti-calendar"></i> \u0422\u0430\u0439\u043C\u043B\u0430\u0439\u043D \u0438\u043D\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u0439</h3>' +
@@ -5146,22 +5147,23 @@ function buildPlatformBars(d) {
   }
   var geoBlock = '<div class="content-card"><h3><i class="ti ti-world"></i> География мейкеров</h3><div class="bar-chart">' + geoRows + '</div></div>';
 
+  var cohorts = d.retention_cohorts || [];
+  var cohRows = '';
+  for (var ci=0;ci<cohorts.length;ci++){ var c=cohorts[ci]; cohRows += '<tr><td>' + esc(c.cohort||'—') + '</td><td>' + (c.m1!=null?c.m1+'%':'—') + '</td><td>' + (c.m2!=null?c.m2+'%':'—') + '</td><td>' + (c.m3!=null?c.m3+'%':'—') + '</td><td>' + (c.m6!=null?c.m6+'%':'—') + '</td><td>' + (c.m12!=null?c.m12+'%':'—') + '</td></tr>'; }
+  if (!cohRows) cohRows = '<tr><td colspan="6" style="text-align:center;color:var(--muted)">Нет данных — накопится по когортам со временем</td></tr>';
   var retentionBlock = '<div class="content-card"><h3><i class="ti ti-trending-down"></i> Retention когорты</h3>' +
     '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Когорта</th><th>M1</th><th>M2</th><th>M3</th><th>M6</th><th>M12</th></tr></thead><tbody>' +
-    '<tr><td>Янв 2026</td><td>100%</td><td>85%</td><td>72%</td><td>—</td><td>—</td></tr>' +
-    '<tr><td>Фев 2026</td><td>100%</td><td>82%</td><td>68%</td><td>—</td><td>—</td></tr>' +
-    '<tr><td>Мар 2026</td><td>100%</td><td>88%</td><td>—</td><td>—</td><td>—</td></tr>' +
-    '<tr><td>Апр 2026</td><td>100%</td><td>80%</td><td>—</td><td>—</td><td>—</td></tr>' +
-    '<tr><td>Май 2026</td><td>100%</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>' +
+    cohRows +
     '</tbody></table></div><div style="padding:8px 12px;font-size:11px;color:var(--muted)">ℹ Данные обновляются ежемесячно</div></div>';
 
-  var wGrowth = d.weekly_growth || [{w:'W21',v:12},{w:'W22',v:18},{w:'W23',v:25},{w:'W24',v:31}];
+  var wGrowth = d.weekly_growth || [];
   var wgRows = '';
   var wgMax = 1;
   for (var wi=0;wi<wGrowth.length;wi++) if(wGrowth[wi].v>wgMax) wgMax=wGrowth[wi].v;
   for (var wi=0;wi<wGrowth.length;wi++) {
     wgRows += '<div class="bar-row"><div class="bar-label" style="min-width:50px;font-size:11px">' + wGrowth[wi].w + '</div><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:' + (wGrowth[wi].v/wgMax*100).toFixed(0) + '%;background:var(--green)"></div></div><div style="min-width:40px;text-align:right;font-size:12px;font-weight:700">+' + wGrowth[wi].v + '</div></div>';
   }
+  if (!wgRows) wgRows = '<div style="text-align:center;color:var(--muted);padding:16px;font-size:12px">Нет данных</div>';
   var weeklyGrowthBlock = '<div class="content-card"><h3><i class="ti ti-trending-up"></i> Недельный рост</h3><div class="bar-chart">' + wgRows + '</div></div>';
 
   var keDistr = d.ke_distribution || [{tier:'Тир 1 (+5)',count:0,pct:0},{tier:'Тир 2 (+4)',count:0,pct:0},{tier:'Тир 3 (+3)',count:0,pct:0},{tier:'Тир 4 (+2)',count:0,pct:0},{tier:'Тир 5 (+1)',count:0,pct:0}];
@@ -5173,7 +5175,7 @@ function buildPlatformBars(d) {
   }
   var keHistBlock = '<div class="content-card"><h3><i class="ti ti-chart-bar"></i> Распределение КЭ</h3><div class="bar-chart">' + keRows + '</div></div>';
 
-  var funnel = d.onboarding_funnel || [{s:'Заявка',v:500},{s:'Скрининг',v:350},{s:'Тест',v:200},{s:'Онбординг',v:120},{s:'Активный',v:80}];
+  var funnel = d.onboarding_funnel || [];
   var fnMax = funnel[0] ? funnel[0].v : 1;
   var fnRows = '';
   for (var fi=0;fi<funnel.length;fi++) {
@@ -5181,6 +5183,7 @@ function buildPlatformBars(d) {
     var fnColors = ['var(--blue)','var(--purple)','var(--orange)','var(--green)','var(--gold)'];
     fnRows += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="min-width:100px;font-size:12px;color:var(--muted)">' + f.s + '</div><div style="flex:1;height:28px;background:var(--bg);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + (f.v/fnMax*100).toFixed(0) + '%;background:' + fnColors[fi%5] + ';border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff">' + fmtNum(f.v) + '</div></div></div>';
   }
+  if (!fnRows) fnRows = '<div style="text-align:center;color:var(--muted);padding:16px;font-size:12px">Нет данных</div>';
   var onboardBlock = '<div class="content-card"><h3><i class="ti ti-target"></i> Воронка онбординга</h3>' + fnRows + '</div>';
 
   page.innerHTML += geoBlock + retentionBlock + '<div class="grid-2">' + weeklyGrowthBlock + keHistBlock + '</div>' + onboardBlock;
